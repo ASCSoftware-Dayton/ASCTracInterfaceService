@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Configs\CustOrderConfig.cs~RF13325a09.TMP" />
+    <None Remove="Configs\POConfig.cs~RFf142592.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASCTracInterfaceModel\ASCTracInterfaceModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ascLibrary">
+      <HintPath>..\..\..\ASCTracParse\Beta\ascLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ASCTracFunctions">
+      <HintPath>..\..\..\ASCTracParse\Beta\ASCTracFunctions.dll</HintPath>
+    </Reference>
+    <Reference Include="ParseNet">
+      <HintPath>..\..\..\ASCTracParse\Beta\ParseNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

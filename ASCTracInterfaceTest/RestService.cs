@@ -1,0 +1,226 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ASCTracInterfaceTest
+{
+    internal class RestService
+    {
+        HttpClient client;
+
+        public RestService()
+        {
+#if DEBUG
+            client = new HttpClient();
+            //client = new HttpClient(DependencyService.Get<IHttpClientHandlerService>().GetInsecureHandler());
+#else
+          client = new HttpClient();
+#endif
+
+            string authInfo = "k" + ":" + "34sddff";
+            authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
+        }
+
+
+        public string fURL;
+        public async Task<HttpResponseMessage> doVendorImport(ASCTracInterfaceModel.Model.Vendor.VendorImport aData)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/vendorimport"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+
+        public async Task<HttpResponseMessage> doPOImport(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/poimport"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+
+        public async Task<HttpResponseMessage> doPOLinesExport(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
+        {
+            //string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            string msg = "?aOnlySendCompletedReceipt=false";
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/polinesexport/" + msg); // string.Format(RestUrl, string.Empty));
+
+            //StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.GetAsync(uri).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+        public async Task<HttpResponseMessage> updatePOLinesExport(List<ASCTracInterfaceModel.Model.PO.POExportLines> aData)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/polinesexport"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+
+
+        public async Task<HttpResponseMessage> doPOLicensesExport(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
+        {
+            //string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            string msg = "?aOnlySendCompletedReceipt=false";
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/policensesexport/" + msg); // string.Format(RestUrl, string.Empty));
+
+            //StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.GetAsync(uri).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+        public async Task<HttpResponseMessage> UpdatePOLicensesExport(List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aData)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/policensesexport"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+
+        
+
+        public async Task<HttpResponseMessage> doCOImport(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/custorderimport"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
+    }
+}
