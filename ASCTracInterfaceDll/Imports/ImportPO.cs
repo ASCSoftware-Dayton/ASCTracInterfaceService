@@ -827,13 +827,15 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string,string> TranslationList)
+        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
-            foreach( var rec in CustomList)
+            foreach (var rec in CustomList)
             {
-                if( TranslationList.ContainsKey( rec.FieldName))
+                if (TranslationList.ContainsKey(rec.FieldName))
                 {
-                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, TranslationList[rec.FieldName], rec.Value);
+                    var asclist = TranslationList[rec.FieldName];
+                    foreach (var ascfield in asclist)
+                        ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, ascfield, rec.Value);
                 }
             }
         }

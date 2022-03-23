@@ -8,8 +8,8 @@ namespace ASCTracInterfaceDll.Model.CustOrder
     {
         public COImportConfig()
         {
-            GWCOHdrTranslation = new Dictionary<string, string>();
-            GWCODetTranslation = new Dictionary<string, string>();
+            GWCOHdrTranslation = new Dictionary<string, List<string>>();
+            GWCODetTranslation = new Dictionary<string, List<string>>();
         }
         public string GatewayUserID { get; set; }
         public bool GWCOPurgeHeaderWithNoLines { get; set; }
@@ -39,8 +39,8 @@ namespace ASCTracInterfaceDll.Model.CustOrder
 
         // from FILEXFER
         public bool isActiveWOFROMCO { get; set; }
-        public Dictionary<string, string> GWCOHdrTranslation { get; set; }
-        public Dictionary<string, string> GWCODetTranslation { get; set; }
+        public Dictionary<string, List<string>> GWCOHdrTranslation { get; set; }
+        public Dictionary<string, List<string>> GWCODetTranslation { get; set; }
 
 
     }

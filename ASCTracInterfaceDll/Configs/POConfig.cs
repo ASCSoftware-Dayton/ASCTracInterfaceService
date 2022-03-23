@@ -108,7 +108,7 @@ namespace ASCTracInterfaceDll.Configs
             return (retval);
         }
 
-        private static void ReadTransationFields( Dictionary<string,string> aList, string aTblName)
+        private static void ReadTransationFields( Dictionary<string, List<string>> aTranList, string aTblName)
         {
             string sqlStr = "SELECT API_FIELDNAME, ASCTRAC_FIELDNAME FROM API_FIELD_TRANSLATE WHERE TBLNAME='" + aTblName + "'";
             SqlConnection customConnection = new SqlConnection(Globals.myDBUtils.myConnString);
@@ -123,8 +123,17 @@ namespace ASCTracInterfaceDll.Configs
                 {
                     string apiFieldname = customReader["API_FIELDNAME"].ToString().ToUpper();
                     string ascFieldname = customReader["ASCTRAC_FIELDNAME"].ToString().ToUpper();
-                    if (!aList.ContainsKey(apiFieldname))
-                        aList.Add(apiFieldname, ascFieldname);
+                    if (!aTranList.ContainsKey(apiFieldname))
+                    {
+                        var ascList = new List<string>();
+                        ascList.Add(ascFieldname);
+                        aTranList.Add(apiFieldname, ascList);
+                    }
+                    else
+                    {
+                        var ascList = aTranList[apiFieldname];
+                        ascList.Add(ascFieldname);
+                    }
                 }
             }
             finally

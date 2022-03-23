@@ -569,17 +569,18 @@ namespace ASCTracInterfaceDll.Imports
             return ascLibrary.ascUtils.ascStrToDouble(tmp, 0);
         }
 
-        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, string> TranslationList)
+        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
             foreach (var rec in CustomList)
             {
                 if (TranslationList.ContainsKey(rec.FieldName))
                 {
-                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, TranslationList[rec.FieldName], rec.Value);
+                    var asclist = TranslationList[rec.FieldName];
+                    foreach ( var ascfield in asclist)
+                        ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, ascfield, rec.Value);
                 }
             }
         }
-
 
 
         private static bool ImportOrderHdr(string orderNum, string pickStatus, bool fExist, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)

@@ -9,7 +9,7 @@ namespace ASCTracInterfaceDll.Configs
     {
         //internal static Model.PO.POImportConfig currCOImportConfig = null;
         internal static Dictionary<string, Model.CustOrder.COImportConfig> COImportConfigList = new Dictionary<string, Model.CustOrder.COImportConfig>();
-        //internal static Dictionary<string, Model.PO.POExportConfig> POExportConfigList = new Dictionary<string, Model.PO.POExportConfig>();
+        internal static Dictionary<string, Model.CustOrder.COExportConfig> COExportConfigList = new Dictionary<string, Model.CustOrder.COExportConfig>();
         private static string siteid;
         private static ParseNet.GlobalClass Globals;
         internal static Model.CustOrder.COImportConfig getCOImportSite(string aSiteID, ParseNet.GlobalClass aGlobals)
@@ -26,12 +26,26 @@ namespace ASCTracInterfaceDll.Configs
                 currCOImportConfig = COImportConfigList[aSiteID];
             return (currCOImportConfig);
         }
+        internal static Model.CustOrder.COExportConfig getCOExportSite(string aSiteID, ParseNet.GlobalClass aGlobals)
+        {
+            Globals = aGlobals;
+            Model.CustOrder.COExportConfig curConfig;
+            if (!COExportConfigList.ContainsKey(aSiteID))
+            {
+                curConfig = ReadExportConfig(aSiteID);
+                COExportConfigList.Add(aSiteID, curConfig);
+
+            }
+            else
+                curConfig = COExportConfigList[aSiteID];
+            return (curConfig);
+        }
 
         private static Model.CustOrder.COImportConfig ReadImportConfig(string aSiteID)
         {
             siteid = aSiteID;
             var retval = new Model.CustOrder.COImportConfig();
-            retval.GatewayUserID = ReadConfigSetting("GWPOUSERID", "GATEWAY");
+            retval.GatewayUserID = ReadConfigSetting("GWCOUSERID", "GATEWAY");
             //retval.createSkeletonItems = ReadConfigSetting("GWPOCreateSkeletonItems", false);
             string sql = "SELECT ID FROM FILEXFER (NOLOCK) WHERE ID='WOFROMCO' AND STATUS<>'I'";
             retval.isActiveWOFROMCO = Globals.myDBUtils.ifRecExists(sql);
@@ -65,6 +79,20 @@ namespace ASCTracInterfaceDll.Configs
             return (retval);
         }
 
+        private static Model.CustOrder.COExportConfig ReadExportConfig(string aSiteID)
+        {
+            siteid = aSiteID;
+            var retval = new Model.CustOrder.COExportConfig();
+            retval.GatewayUserID = ReadConfigSetting("GWPOUSERID", "GATEWAY");
+            retval.postedFlagField = ReadConfigSetting("GWExportTranfilepostedFlag", "POSTED");
+            retval.posteddateField = "POSTEDDATE";
+            if (retval.postedFlagField == "POSTED2") retval.posteddateField = "POSTEDDATE2";
+            else if (retval.postedFlagField == "POSTED3") retval.posteddateField = "POSTEDDATE3";
+
+            retval.GWCOUseCustItem = ReadConfigSetting("GWCOUseCustItem", "F") == "T";
+
+            return (retval);
+        }
         private static bool ReadConfigSetting(string afield, bool aDefault)
         {
             bool retval = aDefault;
@@ -86,7 +114,7 @@ namespace ASCTracInterfaceDll.Configs
             return (retval);
         }
 
-        private static void ReadTransationFields(Dictionary<string, string> aList, string aTblName)
+        private static void ReadTransationFields(Dictionary<string, List<string>> aTranList, string aTblName)
         {
             string sqlStr = "SELECT API_FIELDNAME, ASCTRAC_FIELDNAME FROM API_FIELD_TRANSLATE WHERE TBLNAME='" + aTblName + "'";
             SqlConnection customConnection = new SqlConnection(Globals.myDBUtils.myConnString);
@@ -101,8 +129,19 @@ namespace ASCTracInterfaceDll.Configs
                 {
                     string apiFieldname = customReader["API_FIELDNAME"].ToString().ToUpper();
                     string ascFieldname = customReader["ASCTRAC_FIELDNAME"].ToString().ToUpper();
-                    if (!aList.ContainsKey(apiFieldname))
-                        aList.Add(apiFieldname, ascFieldname);
+
+                    if (!aTranList.ContainsKey(apiFieldname))
+                    {
+                        var ascList = new List<string>();
+                        ascList.Add(ascFieldname);
+                        aTranList.Add(apiFieldname, ascList);
+                    }
+                    else
+                    {
+                        var ascList = aTranList[apiFieldname];
+                        ascList.Add(ascFieldname);
+                    }
+
                 }
             }
             finally
