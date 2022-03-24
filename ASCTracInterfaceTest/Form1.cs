@@ -518,7 +518,28 @@ namespace ASCTracInterfaceTest
 
         async private void doCOExport()
         {
+            ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter coExportFilter = new ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter("C", "", "");
+            var myResult = myRestService.doCOsExport(coExportFilter).Result;
 
+            lblResultCode.Text = myResult.StatusCode.ToString();
+            tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+            if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                if (MessageBox.Show("Update Cust Order Results", "Cust Order Export", MessageBoxButtons.YesNoCancel) == DialogResult.Yes)
+                {
+                    var mylist = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport>>(tbContent.Text);
+                    foreach (var rec in mylist)
+                    {
+                        rec.SUCCESSFUL = true;
+                    }
+                    myResult = myRestService.updateCOLinesExport(mylist).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+                }
+            }
         }
 
     }

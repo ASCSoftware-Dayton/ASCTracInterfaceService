@@ -58,25 +58,25 @@ namespace ASCTracInterfaceService.Controllers.Export
         return (retval);
     }
 
-    [HttpPost]
-    public HttpResponseMessage UpdatePOExport(List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aList)
-    {
-        HttpStatusCode statusCode = HttpStatusCode.Accepted;
-        string errMsg = string.Empty;
-        try
+        [HttpPost]
+        public HttpResponseMessage UpdatePOExport(List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aList)
         {
-            statusCode = ASCTracInterfaceDll.Exports.ExportPOLicenses.updateExportPOLicenses(aList, ref errMsg);
-        }
-        catch (Exception ex)
-        {
-            statusCode = HttpStatusCode.BadRequest;
-            errMsg = ex.Message;
-        }
-        var retval = new HttpResponseMessage(statusCode);
-        retval.Content = new StringContent(errMsg);
-        //var retval = new Models.ModelReturnType(errMsg);
-        return (retval);
+            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            string errMsg = string.Empty;
+            try
+            {
+                statusCode = ASCTracInterfaceDll.Exports.ExportPOLicenses.updateExportPOLicenses(aList, ref errMsg);
+            }
+            catch (Exception ex)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+                errMsg = ex.Message;
+            }
+            var retval = new HttpResponseMessage(statusCode);
+            retval.Content = new StringContent(errMsg);
+            //var retval = new Models.ModelReturnType(errMsg);
+            return (retval);
 
+        }
     }
-}
 }

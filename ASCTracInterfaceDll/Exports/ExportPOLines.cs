@@ -282,6 +282,7 @@ namespace ASCTracInterfaceDll.Exports
                             rec.CUST_ID = vmiCustId;
                     }
 
+                    SetPosted(rec.PONUMBER, rec.RELEASENUM, rec.LINE_NUMBER, rec.PRODUCT_CODE, rec.LOTID, rec.RECEIVER_NO, string.Empty, "S");
                     aData.Add(rec);
                 }
             }
@@ -327,36 +328,49 @@ namespace ASCTracInterfaceDll.Exports
 
         private static HttpStatusCode DoUpdateExportPOLines(List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
-            int msgLen = Convert.ToInt32( myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
             HttpStatusCode retval = HttpStatusCode.OK;
             foreach( var rec in aData)
             {
-                string sqlStr = "UPDATE TRANFILE";
-                if (rec.SUCCESSFUL )
-                    sqlStr += " SET " + currPOExportConfig.postedFlagField + "='T', " + currPOExportConfig.posteddateField + "=GETDATE() ";
-                else
-                    sqlStr = " SET " + currPOExportConfig.postedFlagField + "='E', " + currPOExportConfig.posteddateField + "=GETDATE(), " +
-                        "ERR_MESSAGE='" + rec.ERROR_MESSAGE.Substring(0, msgLen).Replace("'", "''") + "', " +
-                        "LONG_MESSAGE='" + rec.ERROR_MESSAGE.Replace("'", "''") + "' ";
-
-                sqlStr +=  " WHERE ORDERNUM='" + rec.PONUMBER + "' AND TRANTYPE IN ('RX', 'RF', 'RA') " +
-                    "AND (" + currPOExportConfig.postedFlagField + " IN ('F', 'N', '0', '') OR " + currPOExportConfig.postedFlagField + " IS NULL) ";
-                if (!String.IsNullOrEmpty(rec.RELEASENUM))
-                    sqlStr += " AND RELEASENUM='" + rec.RELEASENUM + "'";
-                if (rec.LINE_NUMBER > 0)
-                    sqlStr += " AND LINENUM='" + rec.LINE_NUMBER + "'";
-                else if (!String.IsNullOrEmpty(rec.PRODUCT_CODE))
-                    sqlStr += " AND ITEMID='" + rec.PRODUCT_CODE + "'";
-                if (!String.IsNullOrEmpty(rec.LOTID))
-                    sqlStr += " AND LOTID='" + rec.LOTID + "'";
-
-                if( !String.IsNullOrEmpty(rec.RECEIVER_NO))
-                    sqlStr += "AND RECEIVER_ID='" + rec.RECEIVER_NO + "' ";
-
-                myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
+                string posted = "T";
+                if (!rec.SUCCESSFUL)
+                    posted = "E";
+                SetPosted(rec.PONUMBER, rec.RELEASENUM, rec.LINE_NUMBER, rec.PRODUCT_CODE, rec.LOTID, rec.RECEIVER_NO, rec.ERROR_MESSAGE, posted);
             }
 
             return (retval);
+        }
+
+        private static void SetPosted(string aPONUMBER, string aRELEASENUM, long aLINE_NUMBER, string aPRODUCT_CODE, string aLOTID, string aRECEIVER_NO, string aERROR_MESSAGE,  string aPostedflag)
+        {
+            int msgLen = Convert.ToInt32(myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
+            string sqlStr = "UPDATE TRANFILE";
+            if( !aPostedflag.Equals("E" ))
+                sqlStr += " SET " + currPOExportConfig.postedFlagField + "='" + aPostedflag + " ', " + currPOExportConfig.posteddateField + "=GETDATE() ";
+            else
+                sqlStr = " SET " + currPOExportConfig.postedFlagField + "='E', " + currPOExportConfig.posteddateField + "=GETDATE(), " +
+                    "ERR_MESSAGE='" + aERROR_MESSAGE.Substring(0, msgLen).Replace("'", "''") + "', " +
+                    "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
+
+            sqlStr += " WHERE ORDERNUM='" + aPONUMBER + "' AND TRANTYPE IN ('RX', 'RF', 'RA') ";
+            if (aPostedflag.Equals("S"))
+                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') = 'F'";
+            else
+                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') = 'S'";
+            //" AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') NOT IN ( 'T', 'X', 'D', 'E', 'P', '" + aPostedflag + "')";
+            //"AND (" + currPOExportConfig.postedFlagField + " IN ('F', 'N', '0', '') OR " + currPOExportConfig.postedFlagField + " IS NULL) ";
+            if (!String.IsNullOrEmpty(aRELEASENUM))
+                sqlStr += " AND RELEASENUM='" + aRELEASENUM + "'";
+            if (aLINE_NUMBER > 0)
+                sqlStr += " AND LINENUM='" + aLINE_NUMBER + "'";
+            else if (!String.IsNullOrEmpty(aPRODUCT_CODE))
+                sqlStr += " AND ITEMID='" + aPRODUCT_CODE + "'";
+            if (!String.IsNullOrEmpty(aLOTID))
+                sqlStr += " AND LOTID='" + aLOTID + "'";
+
+            if (!String.IsNullOrEmpty(aRECEIVER_NO))
+                sqlStr += "AND RECEIVER_ID='" + aRECEIVER_NO + "' ";
+
+            myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
         }
     }
 }
