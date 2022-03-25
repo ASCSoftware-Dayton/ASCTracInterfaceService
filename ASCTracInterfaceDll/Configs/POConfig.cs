@@ -123,16 +123,19 @@ namespace ASCTracInterfaceDll.Configs
                 {
                     string apiFieldname = customReader["API_FIELDNAME"].ToString().ToUpper();
                     string ascFieldname = customReader["ASCTRAC_FIELDNAME"].ToString().ToUpper();
-                    if (!aTranList.ContainsKey(apiFieldname))
+                    if (Globals.myDBUtils.IfFieldExists(aTblName, ascFieldname))
                     {
-                        var ascList = new List<string>();
-                        ascList.Add(ascFieldname);
-                        aTranList.Add(apiFieldname, ascList);
-                    }
-                    else
-                    {
-                        var ascList = aTranList[apiFieldname];
-                        ascList.Add(ascFieldname);
+                        if (!aTranList.ContainsKey(apiFieldname))
+                        {
+                            var ascList = new List<string>();
+                            ascList.Add(ascFieldname);
+                            aTranList.Add(apiFieldname, ascList);
+                        }
+                        else
+                        {
+                            var ascList = aTranList[apiFieldname];
+                            ascList.Add(ascFieldname);
+                        }
                     }
                 }
             }

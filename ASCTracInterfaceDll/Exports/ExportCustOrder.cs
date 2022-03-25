@@ -185,6 +185,7 @@ namespace ASCTracInterfaceDll.Exports
                         sSerevCode = tmpStr;
                     hdrRec.CARRIER = sCarrier;
                     hdrRec.CARRIER_SERVICE_CODE = sSerevCode;
+                    hdrRec.FREIGHT_COST = shipCost;
 
                     hdrRec.CUSTOM_DATA1 = dr["CUSTOM_DATA1"].ToString();
                     hdrRec.CUSTOM_DATA2 = dr["CUSTOM_DATA2"].ToString();
@@ -198,8 +199,6 @@ namespace ASCTracInterfaceDll.Exports
                     hdrRec.CUSTOM_DATA10 = dr["CUSTOM_DATA10"].ToString();
                     hdrRec.CUSTOM_DATA11 = dr["CUSTOM_DATA11"].ToString();
                     hdrRec.CUSTOM_DATA12 = dr["CUSTOM_DATA12"].ToString();
-
-                    hdrRec.FREIGHT_COST = shipCost;
 
                     WritePicks(hdrRec, shipmentId);
                     WriteUnpickedLines(hdrRec);
@@ -237,11 +236,6 @@ namespace ASCTracInterfaceDll.Exports
                                             hdrRec.CUSTOM_DATA11"] = drHeader[ordrHdrUserDefField11];
                                         if (!String.IsNullOrEmpty(ordrHdrUserDefField12))
                                             hdrRec.CUSTOM_DATA12"] = drHeader[ordrHdrUserDefField12];
-
-                                        if (CustPayFreight())
-                                        {
-                                            hdrRec.FREIGHT_COST"] = shipCost;
-                                        }
                     */
 
                 }
@@ -284,7 +278,7 @@ namespace ASCTracInterfaceDll.Exports
                     while (dr.Read())
                     {
                         var itemId = dr["ITEMID"].ToString().ToUpper();
-                        var hostItemId = dr["HOST_ITEM_NUMBER"].ToString();
+                        //var hostItemId = dr["HOST_ITEM_NUMBER"].ToString();
                         var lotId = dr["LOTID"].ToString();
                         var ascItemId = dr["ASCITEMID"].ToString();
                         var lineNum = dr["LINENUM"].ToString();
