@@ -8,12 +8,13 @@ namespace ASCTracInterfaceDll.Exports
 {
     public class ExportPOLicenses
     {
-                    private static Class1 myClass;
+        private static string funcType = "EX_RECV_SKIDS";
+        private static Class1 myClass;
         private static Model.PO.POExportConfig currPOExportConfig;
 
         public static HttpStatusCode doExportPOLicenses(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter, ref List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("ExportPO");
+            myClass = Class1.InitParse(funcType);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.PO.POExportLicenses>();
             string OrderNum = string.Empty;
@@ -22,21 +23,27 @@ namespace ASCTracInterfaceDll.Exports
             {
                 if (myClass != null)
                 {
-                    currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
-                    sqlstr = BuildPOExportSQL(aPOExportfilter, ref errmsg);
-                    if (!String.IsNullOrEmpty(sqlstr))
-                    {
-                        retval = BuildExportList(sqlstr, ref aData, ref errmsg);
-                    }
+                    if (!myClass.FunctionAuthorized(funcType))
+                        retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
-                        retval = HttpStatusCode.BadRequest;
+                    {
+
+                        currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
+                        sqlstr = BuildPOExportSQL(aPOExportfilter, ref errmsg);
+                        if (!String.IsNullOrEmpty(sqlstr))
+                        {
+                            retval = BuildExportList(sqlstr, ref aData, ref errmsg);
+                        }
+                        else
+                            retval = HttpStatusCode.BadRequest;
+                    }
                 }
                 else
                     retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                Class1.WriteException("POExport", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), sqlstr);
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), sqlstr);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

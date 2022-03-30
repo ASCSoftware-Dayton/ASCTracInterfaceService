@@ -34,7 +34,6 @@ namespace ASCTracInterfaceDll.Configs
             {
                 curConfig = ReadExportConfig(aSiteID);
                 COExportConfigList.Add(aSiteID, curConfig);
-
             }
             else
                 curConfig = COExportConfigList[aSiteID];
@@ -45,36 +44,35 @@ namespace ASCTracInterfaceDll.Configs
         {
             siteid = aSiteID;
             var retval = new Model.CustOrder.COImportConfig();
-            retval.GatewayUserID = ReadConfigSetting("GWCOUSERID", "GATEWAY");
-            //retval.createSkeletonItems = ReadConfigSetting("GWPOCreateSkeletonItems", false);
+            retval.GatewayUserID = ConfigUtils.GetUserID("CO", Globals);
             string sql = "SELECT ID FROM FILEXFER (NOLOCK) WHERE ID='WOFROMCO' AND STATUS<>'I'";
             retval.isActiveWOFROMCO = Globals.myDBUtils.ifRecExists(sql);
             string tmp = string.Empty;
-            retval.GWCreateTransferPOFromCO = ReadConfigSetting("GWCreateTransferPOFromCO", "F") == "T";
-            retval.GWCreateWOFromCO = ReadConfigSetting("GWCreateWOFromCO", "F") == "T";
-            retval.GWEngageBatchPickingOnImport = ReadConfigSetting("GWEngageBatchPickingOnImport", "F") == "T";
-            retval.GWUpdateInProgressOrders = ReadConfigSetting("GWUpdateInProgressOrders", "F") == "T"; 
-            retval.GWLineErrorHandling = ReadConfigSetting("GWLineErrorHandling", "C");
-            retval.useB2BLogic = ReadConfigSetting("GWOrderImportUseB2Logic", "F") == "T";
-            retval.GWUseAddrFromCustTable = ReadConfigSetting("GWUseAddrFromCustTable", "F") == "T";
-            retval.GWUseFreightBillToAddrFromCustTable = ReadConfigSetting("GWUseFreightBillToAddrFromCustTable", "F") == "T";
-            retval.useCustBillToNameIfBlank = ReadConfigSetting("GWUseCustBillToNameIfBlank", "F") == "T"; 
-            retval.useBillToAsShipToNameIfBlank = ReadConfigSetting("GWUseBillToAsShipToNameIfBlank", "F") == "T";
-            retval.GWWillCallCarrierFlag = ReadConfigSetting("GWWillCallCarrierFlag", "F") == "T";
-            retval.GWWillCallCarrier = ReadConfigSetting("GWWillCallCarrier", "");
+            retval.GWCreateTransferPOFromCO = ConfigUtils.ReadConfigSetting("GWCreateTransferPOFromCO", "F", Globals) == "T";
+            retval.GWCreateWOFromCO = ConfigUtils.ReadConfigSetting("GWCreateWOFromCO", "F", Globals) == "T";
+            retval.GWEngageBatchPickingOnImport = ConfigUtils.ReadConfigSetting("GWEngageBatchPickingOnImport", "F", Globals) == "T";
+            retval.GWUpdateInProgressOrders = ConfigUtils.ReadConfigSetting("GWUpdateInProgressOrders", "F", Globals)  == "T"; 
+            retval.GWLineErrorHandling = ConfigUtils.ReadConfigSetting("GWLineErrorHandling", "C", Globals);
+            retval.useB2BLogic = ConfigUtils.ReadConfigSetting("GWOrderImportUseB2Logic", "F", Globals) == "T";
+            retval.GWUseAddrFromCustTable = ConfigUtils.ReadConfigSetting("GWUseAddrFromCustTable", "F", Globals) == "T";
+            retval.GWUseFreightBillToAddrFromCustTable = ConfigUtils.ReadConfigSetting("GWUseFreightBillToAddrFromCustTable", "F", Globals) == "T";
+            retval.useCustBillToNameIfBlank = ConfigUtils.ReadConfigSetting("GWUseCustBillToNameIfBlank", "F", Globals) == "T"; 
+            retval.useBillToAsShipToNameIfBlank = ConfigUtils.ReadConfigSetting("GWUseBillToAsShipToNameIfBlank", "F", Globals) == "T";
+            retval.GWWillCallCarrierFlag = ConfigUtils.ReadConfigSetting("GWWillCallCarrierFlag", "F", Globals) == "T";
+            retval.GWWillCallCarrier = ConfigUtils.ReadConfigSetting("GWWillCallCarrier", "", Globals);
 
-            retval.GWCOUseCustItem = ReadConfigSetting("GWCOUseCustItem", "F") == "T";
+            retval.GWCOUseCustItem = ConfigUtils.ReadConfigSetting("GWCOUseCustItem", "F", Globals) == "T";
             
-            retval.GWCOPurgeHeaderWithNoLines = ReadConfigSetting("GWCOPurgeHeaderWithNoLines", "F") == "T";
-            retval.GWPurgeCODetOnImport = ReadConfigSetting("GWPurgeOrderDetOnImport", "F") == "T";
-            retval.GWDeleteCOLinesNotInInterface = ReadConfigSetting("GWDeleteOrderLinesNotInInterface", "N") == "Y";
+            retval.GWCOPurgeHeaderWithNoLines = ConfigUtils.ReadConfigSetting("GWCOPurgeHeaderWithNoLines", "F", Globals) == "T";
+            retval.GWPurgeCODetOnImport = ConfigUtils.ReadConfigSetting("GWPurgeOrderDetOnImport", "F", Globals) == "T";
+            retval.GWDeleteCOLinesNotInInterface = ConfigUtils.ReadConfigSetting("GWDeleteOrderLinesNotInInterface", "N", Globals) == "Y";
 
-            retval.GWLogChangedOrderTranfile = ReadConfigSetting("GWLogChangedOrderTranfile", "F") == "T";
-            retval.CPSetORDRDETPickLocOnImport = ReadConfigSetting("CPSetORDRDETPickLocOnImport", "F") == "T";
-            retval.GWUseStandardKitExplosion = ReadConfigSetting("GWUseStandardKitExplosion", "F") == "T";
+            retval.GWLogChangedOrderTranfile = ConfigUtils.ReadConfigSetting("GWLogChangedOrderTranfile", "F", Globals) == "T";
+            retval.CPSetORDRDETPickLocOnImport = ConfigUtils.ReadConfigSetting("CPSetORDRDETPickLocOnImport", "F", Globals) == "T";
+            retval.GWUseStandardKitExplosion = ConfigUtils.ReadConfigSetting("GWUseStandardKitExplosion", "F", Globals) == "T";
 
-            ReadTransationFields(retval.GWCOHdrTranslation, "ORDRHDR");
-            ReadTransationFields(retval.GWCODetTranslation, "ORDRDET");
+            ConfigUtils.ReadTransationFields(retval.GWCOHdrTranslation, "ORDRHDR", Globals);
+            ConfigUtils.ReadTransationFields(retval.GWCODetTranslation, "ORDRDET", Globals);
 
             return (retval);
         }
@@ -83,76 +81,15 @@ namespace ASCTracInterfaceDll.Configs
         {
             siteid = aSiteID;
             var retval = new Model.CustOrder.COExportConfig();
-            retval.GatewayUserID = ReadConfigSetting("GWPOUSERID", "GATEWAY");
-            retval.postedFlagField = ReadConfigSetting("GWExportTranfilepostedFlag", "POSTED");
+            retval.GatewayUserID = ConfigUtils.GetUserID("CO", Globals);
+            retval.postedFlagField = ConfigUtils.ReadConfigSetting("GWExportTranfilepostedFlag", "POSTED", Globals);
             retval.posteddateField = "POSTEDDATE";
             if (retval.postedFlagField == "POSTED2") retval.posteddateField = "POSTEDDATE2";
             else if (retval.postedFlagField == "POSTED3") retval.posteddateField = "POSTEDDATE3";
 
-            retval.GWCOUseCustItem = ReadConfigSetting("GWCOUseCustItem", "F") == "T";
+            retval.GWCOUseCustItem = ConfigUtils.ReadConfigSetting("GWCOUseCustItem", "F", Globals) == "T";
 
             return (retval);
-        }
-        private static bool ReadConfigSetting(string afield, bool aDefault)
-        {
-            bool retval = aDefault;
-            string tmp = string.Empty;
-            if (!Globals.myDBUtils.ReadFieldFromDB("SELECT CFGDATA from CFGSETTINGS WHERE SITE_ID='&&' AND CFGFIELD='" + afield + "'", "", ref tmp))
-                Globals.myDBUtils.ReadFieldFromDB("SELECT CFGDATA from CFGSETTINGS WHERE SITE_ID='" + siteid + "' AND CFGFIELD='" + afield + "'", "", ref tmp);
-            if (!String.IsNullOrEmpty(tmp))
-                retval = tmp.Equals("T");
-            return (retval);
-        }
-        private static string ReadConfigSetting(string afield, string aDefault)
-        {
-            string retval = aDefault;
-            string tmp = string.Empty;
-            if (!Globals.myDBUtils.ReadFieldFromDB("SELECT CFGDATA from CFGSETTINGS WHERE SITE_ID='&&' AND CFGFIELD='" + afield + "'", "", ref tmp))
-                Globals.myDBUtils.ReadFieldFromDB("SELECT CFGDATA from CFGSETTINGS WHERE SITE_ID='" + siteid + "' AND CFGFIELD='" + afield + "'", "", ref tmp);
-            if (!String.IsNullOrEmpty(tmp))
-                retval = tmp;
-            return (retval);
-        }
-
-        private static void ReadTransationFields(Dictionary<string, List<string>> aTranList, string aTblName)
-        {
-            string sqlStr = "SELECT API_FIELDNAME, ASCTRAC_FIELDNAME FROM API_FIELD_TRANSLATE WHERE TBLNAME='" + aTblName + "'";
-            SqlConnection customConnection = new SqlConnection(Globals.myDBUtils.myConnString);
-            SqlCommand customCommand = new SqlCommand(sqlStr, customConnection);
-            customConnection.Open();
-            SqlDataReader customReader = customCommand.ExecuteReader();
-
-            try
-            {
-                string updStr = string.Empty;
-                while (customReader.Read())
-                {
-                    string apiFieldname = customReader["API_FIELDNAME"].ToString().ToUpper();
-                    string ascFieldname = customReader["ASCTRAC_FIELDNAME"].ToString().ToUpper();
-
-                    if (Globals.myDBUtils.IfFieldExists(aTblName, ascFieldname))
-                    {
-                        if (!aTranList.ContainsKey(apiFieldname))
-                        {
-                            var ascList = new List<string>();
-                            ascList.Add(ascFieldname);
-                            aTranList.Add(apiFieldname, ascList);
-                        }
-                        else
-                        {
-                            var ascList = aTranList[apiFieldname];
-                            ascList.Add(ascFieldname);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                customReader.Close();
-                customCommand.Dispose();
-                customConnection.Close();
-                customConnection.Dispose();
-            }
         }
     }
 }

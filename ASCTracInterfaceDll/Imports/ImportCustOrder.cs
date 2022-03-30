@@ -10,12 +10,13 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportCustOrder
     {
+        private static string funcType = "IM_ORDER";
         private static string siteid = string.Empty;
         private static Class1 myClass;
         private static Model.CustOrder.COImportConfig currCOImportConfig;
         public static HttpStatusCode doImportCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("ImportCustOrder");
+            myClass = Class1.InitParse(funcType);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.ORDERNUMBER;
             string updstr = string.Empty;
@@ -23,21 +24,26 @@ namespace ASCTracInterfaceDll.Imports
             {
                 if (myClass != null)
                 {
-                    siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                    currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
-                    if (String.IsNullOrEmpty(siteid))
+                    if (!myClass.FunctionAuthorized(funcType))
+                        retval = HttpStatusCode.NonAuthoritativeInformation;
+                    else
                     {
-                        errmsg = "No Facility or Site defined for record.";
-                        retval = HttpStatusCode.BadRequest;
+                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                        currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
+                        if (String.IsNullOrEmpty(siteid))
+                        {
+                            errmsg = "No Facility or Site defined for record.";
+                            retval = HttpStatusCode.BadRequest;
+                        }
+                        retval = ImportCORecord(aData, ref errmsg);
                     }
-                    retval = ImportCORecord(aData, ref errmsg);
                 }
                 else
                     retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                Class1.WriteException("COImport", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 

@@ -1,5 +1,4 @@
-﻿
-namespace ASCTracInterfaceTest
+﻿namespace ASCTracInterfaceTest
 {
     partial class Form1
     {
@@ -62,12 +61,16 @@ namespace ASCTracInterfaceTest
             // 
             this.cbFunction.FormattingEnabled = true;
             this.cbFunction.Items.AddRange(new object[] {
-            "VendorImport",
+            "CustOrderImport",
+            "ItemImport",
             "POImport",
+            "VendorImport",
+            "",
+            "CustOrderExport",
+            "ParcelExport",
             "POExport - Lines",
             "POExport - Licenses",
-            "CustOrderImport",
-            "CustOrderExport"});
+            "TranfileExport"});
             this.cbFunction.Location = new System.Drawing.Point(113, 81);
             this.cbFunction.Name = "cbFunction";
             this.cbFunction.Size = new System.Drawing.Size(182, 21);

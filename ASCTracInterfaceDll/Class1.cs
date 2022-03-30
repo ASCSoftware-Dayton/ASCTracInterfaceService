@@ -4,6 +4,13 @@ using System.Data.SqlClient;
 
 namespace ASCTracInterfaceDll
 {
+    /* possible functions to add
+     * IM_CAT, IM_CAT2, IM_BOM, IM_CSTMR, IM_ASN, IM_INV, IM_LOTALLOC, IM_WO
+     * EX_LOCKED
+     * Complete
+     * IM_VENDOR, IM_RECV, IM_ORDER, IM_ITEM
+     * EX_RECV, EX_ORDER, EX_TRAN, EX_PARC 
+     */
     public class Class1
     {
         private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
@@ -83,6 +90,13 @@ namespace ASCTracInterfaceDll
             string sqlStr = "SELECT SITE_ID FROM SITES (NOLOCK)" +
                             " WHERE HOST_SITE_ID='" + aHostSiteId + "'";
             myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref retval);
+            return (retval);
+        }
+
+        internal bool FunctionAuthorized( string aFuncType)
+        {
+            bool retval = true;
+
             return (retval);
         }
 

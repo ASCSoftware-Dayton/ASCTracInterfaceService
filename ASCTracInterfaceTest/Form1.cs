@@ -62,21 +62,194 @@ namespace ASCTracInterfaceTest
         {
             SetURL();
 
-            if (cbFunction.Text == "VendorImport")
+            if (cbFunction.Text == "ItemImport")
+                doItemImport();
+            else if (cbFunction.Text == "VendorImport")
                 doVendorImport();
-            if (cbFunction.Text == "POImport")
+            else if (cbFunction.Text == "POImport")
                 doPOImport();
-            if (cbFunction.Text == "POExport - Lines")
+            else if (cbFunction.Text == "POExport - Lines")
                 doPOLinesExport();
-            if (cbFunction.Text == "POExport - Licenses")
+            else if (cbFunction.Text == "POExport - Licenses")
                 doPOLicensesExport();
-            if (cbFunction.Text == "CustOrderImport")
+            else if (cbFunction.Text == "CustOrderImport")
                 doCOImport();
-            if (cbFunction.Text == "CustOrderExport")
+            else if (cbFunction.Text == "CustOrderExport")
                 doCOExport();
+            else if (cbFunction.Text == "ParcelExport")
+                doParcelExport();            
+            else if (cbFunction.Text == "TranfileExport")
+                doTranfileExport();
+            else
+                MessageBox.Show("Unrecognized function " + cbFunction.Text + ".");
         }
 
-        private async void doVendorImport()
+        private async void doItemImport()
+        {
+            string sql = "SELECT * FROM TBL_TOASC_ITEMMSTR WHERE PROCESS_FLAG = 'R'";
+            SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sql, myConnection);
+            myConnection.Open();
+            try
+            {
+                SqlDataReader dr = myCommand.ExecuteReader();
+                while (dr.Read())
+                {
+                    var data = new ASCTracInterfaceModel.Model.Item.ItemMasterImport();
+
+                    data.CREATE_DATETIME = DateTime.Now;
+                    data.FACILITY = dr["FACILITY"].ToString();
+                    data.PRODUCT_CODE = dr["PRODUCT_CODE"].ToString();
+                    data.CATEGORY = dr["CATEGORY"].ToString();
+                    data.DESCRIPTION = dr["DESCRIPTION"].ToString();
+                    data.PROD_ALTDESC = dr["PROD_ALTDESC"].ToString();
+                    data.STD_COST = ascLibrary.ascUtils.ascStrToDouble(dr["STD_COST"].ToString(), 0);
+                    data.RECEIVING_UOM = dr["RECEIVING_UOM"].ToString();
+                    data.PRODUCT_WEIGHT = ascLibrary.ascUtils.ascStrToDouble(dr["PRODUCT_WEIGHT"].ToString(), 0);
+                    data.CW_UOM = dr["CW_UOM"].ToString();
+                    data.BASE_TO_RECV_CONV_FACTOR = ascLibrary.ascUtils.ascStrToDouble(dr["BASE_TO_RECV_CONV_FACTOR"].ToString(), 0);
+                    data.STATUS_FLAG = dr["STATUS_FLAG"].ToString();
+                    /*
+                    data.ITEM_CUSTOMDATA1 = dr["ITEM_CUSTOMDATA1"].ToString();
+
+        public string ITEM_CUSTOMDATA2 { get; set; }
+
+        public string ITEM_CUSTOMDATA3 { get; set; }
+                    */
+                    data.UPC_CODE = dr["UPC_CODE"].ToString();
+                    data.ITEM_TYPE = dr["ITEM_TYPE"].ToString();
+                    data.UNIT1_UOM = dr["UNIT1_UOM"].ToString();
+                    data.CONVERSION_UNIT_1 = ascLibrary.ascUtils.ascStrToDouble(dr["CONVERSION_UNIT_1"].ToString(), 1);
+                    data.UNIT2_UOM = dr["UNIT2_UOM"].ToString();
+                    data.CONVERSION_UNIT_2 = ascLibrary.ascUtils.ascStrToDouble(dr["CONVERSION_UNIT_2"].ToString(), 0);
+                    data.UNIT3_UOM = dr["UNIT3_UOM"].ToString();
+                    data.CONVERSION_UNIT_3 = ascLibrary.ascUtils.ascStrToDouble(dr["CONVERSION_UNIT_3"].ToString(), 0);
+                    data.UNIT4_UOM = dr["UNIT4_UOM"].ToString();
+                    data.CONVERSION_UNIT_4 = ascLibrary.ascUtils.ascStrToDouble(dr["CONVERSION_UNIT_4"].ToString(), 0);
+
+                    data.GTIN_CODE_1 = dr["GTIN_CODE_1"].ToString();
+                    data.GTIN_CODE_2 = dr["GTIN_CODE_2"].ToString();
+                    data.GTIN_CODE_3 = dr["GTIN_CODE_3"].ToString();
+                    data.GTIN_CODE_4 = dr["GTIN_CODE_4"].ToString();
+
+                    data.UNITWIDTH = ascLibrary.ascUtils.ascStrToDouble(dr["UNITWIDTH"].ToString(), 0);
+                    data.UNITLENGTH = ascLibrary.ascUtils.ascStrToDouble(dr["UNITLENGTH"].ToString(), 0);
+                    data.UNITHEIGHT = ascLibrary.ascUtils.ascStrToDouble(dr["UNITHEIGHT"].ToString(), 0);
+                    data.UNITWEIGHT = ascLibrary.ascUtils.ascStrToDouble(dr["UNITWEIGHT"].ToString(), 0);
+
+                    data.CATEGORY_2 = dr["CATEGORY_2"].ToString();
+                    data.STOCK_UOM = dr["STOCK_UOM"].ToString();
+                    data.BUY_UOM = dr["BUY_UOM"].ToString();
+                    data.BUYER = dr["BUYER"].ToString();
+                    data.VENDORID = dr["VENDORID"].ToString();
+                    data.SCC14 = dr["SCC14"].ToString();
+                    data.CUBIC_PER_EACH = ascLibrary.ascUtils.ascStrToDouble(dr["CUBIC_PER_EACH"].ToString(), 0);
+                    data.ABC_ZONE = dr["ABC_ZONE"].ToString();
+                    data.SHELF_LIFE = ascLibrary.ascUtils.ascStrToDouble(dr["SHELF_LIFE"].ToString(), 0);
+                    data.AUTO_QC_REASON = dr["AUTO_QC_REASON"].ToString();
+                    data.RETAIL_PRICE = ascLibrary.ascUtils.ascStrToDouble(dr["RETAIL_PRICE"].ToString(), 0);
+                    data.COUNTRY_OF_ORIGIN = dr["COUNTRY_OF_ORIGIN"].ToString();
+                    data.SKID_TRACKED = dr["SKID_TRACKED"].ToString();
+
+                    data.SERIAL_TRACKED = dr["SERIAL_TRACKED"].ToString();
+
+                    data.TARE_WEIGHT = ascLibrary.ascUtils.ascStrToDouble(dr["TARE_WEIGHT"].ToString(), 0);
+                    data.BULK_TARE_WEIGHT = ascLibrary.ascUtils.ascStrToDouble(dr["BULK_TARE_WEIGHT"].ToString(), 0);
+                    data.BILL_UOM = dr["BILL_UOM"].ToString();
+
+                    data.HAZMAT_FLAG = dr["HAZMAT_FLAG"].ToString();
+                    data.LOT_FLAG = dr["LOT_FLAG"].ToString();
+                    data.LOT_PROD_FLAG = dr["LOT_PROD_FLAG"].ToString();
+
+                    data.EXPIRE_DAYS = ascLibrary.ascUtils.ascStrToDouble(dr["EXPIRE_DAYS"].ToString(), 0);
+                    data.EXP_DATE_REQ_FLAG = dr["EXP_DATE_REQ_FLAG"].ToString();
+
+                    data.RESTOCK_QTY = ascLibrary.ascUtils.ascStrToDouble(dr["RESTOCK_QTY"].ToString(), 0);
+                    data.LEADTIME = ascLibrary.ascUtils.ascStrToDouble(dr["LEADTIME"].ToString(), 0);
+
+                    data.MINIMUM = ascLibrary.ascUtils.ascStrToDouble(dr["MINIMUM"].ToString(), 0);
+
+                    data.MAXIMUM = ascLibrary.ascUtils.ascStrToDouble(dr["MAXIMUM"].ToString(), 0);
+
+                    data.REF_NOTES = dr["REF_NOTES"].ToString();
+
+                    data.LABEL_UOM = dr["LABEL_UOM"].ToString();
+
+                    data.INHOUSE_TIME = ascLibrary.ascUtils.ascStrToDouble(dr["INHOUSE_TIME"].ToString(), 0);
+
+                    data.HOST_QTY = ascLibrary.ascUtils.ascStrToDouble(dr["HOST_QTY"].ToString(), 0);
+
+                    data.FREIGHT_CLASS_CODE = dr["FREIGHT_CLASS_CODE"].ToString();
+
+                    data.BUNDLE_SIZE = dr["BUNDLE_SIZE"].ToString();
+
+                    data.VMI_CUSTID = dr["VMI_CUSTID"].ToString();
+
+                    data.VMI_RESPID = dr["VMI_RESPID"].ToString();
+
+                    /*
+                    data.ITEM_CUSTOMDATA8 = dr["ITEM_CUSTOMDATA8"].ToString(); 
+
+        public string ITEM_CUSTOMDATA7 { get; set; }
+
+        public string ITEM_CUSTOMDATA6 { get; set; }
+
+        public string ITEM_CUSTOMDATA5 { get; set; }
+
+        public string ITEM_CUSTOMDATA4 { get; set; }
+                    */
+                    data.THUMBNAIL_FILENAME = dr["THUMBNAIL_FILENAME"].ToString();
+                    data.ORGANIC_FLAG = dr["ORGANIC_FLAG"].ToString();
+                    data.POST_LOT_TO_HOST_FLAG = dr["POST_LOT_TO_HOST_FLAG"].ToString();
+                    data.PKG_MATERIAL_FLAG = dr["PKG_MATERIAL_FLAG"].ToString();
+                    data.MFG_ID = dr["MFG_ID"].ToString();
+                    data.VENDOR1ITEMNUM = dr["VENDOR1ITEMNUM"].ToString();
+
+                    for (int i = 1; i <= 8; i++)
+                    {
+                        string fieldname = "ITEM_CUSTOMDATA" + i.ToString();
+                        if (!String.IsNullOrEmpty(dr[fieldname].ToString()))
+                            data.CustomList.Add(new ASCTracInterfaceModel.Model.ModelCustomData(fieldname, dr[fieldname].ToString()));
+                    }
+
+                    AddItemExtData(data);
+
+                    var myResult = myRestService.doItemImport(data).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+                }
+            }
+            finally
+            {
+                myConnection.Close();
+            }
+        }
+
+
+        private void AddItemExtData(ASCTracInterfaceModel.Model.Item.ItemMasterImport data)
+        {
+            string sql = "SELECT PROMPT_NUM, VALUE FROM TBL_TOASC_ITEMMSTR_EXTDATA WHERE TBLNAME='ITEMMSTR' AND FACILITY='" + data.FACILITY + "' AND PRODUCT_CODE='" + data.PRODUCT_CODE + "'";
+            SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sql, myConnection);
+            myConnection.Open();
+            try
+            {
+                SqlDataReader dr = myCommand.ExecuteReader();
+                while (dr.Read())
+                {
+                    string prompt = string.Empty;
+                    if (myASCDBUtils.ReadFieldFromDB("SELECT DISPLAY_STRING FROM EXTDATA_SETUP WHERE TBLNAME='ITEMMSTR' AND PROMPT_NUM=" + dr["PROMPT_NUM"].ToString(), "", ref prompt))
+                        data.ExtDataList.Add(prompt, dr["VALUE"].ToString());
+                }
+            }
+            finally
+            {
+                myConnection.Close();
+            }
+        }
+
+private async void doVendorImport()
         {
             string sql = "SELECT * FROM TBL_TOASC_VENDOR_MSTR WHERE PROCESS_FLAG = 'R'";
             SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
@@ -534,6 +707,60 @@ namespace ASCTracInterfaceTest
                         rec.SUCCESSFUL = true;
                     }
                     myResult = myRestService.updateCOLinesExport(mylist).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+                }
+            }
+        }
+
+
+
+        async private void doParcelExport()
+        {
+            ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter ExportFilter = new ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter("", "");
+            var myResult = myRestService.doParcelExport(ExportFilter).Result;
+
+            lblResultCode.Text = myResult.StatusCode.ToString();
+            tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+            if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                if (MessageBox.Show("Update Parcel Results", "PArcel Export", MessageBoxButtons.YesNoCancel) == DialogResult.Yes)
+                {
+                    var mylist = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport>>(tbContent.Text);
+                    foreach (var rec in mylist)
+                    {
+                        rec.Successful = true;
+                    }
+                    myResult = myRestService.updateParcelExport(mylist).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+                }
+            }
+        }
+
+        async private void doTranfileExport()
+        {
+            ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter ExportFilter = new ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter("", "");
+            var myResult = myRestService.doTranfileExport(ExportFilter).Result;
+
+            lblResultCode.Text = myResult.StatusCode.ToString();
+            tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+            if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                if (MessageBox.Show("Update Tranfile Results", "Tran File Export", MessageBoxButtons.YesNoCancel) == DialogResult.Yes)
+                {
+                    var mylist = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ASCTracInterfaceModel.Model.TranFile.TranfileExport>>(tbContent.Text);
+                    foreach (var rec in mylist)
+                    {
+                        rec.SUCCESSFUL = true;
+                    }
+                    myResult = myRestService.updateTranfileExport(mylist).Result;
 
                     lblResultCode.Text = myResult.StatusCode.ToString();
                     tbContent.Text = await myResult.Content.ReadAsStringAsync();

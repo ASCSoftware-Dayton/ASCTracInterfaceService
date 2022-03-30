@@ -163,10 +163,13 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\Export\CustOrderExportController.cs" />
+    <Compile Include="Controllers\Export\ParcelExportController.cs" />
     <Compile Include="Controllers\Export\POLicensesExportController.cs" />
     <Compile Include="Controllers\Export\POLinesExportController.cs" />
+    <Compile Include="Controllers\Export\TranFileExportController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Import\CustOrderImportController.cs" />
+    <Compile Include="Controllers\Import\ItemMasterImportController.cs" />
     <Compile Include="Controllers\Import\POImportController.cs" />
     <Compile Include="Controllers\Import\VendorImportController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />

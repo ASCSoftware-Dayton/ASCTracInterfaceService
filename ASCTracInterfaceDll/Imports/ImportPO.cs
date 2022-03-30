@@ -7,12 +7,13 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportPO
     {
+        private static string funcType = "IM_RECV";
         private static string siteid = string.Empty;
         private static Class1 myClass;
         private static Model.PO.POImportConfig currPOImportConfig;
         public static HttpStatusCode doImportPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("ImportPO");
+            myClass = Class1.InitParse(funcType);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.PONUMBER;
             string updstr = string.Empty;
@@ -20,26 +21,31 @@ namespace ASCTracInterfaceDll.Imports
             {
                 if (myClass != null)
                 {
-                    siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                    currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
-                    if (String.IsNullOrEmpty(siteid))
-                    {
-                        errmsg = "No Facility or Site defined for record.";
-                        retval = HttpStatusCode.BadRequest;
-                    }
-                    else if (aData.ORDER_TYPE.Equals("R"))
-                        retval = ImportRMARecord(aData, ref errmsg);
-                    else if (aData.ORDER_TYPE.Equals("A"))
-                        retval = ImportASNRecord(aData, ref errmsg);
+                    if (!myClass.FunctionAuthorized(funcType))
+                        retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
-                        retval = ImportPORecord(aData, ref errmsg);
+                    {
+                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                        currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
+                        if (String.IsNullOrEmpty(siteid))
+                        {
+                            errmsg = "No Facility or Site defined for record.";
+                            retval = HttpStatusCode.BadRequest;
+                        }
+                        else if (aData.ORDER_TYPE.Equals("R"))
+                            retval = ImportRMARecord(aData, ref errmsg);
+                        else if (aData.ORDER_TYPE.Equals("A"))
+                            retval = ImportASNRecord(aData, ref errmsg);
+                        else
+                            retval = ImportPORecord(aData, ref errmsg);
+                    }
                 }
                 else
                     retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                Class1.WriteException("POImport", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 
