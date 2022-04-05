@@ -168,6 +168,7 @@
     <Compile Include="Controllers\Export\POLinesExportController.cs" />
     <Compile Include="Controllers\Export\TranFileExportController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\Import\ASNImportController.cs" />
     <Compile Include="Controllers\Import\CustOrderImportController.cs" />
     <Compile Include="Controllers\Import\ItemMasterImportController.cs" />
     <Compile Include="Controllers\Import\POImportController.cs" />

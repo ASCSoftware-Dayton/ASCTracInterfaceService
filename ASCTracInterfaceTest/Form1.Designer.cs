@@ -61,6 +61,7 @@
             // 
             this.cbFunction.FormattingEnabled = true;
             this.cbFunction.Items.AddRange(new object[] {
+            "ASNImport",
             "CustOrderImport",
             "ItemImport",
             "POImport",

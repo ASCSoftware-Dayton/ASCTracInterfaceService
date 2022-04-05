@@ -72,6 +72,8 @@ namespace ASCTracInterfaceTest
                 doPOLinesExport();
             else if (cbFunction.Text == "POExport - Licenses")
                 doPOLicensesExport();
+            else if (cbFunction.Text == "ASNImport")
+                doASNImport();
             else if (cbFunction.Text == "CustOrderImport")
                 doCOImport();
             else if (cbFunction.Text == "CustOrderExport")
@@ -495,6 +497,93 @@ private async void doVendorImport()
                 tbContent.Text = await myResult.Content.ReadAsStringAsync();
 
             }
+        }
+
+        async private void doASNImport()
+        {
+            string sql = "SELECT * FROM TBL_TOASC_ASN_HEADER WHERE PROCESS_FLAG = 'R'";
+            SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sql, myConnection);
+            myConnection.Open();
+            try
+            {
+                SqlDataReader dr = myCommand.ExecuteReader();
+                while ((dr.Read()))
+                {
+                    var data = new ASCTracInterfaceModel.Model.ASN.ASNHdrImport();
+
+                    data.FACILITY = dr["FACILITY"].ToString();
+                    data.CREATE_DATETIME = ascLibrary.ascUtils.ascStrToDate(dr["CREATE_DATETIME"].ToString(), DateTime.Now);
+                    data.FACILITY = dr["FACILITY"].ToString();
+                    data.ASN = dr["ASN"].ToString();
+                    data.PONUMBER = dr["PONUMBER"].ToString();
+                    data.TRUCKNUM = dr["TRUCKNUM"].ToString();
+                    data.FROM_FACILITY = dr["FROM_FACILITY"].ToString();
+                    data.REF_ORDERNUMBER = dr["REF_ORDERNUMBER"].ToString();
+                    data.EXPECTED_RECEIPT_DATE = ascLibrary.ascUtils.ascStrToDate(dr["EXPECTED_RECEIPT_DATE"].ToString(), DateTime.MinValue);
+                    data.VENDORID = dr["VENDORID"].ToString();
+                    data.PACKINGSLIP = dr["PACKINGSLIP"].ToString();
+
+                    data.ASN_TYPE = dr["ASN_TYPE"].ToString();
+                    AddASNDet(data);
+
+                    var myResult = myRestService.doASNImport(data).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+                }
+            }
+            finally
+            {
+                myConnection.Close();
+            }
+        }
+
+        private void AddASNDet(ASCTracInterfaceModel.Model.ASN.ASNHdrImport HDRdata)
+        {
+            string sql = "SELECT * FROM TBL_TOASC_ASN_DETAIL WHERE PROCESS_FLAG = 'R' AND ASN='" + HDRdata.ASN + "'";
+            SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sql, myConnection);
+            myConnection.Open();
+            try
+            {
+                SqlDataReader dr = myCommand.ExecuteReader();
+                while ((dr.Read()))
+                {
+                    var data = new ASCTracInterfaceModel.Model.ASN.ASNDetImport();
+
+                    data.ITEMID = dr["ITEMID"].ToString();
+                    data.LOTID = dr["LOTID"].ToString();
+                    data.SKIDID = dr["SKIDID"].ToString();
+                    data.QUANTITY = ascLibrary.ascUtils.ascStrToDouble(dr["QUANTITY"].ToString(), 0);
+                    data.EXPIRE_DATE = ascLibrary.ascUtils.ascStrToDate(dr["EXPIRE_DATE"].ToString(), DateTime.MinValue);
+                    data.PONUMBER = dr["PONUMBER"].ToString();
+                    data.RELEASENUM = dr["RELEASENUM"].ToString();
+                    data.LINENUMBER = ascLibrary.ascUtils.ascStrToDouble(dr["LINENUMBER"].ToString(), 0);
+                    data.VMI_CUSTID = dr["VMI_CUSTID"].ToString();
+                    data.ACTUAL_WEIGHT = ascLibrary.ascUtils.ascStrToDouble(dr["ACTUAL_WEIGHT"].ToString(), 0);
+                    data.CW_QTY = ascLibrary.ascUtils.ascStrToDouble(dr["CW_QTY"].ToString(), 0);
+                    data.VENDORID = dr["VENDORID"].ToString();
+                    data.CONTAINER_ID = dr["CONTAINER_ID"].ToString();
+                    data.PALLET_TYPE = dr["PALLET_TYPE"].ToString();
+                    data.DATETIMEPROD = ascLibrary.ascUtils.ascStrToDate( dr["DATETIMEPROD"].ToString(), DateTime.MinValue);
+                    data.ALT_SKIDID = dr["ALT_SKIDID"].ToString();
+                    data.ALT_LOTID = dr["ALT_LOTID"].ToString();
+                    for( int i = 1; i <= 6; i++)
+                    {
+                        string fieldname = "CUSTOM_DATA" + i.ToString();
+                        if (!String.IsNullOrEmpty(dr[fieldname].ToString()))
+                            data.CustomList.Add(new ASCTracInterfaceModel.Model.ModelCustomData(fieldname, dr[fieldname].ToString()));
+                    }
+
+                    HDRdata.DetailList.Add(data);
+                }
+            }
+            finally
+            {
+                myConnection.Close();
+            }
+
         }
 
         async private void doCOImport()
