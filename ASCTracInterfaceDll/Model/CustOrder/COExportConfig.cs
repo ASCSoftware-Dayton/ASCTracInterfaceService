@@ -9,6 +9,8 @@ namespace ASCTracInterfaceDll.Model.CustOrder
         public string GatewayUserID { get; set; }
         public string postedFlagField { get; set; }
         public string posteddateField { get; set; }
+        public string StatusPostedFlagField { get; set; }
+        public string StatusPosteddateField { get; set; }
 
         public bool GWCOUseCustItem { get; set; }
     }

@@ -32,7 +32,7 @@ namespace ASCTracInterfaceDll.Exports
                         sqlstr = BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
                         if (!String.IsNullOrEmpty(sqlstr))
                         {
-                            retval = BuildExportList(sqlstr, ref aData, ref errmsg);
+                            retval = BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
                         }
                         else
                             retval = HttpStatusCode.BadRequest;
@@ -53,49 +53,35 @@ namespace ASCTracInterfaceDll.Exports
         private static string BuildCustOrderExportSQL(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aExportFilter, ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
-            string sql = "SELECT S.HOST_SITE_ID, T.ORDERNUM, T.SHIPMENT_ID, T.ID, OH.CARRIER, OH.CARRIER_SERVICE_CODE" +
-                ", T.USERID, T.TRANDATE, OH.ORDERTYPE, OH.SOLDTOCUSTID, OH.ORDER_SOURCE, OH.ORDER_SOURCE_SYSTEM, OH.SHIPVIA, OH.CUSTOM_DATA1 " +
-                ", OH.SALESORDERNUMBER, OH.CUSTPONUM, OH.HOST_ORDER_TYPE" +
-                ", OH.CUSTOM_DATA1, OH.CUSTOM_DATA2, OH.CUSTOM_DATA3, OH.CUSTOM_DATA4, OH.CUSTOM_DATA5, OH.CUSTOM_DATA6, OH.CUSTOM_DATA7" +
-                ", OH.CUSTOM_DATA8, OH.CUSTOM_DATA9, OH.CUSTOM_DATA10, OH.CUSTOM_DATA11, OH.CUSTOM_DATA12" +
-                " FROM TRANFILE T (NOLOCK) " +
-                " JOIN SITES S (NOLOCK) ON S.SITE_ID=T.SITE_ID " +
-                " JOIN ORDRHDR OH (NOLOCK) ON OH.ORDERNUMBER=T.ORDERNUM " +
-                " JOIN CUST C (NOLOCK) ON C.CUSTID=OH.SOLDTOCUSTID " +
-                " WHERE ISNULL(T." + postedFlagField + ",'F')='F' AND S.HOST_SITE_ID<>'' ";
+            string sql = "SELECT SITES.HOST_SITE_ID, TRANFILE.ORDERNUM, TRANFILE.SHIPMENT_ID, TRANFILE.ID, ORDRHDR.CARRIER, ORDRHDR.CARRIER_SERVICE_CODE" +
+                ", TRANFILE.USERID, TRANFILE.TRANDATE, ORDRHDR.ORDERTYPE, ORDRHDR.SOLDTOCUSTID, ORDRHDR.ORDER_SOURCE, ORDRHDR.ORDER_SOURCE_SYSTEM, ORDRHDR.SHIPVIA, ORDRHDR.CUSTOM_DATA1 " +
+                ", ORDRHDR.SALESORDERNUMBER, ORDRHDR.CUSTPONUM, ORDRHDR.HOST_ORDER_TYPE" +
+                ", ORDRHDR.CUSTOM_DATA1, ORDRHDR.CUSTOM_DATA2, ORDRHDR.CUSTOM_DATA3, ORDRHDR.CUSTOM_DATA4, ORDRHDR.CUSTOM_DATA5, ORDRHDR.CUSTOM_DATA6, ORDRHDR.CUSTOM_DATA7" +
+                ", ORDRHDR.CUSTOM_DATA8, ORDRHDR.CUSTOM_DATA9, ORDRHDR.CUSTOM_DATA10, ORDRHDR.CUSTOM_DATA11, ORDRHDR.CUSTOM_DATA12" +
+                " FROM TRANFILE (NOLOCK) " +
+                " JOIN SITES (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
+                " JOIN ORDRHDR (NOLOCK) ON ORDRHDR.ORDERNUMBER=TRANFILE.ORDERNUM " +
+                " JOIN CUST (NOLOCK) ON CUST.CUSTID=ORDRHDR.SOLDTOCUSTID " +
+                " WHERE ISNULL(TRANFILE." + postedFlagField + ",'F')='F' AND SITES.HOST_SITE_ID<>'' ";
             if (aExportFilter.ExportShipmentType == "P")
             {
-                sql += " AND T.TRANTYPE = 'LO' AND T.REASON IN('L','D','T') ";
+                sql += " AND TRANFILE.TRANTYPE = 'LO' AND TRANFILE.REASON IN('L','D','T') ";
             }
             else
             {
-                sql += " AND T.TRANTYPE='CS' ";
+                sql += " AND TRANFILE.TRANTYPE='CS' ";
             }
 
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sql += " AND OH.SOLDTOCUSTID='" + aExportFilter.CustID + "' ";
+                sql += " AND ORDRHDR.SOLDTOCUSTID='" + aExportFilter.CustID + "' ";
             else if (!String.IsNullOrEmpty(aExportFilter.EDIMasterCustId))
-                sql += " AND (OH.SOLDTOCUSTID='" + aExportFilter.EDIMasterCustId + "' OR C.CLIENT_ID_ASSOCIATION='" + aExportFilter.EDIMasterCustId + "') ";
+                sql += " AND (OH.SOLDTOCUSTID='" + aExportFilter.EDIMasterCustId + "' OR CUST.CLIENT_ID_ASSOCIATION='" + aExportFilter.EDIMasterCustId + "') ";
 
-            foreach (var rec in aExportFilter.ExportFilterList)
-            {
-                string wherestr = BuildWhereStr(rec);
-                if (!String.IsNullOrEmpty(wherestr))
-                {
-                    sql += " AND " + wherestr;
-                }
-            }
-            sql += "ORDER BY T.SHIPMENT_ID, T.ORDERNUM, T.ID";
+            Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ORDRHDR|CUST");
+            sql += "ORDER BY TRANFILE.SHIPMENT_ID, TRANFILE.ORDERNUM, TRANFILE.ID";
             return (sql);
         }
 
-        private static string BuildWhereStr(ASCTracInterfaceModel.Model.ModelExportFilter rec)
-        {
-            string retval = string.Empty;
-            if (myClass.myParse.Globals.myDBUtils.IfFieldExists("TRANFILE", rec.Fieldname))
-                retval = ascLibrary.ascStrUtils.buildwherestr(rec.Fieldname, rec.FilterType.ToString(), rec.Startvalue, rec.Endvalue);
-            return (retval);
-        }
 
         private static string GetAltLotId(string orderNum, string lineNum, string ascItemId, string lotId)
         {
@@ -125,7 +111,7 @@ namespace ASCTracInterfaceDll.Exports
             return altLotId;
         }
 
-        private static HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
+        private static HttpStatusCode BuildExportList(string sqlstr, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NotFound;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
@@ -136,8 +122,13 @@ namespace ASCTracInterfaceDll.Exports
             myClass.myParse.Globals.mydmupdate.InitUpdate();
             try
             {
+                long count = 1;
                 while (dr.Read())
                 {
+                    if ((aMaxRecords > 0) && (count > aMaxRecords))
+                        break;
+                    count += 1;
+
                     retval = HttpStatusCode.OK;
                     string shipmentId = string.Empty;
                     var orderNum = dr["ORDERNUM"].ToString();
@@ -545,7 +536,7 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                Class1.WriteException("POExport", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), sqlstr);
+                Class1.WriteException("updateExportCustOrder", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), sqlstr);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

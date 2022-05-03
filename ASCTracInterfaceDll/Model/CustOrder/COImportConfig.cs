@@ -28,6 +28,7 @@ namespace ASCTracInterfaceDll.Model.CustOrder
 
         public bool GWWillCallCarrierFlag { get; set; }
         public string GWWillCallCarrier { get; set; }
+        public bool GWAllowCancelOfPickedOrder { get; set; }
 
         // detail flags
         public bool GWCOUseCustItem { get; set; }

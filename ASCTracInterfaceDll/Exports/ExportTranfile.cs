@@ -52,26 +52,28 @@ namespace ASCTracInterfaceDll.Exports
         private static string BuildExportSQL(ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter aExportFilter, ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
-            string sqlStr = "SELECT S.HOST_SITE_ID, I.VMI_CUSTID, I.STOCK_UOM, T.* " +
-                "FROM TRANFILE T (NOLOCK) " +
-                "LEFT JOIN SITES S (NOLOCK) ON S.SITE_ID=T.SITE_ID " +
-                "LEFT JOIN ITEMMSTR I (NOLOCK) ON I.ASCITEMID=T.ASCITEMID " +
-                "WHERE ((T.TRANTYPE IN ('SC','DI','IP','R2','HS','RP','RW','RK','AD','AH','RY','TZ')) ";  //added TZ 11-07-13 (JXG)
+            string sqlStr = "SELECT SITES.HOST_SITE_ID, ITEMMSTR.VMI_CUSTID, ITEMMSTR.STOCK_UOM, TRANFILE.* " +
+                "FROM TRANFILE (NOLOCK) " +
+                "LEFT JOIN SITES (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
+                "LEFT JOIN ITEMMSTR (NOLOCK) ON ITEMMSTR.ASCITEMID=TRANFILE.ASCITEMID " +
+                "WHERE ((TRANFILE.TRANTYPE IN ('SC','DI','IP','R2','HS','RP','RW','RK','AD','AH','RY','TZ')) ";  //added TZ 11-07-13 (JXG)
 
             if (currExportConfig.exportUnreceivesAsInvAdj)
-                sqlStr += "OR (T.TRANTYPE IN ('RX','RF','RA') AND T.QTY < 0) ";
+                sqlStr += "OR (TRANFILE.TRANTYPE IN ('RX','RF','RA') AND TRANFILE.QTY < 0) ";
 
-            sqlStr += "OR (T.TRANTYPE='RA' AND T.SUBTRANTYPE='I') " +
-                "OR (T.TRANTYPE='DR' AND (SELECT RMA_NUM FROM RMAHDR RH " +
-                "WHERE RH.RMA_NUM=T.ORDERNUM AND RH.SITE_ID=T.SITE_ID) IS NULL)) " +
-                "AND S.HOST_SITE_ID<>'' AND ISNULL(T." + postedFlagField + ",'F')='F' ";
+            sqlStr += "OR (TRANFILE.TRANTYPE='RA' AND TRANFILE.SUBTRANTYPE='I') " +
+                "OR (TRANFILE.TRANTYPE='DR' AND (SELECT RMA_NUM FROM RMAHDR RH " +
+                "WHERE RH.RMA_NUM=TRANFILE.ORDERNUM AND RH.SITE_ID=TRANFILE.SITE_ID) IS NULL)) " +
+                "AND SITES.HOST_SITE_ID<>'' AND ISNULL(TRANFILE." + postedFlagField + ",'F')='F' ";
 
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sqlStr += "AND I.VMI_CUSTID='" + aExportFilter.CustID + "' ";
+                sqlStr += "AND ITEMMSTR.VMI_CUSTID='" + aExportFilter.CustID + "' ";
             if (!String.IsNullOrEmpty(aExportFilter.ExcludeTranType))
-                sqlStr += " and NOT T.TRANTYPE IN ( '" + aExportFilter.ExcludeTranType.Replace(",", "','") + "')";
+                sqlStr += " and NOT TRANFILE.TRANTYPE IN ( '" + aExportFilter.ExcludeTranType.Replace(",", "','") + "')";
 
-            sqlStr += "ORDER BY S.HOST_SITE_ID, T.ID";
+            Utils.FilterUtils.AppendToExportFilter(ref sqlStr, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ITEMMSTR");
+
+            sqlStr += "ORDER BY SITES.HOST_SITE_ID, TRANFILE.ID";
             return (sqlStr);
         }
 

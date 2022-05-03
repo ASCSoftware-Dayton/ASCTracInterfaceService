@@ -60,6 +60,7 @@ namespace ASCTracInterfaceDll.Configs
             retval.useBillToAsShipToNameIfBlank = ConfigUtils.ReadConfigSetting("GWUseBillToAsShipToNameIfBlank", "F", Globals) == "T";
             retval.GWWillCallCarrierFlag = ConfigUtils.ReadConfigSetting("GWWillCallCarrierFlag", "F", Globals) == "T";
             retval.GWWillCallCarrier = ConfigUtils.ReadConfigSetting("GWWillCallCarrier", "", Globals);
+            retval.GWAllowCancelOfPickedOrder = ConfigUtils.ReadConfigSetting("GWAllowCancelOfPickedOrder", false, Globals);
 
             retval.GWCOUseCustItem = ConfigUtils.ReadConfigSetting("GWCOUseCustItem", "F", Globals) == "T";
             
@@ -86,6 +87,11 @@ namespace ASCTracInterfaceDll.Configs
             retval.posteddateField = "POSTEDDATE";
             if (retval.postedFlagField == "POSTED2") retval.posteddateField = "POSTEDDATE2";
             else if (retval.postedFlagField == "POSTED3") retval.posteddateField = "POSTEDDATE3";
+
+            retval.StatusPostedFlagField = ConfigUtils.ReadConfigSetting("GWExportTranfileStatusPostedFlag", "POSTED3", Globals);
+            retval.StatusPosteddateField = "POSTEDDATE";
+            if (retval.StatusPostedFlagField == "POSTED2") retval.StatusPosteddateField = "POSTEDDATE2";
+            else if (retval.StatusPostedFlagField == "POSTED3") retval.StatusPosteddateField = "POSTEDDATE3";
 
             retval.GWCOUseCustItem = ConfigUtils.ReadConfigSetting("GWCOUseCustItem", "F", Globals) == "T";
 

@@ -225,138 +225,141 @@ namespace ASCTracInterfaceDll.Imports
                 var ordertype = ascLibrary.ascStrUtils.GetNextWord(ref pickStatus);
                 if (pickStatus != ascLibrary.dbConst.ssCONF_SHIP)
                 {
-                    retval = true;
-                    myClass.myParse.Globals.dmMiscFunc.BackoutPreallocation("", orderNum);
-
-                    // Decrement item quantities
-                    // Decrement item quantities
-                    if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype))
+                    retval = CheckIfPicked(orderNum);
+                    if (retval)
                     {
-                        if (isOrderStatusScheduled(pickStatus))
-                            myClass.myParse.Globals.mydmupdate.SetItemMasterQtyScheduledForCustOrder(orderNum, true);
-                        else if (isOrderStatusRequired(pickStatus))
-                            myClass.myParse.Globals.mydmupdate.SetItemMasterQtyRequiredForCustOrder(orderNum, true);
-                    }
+                        myClass.myParse.Globals.dmMiscFunc.BackoutPreallocation("", orderNum);
 
-                    if (aUpdateHdr)
-                    {
-                        string sql = "UPDATE ORDRHDR SET PICKSTATUS='X', ORDERFILLED='C', " +
-                            "WAVE_NUM=NULL, BATCH_NUM=NULL," +
-                            "CUSTOM_DATA10='01'," +
-                            "EXPORT='F' " +  //added 04-17-14 (JXG) for prairie farms
-                            "WHERE ORDERNUMBER='" + orderNum + "'";
-                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
-                    }
-
-                    //added 09-24-15 for Didion
-                    //if create work order from cust order detail,
-                    //cancel any work orders that are linked to this cust order
-                    if (myClass.myParse.Globals.myConfig.vmProduction.boolValue && currCOImportConfig.isActiveWOFROMCO)
-                    {
-                        string sql = "SELECT H.PROD_ASCITEMID, SUM( H.QTY_TO_MAKE - H.CUR_QTY) AS QTYTOMAKE" +
-                            " FROM WO_HDR H " +
-                            " WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
-                            " AND H.STATUS IN ('N', 'S', 'P', 'A', 'D')" +
-                            " GROUP BY H.PROD_ASCITEMID";
-
-                        using (SqlConnection conn2 = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
-                        using (SqlCommand cmd2 = new SqlCommand(sql, conn2))
+                        // Decrement item quantities
+                        // Decrement item quantities
+                        if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype))
                         {
-                            conn2.Open();
-                            using (SqlDataReader reader2 = cmd2.ExecuteReader())
-                            {
-                                while (reader2.Read())
-                                {
-                                    string prodASCItemID = reader2["PROD_ASCITEMID"].ToString();
-                                    double qtytomake = ascLibrary.ascUtils.ascStrToDouble(reader2["QTYTOMAKE"].ToString(), 0);
-                                    if (qtytomake > 0)
-                                        myClass.myParse.Globals.mydmupdate.updateqty("ITEMQTY", "QTY_TO_PRODUCE", "ASCITEMID='" + prodASCItemID + "'", -qtytomake);
-                                }
-                            }
+                            if (isOrderStatusScheduled(pickStatus))
+                                myClass.myParse.Globals.mydmupdate.SetItemMasterQtyScheduledForCustOrder(orderNum, true);
+                            else if (isOrderStatusRequired(pickStatus))
+                                myClass.myParse.Globals.mydmupdate.SetItemMasterQtyRequiredForCustOrder(orderNum, true);
                         }
 
-
-                        sql = "SELECT H.STATUS,D.COMP_ASCITEMID, SUM( D.QTY - D.QTY_PICKED) AS QTYTOPICK" +
-                            " FROM WO_HDR H " +
-                            " JOIN WO_DET D ON D.WORKORDER_ID=H.WORKORDER-ID" +
-                            " WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
-                            " AND H.STATUS NOT IN ('X', 'F')" +
-                            " GROUP BY H.STATUS, D.COMP_ASCITEMID";
-
-                        using (SqlConnection conn2 = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
-                        using (SqlCommand cmd2 = new SqlCommand(sql, conn2))
+                        if (aUpdateHdr)
                         {
-                            conn2.Open();
-                            using (SqlDataReader reader2 = cmd2.ExecuteReader())
-                            {
-                                while (reader2.Read())
-                                {
-                                    string wostatus = reader2["STATUS"].ToString();
-                                    string compASCItemID = reader2["COMP_ASCITEMID"].ToString();
-                                    double qtytopick = ascLibrary.ascUtils.ascStrToDouble(reader2["QTYTOPICK"].ToString(), 0);
-                                    if (qtytopick > 0)
-                                    {
-                                        if (wostatus.Equals(ascLibrary.dbConst.plACTIVE) || wostatus.Equals(ascLibrary.dbConst.plPREPARING) || wostatus.Equals(ascLibrary.dbConst.plPENDING))
-                                            myClass.myParse.Globals.mydmupdate.updateqty("ITEMQTY", "QTYSCHEDULED", "ASCITEMID='" + compASCItemID + "'", -qtytopick);
-                                        else
-                                            myClass.myParse.Globals.mydmupdate.updateqty("ITEMQTY", "QTYREQUIRED", "ASCITEMID='" + compASCItemID + "'", -qtytopick);
+                            string sql = "UPDATE ORDRHDR SET PICKSTATUS='X', ORDERFILLED='C', " +
+                                "WAVE_NUM=NULL, BATCH_NUM=NULL," +
+                                "CUSTOM_DATA10='01'," +
+                                "EXPORT='F' " +  //added 04-17-14 (JXG) for prairie farms
+                                "WHERE ORDERNUMBER='" + orderNum + "'";
+                            myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
+                        }
 
+                        //added 09-24-15 for Didion
+                        //if create work order from cust order detail,
+                        //cancel any work orders that are linked to this cust order
+                        if (myClass.myParse.Globals.myConfig.vmProduction.boolValue && currCOImportConfig.isActiveWOFROMCO)
+                        {
+                            string sql = "SELECT H.PROD_ASCITEMID, SUM( H.QTY_TO_MAKE - H.CUR_QTY) AS QTYTOMAKE" +
+                                " FROM WO_HDR H " +
+                                " WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
+                                " AND H.STATUS IN ('N', 'S', 'P', 'A', 'D')" +
+                                " GROUP BY H.PROD_ASCITEMID";
+
+                            using (SqlConnection conn2 = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
+                            using (SqlCommand cmd2 = new SqlCommand(sql, conn2))
+                            {
+                                conn2.Open();
+                                using (SqlDataReader reader2 = cmd2.ExecuteReader())
+                                {
+                                    while (reader2.Read())
+                                    {
+                                        string prodASCItemID = reader2["PROD_ASCITEMID"].ToString();
+                                        double qtytomake = ascLibrary.ascUtils.ascStrToDouble(reader2["QTYTOMAKE"].ToString(), 0);
+                                        if (qtytomake > 0)
+                                            myClass.myParse.Globals.mydmupdate.updateqty("ITEMQTY", "QTY_TO_PRODUCE", "ASCITEMID='" + prodASCItemID + "'", -qtytomake);
                                     }
                                 }
                             }
-                        }
 
-                        sql = "UPDATE H " +
-                                "SET H.STATUS='X' " +
-                                "FROM WO_HDR H " +
-                                "WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
-                                "AND H.STATUS<>'X' AND H.CUR_QTY=0 " +
-                                "AND (SELECT COUNT(WORKORDER_ID) FROM WO_DET (NOLOCK) " +
-                                "WHERE WORKORDER_ID=H.WORKORDER_ID " +
-                                "AND (QTY_PICKED<>0 OR QTY_ALLOC<>0 OR QTY_USED<>0)) = 0";
-                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
-                    }
 
-                    //added 10-05-15 for Driscoll's
-                    //if create transfer po from transfer cust order,
-                    //cancel any transfer pos that are linked to this cust order
-                    if (currCOImportConfig.GWCreateTransferPOFromCO)
-                    {
-                        string sql = "SELECT H.PONUMBER, H.RELEASENUM, H.RECEIVED " +
-                            "FROM POHDR H " +
-                            "WHERE H.LINKED_ORDERNUMBER='" + orderNum + "' " +
-                            "AND H.TRANSFER_CO_ORDERNUMBER='" + orderNum + "' " +
-                            "AND H.RECEIVED<>'X' AND H.ORDERTYPE='T' " +
-                            "AND (SELECT COUNT(PONUMBER) FROM PODET (NOLOCK) " +
-                            "WHERE PONUMBER=H.PONUMBER AND RELEASENUM=H.RELEASENUM " +
-                            "AND (QTYRECEIVED<>0)) = 0";
-                        using (SqlConnection conn2 = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
-                        using (SqlCommand cmd2 = new SqlCommand(sql, conn2))
-                        {
-                            conn2.Open();
-                            using (SqlDataReader reader2 = cmd2.ExecuteReader())
+                            sql = "SELECT H.STATUS,D.COMP_ASCITEMID, SUM( D.QTY - D.QTY_PICKED) AS QTYTOPICK" +
+                                " FROM WO_HDR H " +
+                                " JOIN WO_DET D ON D.WORKORDER_ID=H.WORKORDER-ID" +
+                                " WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
+                                " AND H.STATUS NOT IN ('X', 'F')" +
+                                " GROUP BY H.STATUS, D.COMP_ASCITEMID";
+
+                            using (SqlConnection conn2 = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
+                            using (SqlCommand cmd2 = new SqlCommand(sql, conn2))
                             {
-                                while (reader2.Read())
+                                conn2.Open();
+                                using (SqlDataReader reader2 = cmd2.ExecuteReader())
                                 {
-                                    string poNum = reader2["PONUMBER"].ToString();
-                                    string relNum = reader2["RELEASENUM"].ToString();
-                                    string recvStatus = reader2["RECEIVED"].ToString();
-                                    if (recvStatus != "C")
+                                    while (reader2.Read())
                                     {
-                                        // Decrement the item qty from expected
-                                        myClass.myParse.Globals.mydmupdate.SetItemMasterQtyExpected(poNum, relNum, true);
+                                        string wostatus = reader2["STATUS"].ToString();
+                                        string compASCItemID = reader2["COMP_ASCITEMID"].ToString();
+                                        double qtytopick = ascLibrary.ascUtils.ascStrToDouble(reader2["QTYTOPICK"].ToString(), 0);
+                                        if (qtytopick > 0)
+                                        {
+                                            if (wostatus.Equals(ascLibrary.dbConst.plACTIVE) || wostatus.Equals(ascLibrary.dbConst.plPREPARING) || wostatus.Equals(ascLibrary.dbConst.plPENDING))
+                                                myClass.myParse.Globals.mydmupdate.updateqty("ITEMQTY", "QTYSCHEDULED", "ASCITEMID='" + compASCItemID + "'", -qtytopick);
+                                            else
+                                                myClass.myParse.Globals.mydmupdate.updateqty("ITEMQTY", "QTYREQUIRED", "ASCITEMID='" + compASCItemID + "'", -qtytopick);
+
+                                        }
                                     }
-                                    sql = "UPDATE H " +
-                                        "SET H.RECEIVED='X' " +
-                                        "FROM POHDR H " +
-                                        "WHERE H.PONUMBER='" + poNum + "' " +
-                                        "AND H.RELEASENUM='" + relNum + "' ";
-                                    myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
                                 }
                             }
-                        }
-                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
 
+                            sql = "UPDATE H " +
+                                    "SET H.STATUS='X' " +
+                                    "FROM WO_HDR H " +
+                                    "WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
+                                    "AND H.STATUS<>'X' AND H.CUR_QTY=0 " +
+                                    "AND (SELECT COUNT(WORKORDER_ID) FROM WO_DET (NOLOCK) " +
+                                    "WHERE WORKORDER_ID=H.WORKORDER_ID " +
+                                    "AND (QTY_PICKED<>0 OR QTY_ALLOC<>0 OR QTY_USED<>0)) = 0";
+                            myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
+                        }
+
+                        //added 10-05-15 for Driscoll's
+                        //if create transfer po from transfer cust order,
+                        //cancel any transfer pos that are linked to this cust order
+                        if (currCOImportConfig.GWCreateTransferPOFromCO)
+                        {
+                            string sql = "SELECT H.PONUMBER, H.RELEASENUM, H.RECEIVED " +
+                                "FROM POHDR H " +
+                                "WHERE H.LINKED_ORDERNUMBER='" + orderNum + "' " +
+                                "AND H.TRANSFER_CO_ORDERNUMBER='" + orderNum + "' " +
+                                "AND H.RECEIVED<>'X' AND H.ORDERTYPE='T' " +
+                                "AND (SELECT COUNT(PONUMBER) FROM PODET (NOLOCK) " +
+                                "WHERE PONUMBER=H.PONUMBER AND RELEASENUM=H.RELEASENUM " +
+                                "AND (QTYRECEIVED<>0)) = 0";
+                            using (SqlConnection conn2 = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
+                            using (SqlCommand cmd2 = new SqlCommand(sql, conn2))
+                            {
+                                conn2.Open();
+                                using (SqlDataReader reader2 = cmd2.ExecuteReader())
+                                {
+                                    while (reader2.Read())
+                                    {
+                                        string poNum = reader2["PONUMBER"].ToString();
+                                        string relNum = reader2["RELEASENUM"].ToString();
+                                        string recvStatus = reader2["RECEIVED"].ToString();
+                                        if (recvStatus != "C")
+                                        {
+                                            // Decrement the item qty from expected
+                                            myClass.myParse.Globals.mydmupdate.SetItemMasterQtyExpected(poNum, relNum, true);
+                                        }
+                                        sql = "UPDATE H " +
+                                            "SET H.RECEIVED='X' " +
+                                            "FROM POHDR H " +
+                                            "WHERE H.PONUMBER='" + poNum + "' " +
+                                            "AND H.RELEASENUM='" + relNum + "' ";
+                                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
+                                    }
+                                }
+                            }
+                            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+
+                        }
                     }
                 }
             }
@@ -416,6 +419,30 @@ namespace ASCTracInterfaceDll.Imports
             return true;
         }
 
+        private static bool CheckIfPicked( string orderNum)
+        {
+            bool okToDelete = false;
+            if (currCOImportConfig.GWAllowCancelOfPickedOrder)
+                okToDelete = true;
+            else
+            {
+                string tmpStr = string.Empty;
+                string sqlStr = "SELECT SUM(QTYPICKED), SUM(QTY_SUBSTITUTED), SUM(QTYSHIPPED) " +
+                    "FROM ORDRDET (NOLOCK) WHERE ORDERNUMBER='" + orderNum + "'";
+                if (myClass.myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref tmpStr))
+                {
+                    double qtyPicked = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
+                    double qtySub = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
+                    double qtyShipped = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
+                    if (qtyPicked == 0 && qtySub == 0 && qtyShipped == 0)
+                        okToDelete = true;
+                }
+                else
+                    okToDelete = true;
+            }
+            return (okToDelete);
+        }
+
         private static bool DeleteOrder(string orderNum, ref string errmsg)
         {
 
@@ -423,25 +450,12 @@ namespace ASCTracInterfaceDll.Imports
             {
                 if (CancelOrder(orderNum, false))
                 {
-                    bool okToDelete = false;
-                    string tmpStr = string.Empty;
-                    string sqlStr = "SELECT SUM(QTYPICKED), SUM(QTY_SUBSTITUTED), SUM(QTYSHIPPED) " +
-                        "FROM ORDRDET (NOLOCK) WHERE ORDERNUMBER='" + orderNum + "'";
-                    if (myClass.myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref tmpStr))
-                    {
-                        double qtyPicked = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
-                        double qtySub = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
-                        double qtyShipped = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
-                        if (qtyPicked == 0 && qtySub == 0 && qtyShipped == 0)
-                            okToDelete = true;
-                    }
-                    else
-                        okToDelete = true;
+                    bool okToDelete = CheckIfPicked(orderNum);
 
                     if (okToDelete)
                     {
                         CancelOrder(orderNum, false);
-                        sqlStr = "DELETE FROM ORDRDET WHERE ORDERNUMBER='" + orderNum + "'";
+                        string sqlStr = "DELETE FROM ORDRDET WHERE ORDERNUMBER='" + orderNum + "'";
                         myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
                         sqlStr = "DELETE FROM ORDRHDR WHERE ORDERNUMBER='" + orderNum + "'";
                         myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);

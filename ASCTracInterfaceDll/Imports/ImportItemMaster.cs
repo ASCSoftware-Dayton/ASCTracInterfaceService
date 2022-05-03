@@ -419,6 +419,7 @@ namespace ASCTracInterfaceDll.Imports
                 myClass.myParse.Globals.mydmupdate.UpdateFields("ITEMMSTR", updstr, "ASCITEMID='" + ascItemId + "'");
             myClass.ImportCustomData(funcType, "ITEMMSTR", "ASCITEMID='" + ascItemId + "'", itemId);  //added 10-17-17 (JXG)
             SaveExtData(ascItemId, aData.ExtDataList);
+            myClass.myParse.Globals.dmMiscItem.CalcItemSubUOMConv(ascItemId);
 
             UpdateMissingItemQtyRecords();
 
