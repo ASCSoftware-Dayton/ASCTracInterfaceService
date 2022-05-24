@@ -1417,9 +1417,13 @@ namespace ASCTracInterfaceDll.Imports
                     if (myClass.myParse.Globals.myConfig.iniGNVMI.boolValue)
                     {
                         ascItemId = myClass.myParse.Globals.dmMiscItem.GetASCItem(siteid, itemId, aData.BILL_TO_CUST_ID);
-
-                        if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "PURORMFG", ref itemType))
+                        string status = string.Empty;
+                        if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "ITEM_STATUS", ref status))
                             ascItemId = string.Empty;
+                        else if (currCOImportConfig.GWImportVMIItemIfActive && !status.Equals(ascLibrary.dbConst.isACTIVE))
+                        {
+                            ascItemId = string.Empty;
+                        }
                     }
 
                     if (string.IsNullOrEmpty(ascItemId))

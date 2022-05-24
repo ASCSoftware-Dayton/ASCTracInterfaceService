@@ -32,6 +32,7 @@ namespace ASCTracInterfaceDll.Model.CustOrder
 
         // detail flags
         public bool GWCOUseCustItem { get; set; }
+        public bool GWImportVMIItemIfActive { get; set; }
 
         public bool GWLogChangedOrderTranfile { get; set; }
         public bool CPSetORDRDETPickLocOnImport { get; set; }

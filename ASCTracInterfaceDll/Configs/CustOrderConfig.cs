@@ -63,7 +63,8 @@ namespace ASCTracInterfaceDll.Configs
             retval.GWAllowCancelOfPickedOrder = ConfigUtils.ReadConfigSetting("GWAllowCancelOfPickedOrder", false, Globals);
 
             retval.GWCOUseCustItem = ConfigUtils.ReadConfigSetting("GWCOUseCustItem", "F", Globals) == "T";
-            
+            retval.GWImportVMIItemIfActive = ConfigUtils.ReadConfigSetting("GWImportVMIItemIfActive", "F", Globals) == "T";
+
             retval.GWCOPurgeHeaderWithNoLines = ConfigUtils.ReadConfigSetting("GWCOPurgeHeaderWithNoLines", "F", Globals) == "T";
             retval.GWPurgeCODetOnImport = ConfigUtils.ReadConfigSetting("GWPurgeOrderDetOnImport", "F", Globals) == "T";
             retval.GWDeleteCOLinesNotInInterface = ConfigUtils.ReadConfigSetting("GWDeleteOrderLinesNotInInterface", "N", Globals) == "Y";

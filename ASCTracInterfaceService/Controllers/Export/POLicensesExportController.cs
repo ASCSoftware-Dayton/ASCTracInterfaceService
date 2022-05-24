@@ -8,6 +8,7 @@ using System.Web.Http;
 
 namespace ASCTracInterfaceService.Controllers.Export
 {
+    [Filters.ApiAuthenticationFilter]
     public class POLicensesExportController : ApiController
     {
         [HttpGet]

@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace ASCTracInterfaceService.Controllers.Export
 {
+    [Filters.ApiAuthenticationFilter]
     public class TranFileExportController : ApiController
     {
         [HttpGet]

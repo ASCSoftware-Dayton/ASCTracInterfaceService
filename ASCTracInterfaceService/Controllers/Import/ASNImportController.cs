@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace ASCTracInterfaceService.Controllers.Import
 {
+    [Filters.ApiAuthenticationFilter]
     public class ASNImportController : ApiController
     {
         [System.Web.Http.HttpPost]
