@@ -61,7 +61,7 @@ namespace ASCTracInterfaceService.Controllers.Export
         }
 
 
-        [HttpPost]
+        [HttpPut]
         public HttpResponseMessage UpdateParcelExport(List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aList)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

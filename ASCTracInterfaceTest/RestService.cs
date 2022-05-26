@@ -176,7 +176,7 @@ namespace ASCTracInterfaceTest
             try
             {
                 //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
-                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                response = client.PutAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
                 //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
                 if (response.IsSuccessStatusCode)
                 {
@@ -232,7 +232,7 @@ namespace ASCTracInterfaceTest
             try
             {
                 //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
-                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                response = client.PutAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
                 //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
                 if (response.IsSuccessStatusCode)
                 {
@@ -318,7 +318,7 @@ namespace ASCTracInterfaceTest
             try
             {
                 //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
-                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                response = client.PutAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
                 //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
                 if (response.IsSuccessStatusCode)
                 {
@@ -375,7 +375,7 @@ namespace ASCTracInterfaceTest
             try
             {
                 //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
-                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                response = client.PutAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
                 //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
                 if (response.IsSuccessStatusCode)
                 {
@@ -433,7 +433,7 @@ namespace ASCTracInterfaceTest
             try
             {
                 //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
-                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                response = client.PutAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
                 //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
                 if (response.IsSuccessStatusCode)
                 {

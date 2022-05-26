@@ -59,7 +59,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             return (retval);
         }
 
-        [HttpPost]
+        [HttpPut]
         public HttpResponseMessage UpdateCustOrderExport(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aList)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

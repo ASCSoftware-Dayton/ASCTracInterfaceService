@@ -60,7 +60,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             return (retval);
         }
 
-        [HttpPost]
+        [HttpPut]
         public HttpResponseMessage UpdatePOExport( List <ASCTracInterfaceModel.Model.PO.POExportLines> aList)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

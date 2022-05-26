@@ -61,7 +61,7 @@ namespace ASCTracInterfaceService.Controllers.Export
         }
 
 
-        [HttpPost]
+        [HttpPut]
         public HttpResponseMessage UpdateTranfileExport(List<ASCTracInterfaceModel.Model.TranFile.TranfileExport> aList)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

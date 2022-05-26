@@ -35,6 +35,9 @@ namespace ASCTracInterfaceTest
                 tmp = "https://localhost:44344/";
             // https://localhost:44344/
             // http://10.169.0.30/
+            // Example of getting structure
+            // http://10.169.0.30/Help/Api/POST-api-VendorImport
+
             edURL.Text = tmp;
 
             myRestService = new RestService();
