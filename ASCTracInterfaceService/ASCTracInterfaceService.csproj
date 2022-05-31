@@ -171,6 +171,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Import\ASNImportController.cs" />
     <Compile Include="Controllers\Import\CustOrderImportController.cs" />
+    <Compile Include="Controllers\Import\CustOrderShipImportController.cs" />
     <Compile Include="Controllers\Import\ItemMasterImportController.cs" />
     <Compile Include="Controllers\Import\POImportController.cs" />
     <Compile Include="Controllers\Import\VendorImportController.cs" />
