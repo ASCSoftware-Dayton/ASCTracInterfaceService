@@ -10,10 +10,10 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class ASNImportController : ApiController
     {
-        [System.Web.Http.HttpPost]
         /// <summary>
         /// Import a ASN Order (Header and Details)
         /// </summary>
+        [System.Web.Http.HttpPost]
         public HttpResponseMessage PostASN(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

@@ -571,6 +571,31 @@
             Update list of Inventory Transactions to Processed
             </summary>
         </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.ASNImportController.PostASN(ASCTracInterfaceModel.Model.ASN.ASNHdrImport)">
+            <summary>
+            Import a ASN Order (Header and Details)
+            </summary>
+        </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.CustOrderImportController.PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport)">
+            <summary>
+            Import a Customer Order (Header and Details)
+            </summary>
+        </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.CustOrderShipImportController.PostCustOrderShip(System.String)">
+            <summary>
+            Import and Process confirm ship of a Customer Order record.
+            </summary>
+        </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.ItemMasterImportController.PostItemMaster(ASCTracInterfaceModel.Model.Item.ItemMasterImport)">
+            <summary>
+            Import an Item Record
+            </summary>
+        </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.POImportController.PostPO(ASCTracInterfaceModel.Model.PO.POHdrImport)">
+            <summary>
+            Import a Purchase Order (Header and Details)
+            </summary>
+        </member>
         <member name="M:ASCTracInterfaceService.Controllers.Import.VendorImportController.PostVendor(ASCTracInterfaceModel.Model.Vendor.VendorImport)">
             <summary>
             Import a Vendor Record of structure ASCTracInterfaceModel.Model.Vendor.VendorImport 

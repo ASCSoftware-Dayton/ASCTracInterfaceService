@@ -8,10 +8,10 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class CustOrderImportController : ApiController
     {
-        [System.Web.Http.HttpPost]
         /// <summary>
         /// Import a Customer Order (Header and Details)
         /// </summary>
+        [System.Web.Http.HttpPost]
         public HttpResponseMessage PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

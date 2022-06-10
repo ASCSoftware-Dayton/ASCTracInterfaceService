@@ -10,10 +10,10 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class POImportController : ApiController
     {
-        [HttpPost]
         /// <summary>
         /// Import a Purchase Order (Header and Details)
         /// </summary>
+        [HttpPost]
         public HttpResponseMessage PostPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

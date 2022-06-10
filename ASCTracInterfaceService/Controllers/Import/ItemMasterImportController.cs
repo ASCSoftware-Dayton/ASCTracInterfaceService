@@ -10,10 +10,10 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class ItemMasterImportController : ApiController
     {
-        [HttpPost]
         /// <summary>
         /// Import an Item Record
         /// </summary>
+        [HttpPost]
         public HttpResponseMessage PostItemMaster(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.OK;
