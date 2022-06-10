@@ -10,6 +10,9 @@ namespace ASCTracInterfaceService.Controllers.Export
     [Filters.ApiAuthenticationFilter]
     public class CustOrderExportController : ApiController
     {
+        /// <summary>
+        /// Return list of unprocessed Customer Orders Pick Records
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetCustOrderPicks(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aData)
         {
@@ -34,6 +37,9 @@ namespace ASCTracInterfaceService.Controllers.Export
             return (retval);
         }
 
+        /// <summary>
+        /// Return list of unprocessed Customer Orders Pick Records for a Customer
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetCustOrderPicks(string aCustID)
         {
@@ -58,6 +64,10 @@ namespace ASCTracInterfaceService.Controllers.Export
             //var retval = new Models.ModelReturnType(errMsg);
             return (retval);
         }
+
+        /// <summary>
+        /// Update list of Customer Orders Pick Records to Processed 
+        /// </summary>
 
         [HttpPut]
         public HttpResponseMessage UpdateCustOrderExport(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aList)

@@ -11,6 +11,9 @@ namespace ASCTracInterfaceService.Controllers.Export
     [Filters.ApiAuthenticationFilter]
     public class POLinesExportController : ApiController
     {
+        /// <summary>
+        /// Return list of Receipts by Line
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetPOLicenses(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
         {
@@ -34,7 +37,10 @@ namespace ASCTracInterfaceService.Controllers.Export
             //var retval = new Models.ModelReturnType(errMsg);
             return (retval);
         }
-        
+
+        /// <summary>
+        /// Return list of Receipts by Line  (for Completed Receipts, if parameter is set)
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetPOLines(bool aOnlySendCompletedReceipt)
         {
@@ -60,6 +66,9 @@ namespace ASCTracInterfaceService.Controllers.Export
             return (retval);
         }
 
+        /// <summary>
+        /// Update list of Receipts by Line to Processed
+        /// </summary>
         [HttpPut]
         public HttpResponseMessage UpdatePOExport( List <ASCTracInterfaceModel.Model.PO.POExportLines> aList)
         {

@@ -10,6 +10,10 @@ namespace ASCTracInterfaceService.Controllers.Import
     public class CustOrderShipImportController : ApiController
     {
         [System.Web.Http.HttpPut]
+        /// <summary>
+        /// Import and Process confirm ship of a Customer Order record.
+        /// </summary>
+
         public HttpResponseMessage PostCustOrderShip(string aOrderNumber)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

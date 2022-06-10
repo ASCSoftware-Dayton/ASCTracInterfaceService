@@ -15,6 +15,7 @@ namespace ASCTracInterfaceTest
     {
         ascLibrary.ascDBUtils myDBUtils;
         ascLibrary.ascDBUtils myASCDBUtils;
+        ascLibrary.ascDBUtils myAWCSBUtils;
         RestService myRestService;
         public Form1()
         {
@@ -28,6 +29,9 @@ namespace ASCTracInterfaceTest
             myASCDBUtils = new ascLibrary.ascDBUtils();
             myASCDBUtils.BuildConnectString("AliasASCTrac");
 
+            myAWCSBUtils = new ascLibrary.ascDBUtils();
+            myAWCSBUtils.BuildConnectString("AliasWCS");
+
             lblInterfaceDB.Text = myDBUtils.fServer + ", " + myDBUtils.fDatabase;
 
             string tmp = string.Empty;
@@ -37,6 +41,7 @@ namespace ASCTracInterfaceTest
             // http://10.169.0.30/
             // Example of getting structure
             // http://10.169.0.30/Help/Api/POST-api-VendorImport
+            // https://localhost:44344/Help/Api/POST-api-VendorImport
 
             edURL.Text = tmp;
 
@@ -82,9 +87,15 @@ namespace ASCTracInterfaceTest
             else if (cbFunction.Text == "CustOrderExport")
                 doCOExport();
             else if (cbFunction.Text == "ParcelExport")
-                doParcelExport();            
+                doParcelExport();
             else if (cbFunction.Text == "TranfileExport")
                 doTranfileExport();
+            else if (cbFunction.Text == "WCS-Pick")
+                doWCSExport("C");
+            else if (cbFunction.Text == "WCS-Repick")
+                doWCSExport("R");
+            else if (cbFunction.Text == "WCS-Unpick")
+                doWCSExport("N");
             else
                 MessageBox.Show("Unrecognized function " + cbFunction.Text + ".");
         }
@@ -254,7 +265,7 @@ namespace ASCTracInterfaceTest
             }
         }
 
-private async void doVendorImport()
+        private async void doVendorImport()
         {
             string sql = "SELECT * FROM TBL_TOASC_VENDOR_MSTR WHERE PROCESS_FLAG = 'R'";
             SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
@@ -467,7 +478,7 @@ private async void doVendorImport()
             if (MessageBox.Show("Update PO Results", "PO Export", MessageBoxButtons.YesNoCancel) == DialogResult.Yes)
             {
                 var mylist = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ASCTracInterfaceModel.Model.PO.POExportLines>>(tbContent.Text);
-                foreach( var rec in mylist)
+                foreach (var rec in mylist)
                 {
                     rec.SUCCESSFUL = true;
                 }
@@ -569,10 +580,10 @@ private async void doVendorImport()
                     data.VENDORID = dr["VENDORID"].ToString();
                     data.CONTAINER_ID = dr["CONTAINER_ID"].ToString();
                     data.PALLET_TYPE = dr["PALLET_TYPE"].ToString();
-                    data.DATETIMEPROD = ascLibrary.ascUtils.ascStrToDate( dr["DATETIMEPROD"].ToString(), DateTime.MinValue);
+                    data.DATETIMEPROD = ascLibrary.ascUtils.ascStrToDate(dr["DATETIMEPROD"].ToString(), DateTime.MinValue);
                     data.ALT_SKIDID = dr["ALT_SKIDID"].ToString();
                     data.ALT_LOTID = dr["ALT_LOTID"].ToString();
-                    for( int i = 1; i <= 6; i++)
+                    for (int i = 1; i <= 6; i++)
                     {
                         string fieldname = "CUSTOM_DATA" + i.ToString();
                         if (!String.IsNullOrEmpty(dr[fieldname].ToString()))
@@ -607,7 +618,7 @@ private async void doVendorImport()
                     data.ORDERNUMBER = dr["ORDERNUMBER"].ToString();
                     data.ORDER_CREATE_DATE = ascLibrary.ascUtils.ascStrToDate(dr["ORDER_CREATE_DATE"].ToString(), DateTime.MinValue);
 
-                    data.CUST_ID = dr["CUST_ID"].ToString();
+                    //data.CUST_ID = dr["CUST_ID"].ToString();
                     data.FROM_FACILITY = dr["FROM_FACILITY"].ToString();
                     data.LEAVES_DATE = ascLibrary.ascUtils.ascStrToDate(dr["LEAVES_DATE"].ToString(), DateTime.MinValue);
                     data.ENTRY_DATE = ascLibrary.ascUtils.ascStrToDate(dr["ENTRY_DATE"].ToString(), DateTime.MinValue);
@@ -646,17 +657,17 @@ private async void doVendorImport()
                     data.STATUS_FLAG = dr["STATUS_FLAG"].ToString();
                     data.LOAD_PLAN_NUM = dr["LOAD_PLAN_NUM"].ToString();
                     data.LOAD_STOP_SEQ = dr["LOAD_STOP_SEQ"].ToString();
-                    data.PRIORITY_ID = ascLibrary.ascUtils.ascStrToDouble( dr["PRIORITY_ID"].ToString(), 0);
+                    data.PRIORITY_ID = ascLibrary.ascUtils.ascStrToDouble(dr["PRIORITY_ID"].ToString(), 0);
                     data.RECIPIENT_EMAIL = dr["RECIPIENT_EMAIL"].ToString();
                     data.BOL_NUMBER = dr["BOL_NUMBER"].ToString();
                     data.FREIGHT_ACCOUNT_NUMBER = dr["FREIGHT_ACCOUNT_NUMBER"].ToString();
                     data.REFERENCE_NUMBER = dr["REFERENCE_NUMBER"].ToString();
                     data.PREPAY_COLLECT = dr["PREPAY_COLLECT"].ToString();
-                    data.CANCEL_DATE = ascLibrary.ascUtils.ascStrToDate( dr["CANCEL_DATE"].ToString(), DateTime.MinValue);
+                    data.CANCEL_DATE = ascLibrary.ascUtils.ascStrToDate(dr["CANCEL_DATE"].ToString(), DateTime.MinValue);
                     data.CARRIER_SERVICE_CODE = dr["CARRIER_SERVICE_CODE"].ToString();
                     data.DELIVERY_INSTRUCTIONS = dr["DELIVERY_INSTRUCTIONS"].ToString();
 
-                    data.COD_AMT =ascLibrary.ascUtils.ascStrToDouble( dr["COD_AMT"].ToString(), 0);
+                    data.COD_AMT = ascLibrary.ascUtils.ascStrToDouble(dr["COD_AMT"].ToString(), 0);
                     data.MUST_ARRIVE_BY_DATE = ascLibrary.ascUtils.ascStrToDate(dr["MUST_ARRIVE_BY_DATE"].ToString(), DateTime.MinValue);
                     data.SALESPERSON = dr["SALESPERSON"].ToString();
                     data.TERMS_ID = dr["TERMS_ID"].ToString();
@@ -744,7 +755,7 @@ private async void doVendorImport()
                     rec.PRODUCT_CODE = dr["PRODUCT_CODE"].ToString();
                     rec.QUANTITY = ascLibrary.ascUtils.ascStrToDouble(dr["QUANTITY"].ToString(), 0);
 
-                    rec.CREATE_DATETIME = ascLibrary.ascUtils.ascStrToDate( dr["CREATE_DATETIME"].ToString(), DateTime.MinValue);
+                    rec.CREATE_DATETIME = ascLibrary.ascUtils.ascStrToDate(dr["CREATE_DATETIME"].ToString(), DateTime.MinValue);
 
                     rec.COMMENT = dr["COMMENT"].ToString();
                     rec.COSTEACH = ascLibrary.ascUtils.ascStrToDouble(dr["COSTEACH"].ToString(), 0);
@@ -858,6 +869,78 @@ private async void doVendorImport()
                     tbContent.Text = await myResult.Content.ReadAsStringAsync();
 
                 }
+            }
+        }
+
+
+        async private void doWCSExport(string aOrderType)
+        {
+            bool retval = true;
+            int count = 0;
+            string sqlstr = "SELECT * FROM TBL_ASC_WCS_PICK";
+            sqlstr += " WHERE PROCESS_FLAG='R' AND PROCESS_RECIPIENT='A'";
+            sqlstr += " AND ORDERTYPE='" + aOrderType + "'";
+            sqlstr += " ORDER BY CREATE_DATETIME, ID";
+            SqlConnection myConnection = new SqlConnection(myAWCSBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sqlstr, myConnection);
+
+            myConnection.Open();
+            SqlDataReader myReader = myCommand.ExecuteReader();
+            try
+            {
+                while (myReader.Read() && retval)
+                {
+                    ASCTracInterfaceModel.Model.WCS.WCSPick data = new ASCTracInterfaceModel.Model.WCS.WCSPick();
+                    data.ORDERTYPE = aOrderType;
+                    data.ORDERNUMBER = myReader["ORDERNUMBER"].ToString();
+                    data.TYPE_OF_PICK = myReader["TYPE_OF_PICK"].ToString();
+                    data.SITE_ID = myReader["SITE_ID"].ToString();
+                    data.PICK_SEQUENCE_NO = ascLibrary.ascUtils.ascStrToDouble(myReader["PICK_SEQUENCE_NO"].ToString(), 0);
+                    data.QTY_PICKED = ascLibrary.ascUtils.ascStrToDouble(myReader["QTY_PICKED"].ToString(), 0);
+
+                    data.ITEMID = myReader["ITEMID"].ToString();
+                    data.LOTID = myReader["LOTID"].ToString();
+                    data.LOCATIONID = myReader["LOCATIONID"].ToString();
+                    data.SKIDID = myReader["SKIDID"].ToString();
+                    data.CONTAINER_ID = myReader["CONTAINER_ID"].ToString();
+                    data.SER_NUM = myReader["SER_NUM"].ToString();
+                    data.DATETIME_PICKED = ascLibrary.ascUtils.ascStrToDate(myReader["DATETIME_PICKED"].ToString(), DateTime.Now);
+                    data.USERID = myReader["USERID"].ToString();
+                    data.SER_NUM = myReader["SER_NUM"].ToString();
+
+                    var myResult = myRestService.CallWCSPostPick(data).Result;
+
+                    string errmsg = myResult.Content.ReadAsStringAsync().Result;
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = errmsg;
+                    string updstr = string.Empty;
+                    if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+
+                        ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "PROCESS_FLAG", "P");
+                        ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "PROCESS_DATETIME", "GetDate()");
+                    }
+                    else
+                    {
+                        retval = false;
+                        ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "PROCESS_FLAG", "E");
+                        ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "ERR_MESSAGE", ascLibrary.ascStrUtils.ascSubString(errmsg.Replace("'", ""), 0, 80));
+                    }
+                    myAWCSBUtils.UpdateFields("TBL_ASC_WCS_PICK", updstr, "ID=" + myReader["ID"].ToString());
+                    count += 1;
+                }
+                if (retval)
+                {
+                    if (count == 0)
+                        tbContent.Text = "No Records Found";
+                    else
+                        tbContent.Text = count.ToString() + " Records processed.";
+
+                }
+            }
+            catch (Exception ex)
+            {
+                tbContent.Text = "Exception: " + ex.Message;
             }
         }
 

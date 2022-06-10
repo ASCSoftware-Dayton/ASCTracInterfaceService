@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ASCTracInterfaceService")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Interface API for ASTrac")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ASC Software")]
 [assembly: AssemblyProduct("ASCTracInterfaceService")]

@@ -9,7 +9,9 @@ namespace ASCTracInterfaceService.Controllers.Import
     public class CustOrderImportController : ApiController
     {
         [System.Web.Http.HttpPost]
-        //public Models.ModelReturnType PostPO( ASCTracInterfaceDll.Model.PO.POHdrImport aPOHdrData)
+        /// <summary>
+        /// Import a Customer Order (Header and Details)
+        /// </summary>
         public HttpResponseMessage PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

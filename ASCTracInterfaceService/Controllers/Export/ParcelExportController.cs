@@ -10,6 +10,9 @@ namespace ASCTracInterfaceService.Controllers.Export
     [Filters.ApiAuthenticationFilter]
     public class ParcelExportController : ApiController
     {
+        /// <summary>
+        /// Return list of Parcel Records
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetParcelTransactions(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aData)
         {
@@ -35,6 +38,9 @@ namespace ASCTracInterfaceService.Controllers.Export
         }
 
 
+        /// <summary>
+        /// Return list of Parcel Records for a Customer
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetParcelTransactions(string aCustID)
         {
@@ -60,7 +66,9 @@ namespace ASCTracInterfaceService.Controllers.Export
             return (retval);
         }
 
-
+        /// <summary>
+        /// Update list of Parcel Records to Processed
+        /// </summary>
         [HttpPut]
         public HttpResponseMessage UpdateParcelExport(List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aList)
         {

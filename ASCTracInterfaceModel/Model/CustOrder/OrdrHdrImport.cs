@@ -20,7 +20,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         public string ORDERNUMBER { get; set; }
 
-        public string CUST_ID { get; set; }
+        //public string CUST_ID { get; set; }
 
         public string FROM_FACILITY { get; set; }
 

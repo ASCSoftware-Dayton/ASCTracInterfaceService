@@ -10,6 +10,10 @@ namespace ASCTracInterfaceService.Controllers.Export
     [Filters.ApiAuthenticationFilter]
     public class TranFileExportController : ApiController
     {
+        /// <summary>
+        /// Return list of Inventory Transactions
+        /// </summary>
+
         [HttpGet]
         public HttpResponseMessage GetTranfileTransactions(ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter aData)
         {
@@ -35,6 +39,9 @@ namespace ASCTracInterfaceService.Controllers.Export
         }
 
 
+        /// <summary>
+        /// Return list of Inventory Transactions for a Customer
+        /// </summary>
         [HttpGet]
         public HttpResponseMessage GetTranfileTransactions( string aCustID, string aExcludeTrantype )
         {
@@ -60,7 +67,9 @@ namespace ASCTracInterfaceService.Controllers.Export
             return (retval);
         }
 
-
+        /// <summary>
+        /// Update list of Inventory Transactions to Processed
+        /// </summary>
         [HttpPut]
         public HttpResponseMessage UpdateTranfileExport(List<ASCTracInterfaceModel.Model.TranFile.TranfileExport> aList)
         {

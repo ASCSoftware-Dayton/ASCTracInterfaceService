@@ -10,8 +10,11 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class VendorImportController : ApiController
     {
+        /// <summary>
+        /// Import a Vendor Record of structure ASCTracInterfaceModel.Model.Vendor.VendorImport 
+        /// </summary>
+        /// <param name="data">The data to be imported.</param>
         [HttpPost]
-        //public Models.ModelReturnType PostPO( ASCTracInterfaceDll.Model.PO.POHdrImport aPOHdrData)
         public HttpResponseMessage PostVendor(ASCTracInterfaceModel.Model.Vendor.VendorImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.OK;

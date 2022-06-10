@@ -71,7 +71,11 @@
             "ParcelExport",
             "POExport - Lines",
             "POExport - Licenses",
-            "TranfileExport"});
+            "TranfileExport",
+            "",
+            "WCS-Pick",
+            "WCS-Repick",
+            "WCS-Unpick"});
             this.cbFunction.Location = new System.Drawing.Point(113, 81);
             this.cbFunction.Name = "cbFunction";
             this.cbFunction.Size = new System.Drawing.Size(182, 21);

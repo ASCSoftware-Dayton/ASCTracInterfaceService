@@ -24,13 +24,16 @@
 
   <ItemGroup>
     <Reference Include="ascLibrary">
-      <HintPath>..\..\..\ASCTracParse\Beta\ascLibrary.dll</HintPath>
+      <HintPath>\\asc-cin-dc04\asc-net-dev\C# Source\VS19Projects\ASCTracInterfaceService\ASCTracInterfaceService\ReferemceDlls\ascLibrary.dll</HintPath>
     </Reference>
     <Reference Include="ASCTracFunctions">
       <HintPath>..\..\..\ASCTracParse\Beta\ASCTracFunctions.dll</HintPath>
     </Reference>
+    <Reference Include="ASCTracWCSProcess">
+      <HintPath>..\ReferemceDlls\ASCTracWCSProcess.dll</HintPath>
+    </Reference>
     <Reference Include="ParseNet">
-      <HintPath>..\..\..\ASCTracParse\Beta\ParseNet.dll</HintPath>
+      <HintPath>\\asc-cin-dc04\asc-net-dev\C# Source\VS19Projects\ASCTracInterfaceService\ASCTracInterfaceService\ReferemceDlls\ParseNet.dll</HintPath>
     </Reference>
   </ItemGroup>
 

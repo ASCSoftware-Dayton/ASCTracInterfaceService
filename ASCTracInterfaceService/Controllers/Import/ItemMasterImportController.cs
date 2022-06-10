@@ -11,7 +11,9 @@ namespace ASCTracInterfaceService.Controllers.Import
     public class ItemMasterImportController : ApiController
     {
         [HttpPost]
-        //public Models.ModelReturnType PostPO( ASCTracInterfaceDll.Model.PO.POHdrImport aPOHdrData)
+        /// <summary>
+        /// Import an Item Record
+        /// </summary>
         public HttpResponseMessage PostItemMaster(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.OK;

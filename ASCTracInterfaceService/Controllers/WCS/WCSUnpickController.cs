@@ -5,26 +5,25 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace ASCTracInterfaceService.Controllers.Import
+namespace ASCTracInterfaceService.Controllers.WCS
 {
     [Filters.ApiAuthenticationFilter]
-    public class POImportController : ApiController
+    public class WCSUnpickController : ApiController
     {
-        [HttpPost]
         /// <summary>
-        /// Import a Purchase Order (Header and Details)
+        /// Process a UnPick of a Customer Order Line
         /// </summary>
-        public HttpResponseMessage PostPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
+        /// <param name="data">The data to be imported.</param>
+        [HttpPost]
+        public HttpResponseMessage PostPick(ASCTracInterfaceModel.Model.WCS.WCSPick aData)
         {
-            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            HttpStatusCode statusCode = HttpStatusCode.OK;
             string errMsg = string.Empty;
             try
             {
-                statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
-                //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
-
+                statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport("N", aData, ref errMsg);
             }
-            catch( Exception ex)
+            catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
@@ -34,5 +33,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             //var retval = new Models.ModelReturnType(errMsg);
             return (retval);
         }
+
     }
 }
+

@@ -11,7 +11,9 @@ namespace ASCTracInterfaceService.Controllers.Import
     public class ASNImportController : ApiController
     {
         [System.Web.Http.HttpPost]
-        //public Models.ModelReturnType PostPO( ASCTracInterfaceDll.Model.PO.POHdrImport aPOHdrData)
+        /// <summary>
+        /// Import a ASN Order (Header and Details)
+        /// </summary>
         public HttpResponseMessage PostASN(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;

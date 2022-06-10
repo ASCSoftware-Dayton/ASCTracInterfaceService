@@ -187,7 +187,6 @@ namespace ASCTracInterfaceDll.Imports
         {
             string tmpStr = string.Empty;
             string vmiCustId, itemId, ascItemId = string.Empty, skidId;
-            int recId = 0;
 
             foreach (var rec in aData.DetailList)
             {

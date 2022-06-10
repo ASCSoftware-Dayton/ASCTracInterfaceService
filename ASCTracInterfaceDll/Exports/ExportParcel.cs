@@ -428,8 +428,8 @@ namespace ASCTracInterfaceDll.Exports
                 string posted = "T";
                 if (!rec.Successful)
                     posted = "E";
-                PostParcel(rec.ORDERNUMBER, rec.PARCEL_NUMBER, "T", "");
-                SetShipmentPosted(rec.ORDERNUMBER, "", "T", "");
+                PostParcel(rec.ORDERNUMBER, rec.PARCEL_NUMBER, posted, "");
+                SetShipmentPosted(rec.ORDERNUMBER, "", posted, "");
             }
             return (retval);
         }

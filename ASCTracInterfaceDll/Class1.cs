@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using ASCTracWCSProcess.Exports;
 
 namespace ASCTracInterfaceDll
 {
@@ -13,6 +14,7 @@ namespace ASCTracInterfaceDll
      */
     public class Class1
     {
+        internal ASCTracWCSProcess.Imports.dmPickImport myWCSPickImport ;
         private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
         private string fFuncType;
@@ -45,12 +47,14 @@ namespace ASCTracInterfaceDll
             {
                 bool fOK = false;
                 myParse = new ParseNet.ParseNetMain();
+                string myConnStr = string.Empty;
                 try
                 {
                     myParse.InitParse("AliasASCTrac");
 
                     myParse.Globals.myDBUtils.RunSqlCommand("SELECT GETDATE()");
                     fOK = true;
+                    myConnStr = myParse.Globals.myDBUtils.myConnString;
                 }
                 catch
                 {
@@ -59,7 +63,6 @@ namespace ASCTracInterfaceDll
                 }
                 if (!fOK)
                 {
-                    string myConnStr = string.Empty;
                     try
                     {
                         myConnStr = ""; // ConfigurationManager.ConnectionStrings["ASCTracConnectionString"].ConnectionString;
@@ -72,6 +75,22 @@ namespace ASCTracInterfaceDll
                 }
                 if (!String.IsNullOrEmpty(errmsg))
                     ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
+                else if (aFuncType.StartsWith("WCS"))
+                {
+                    string wcsConnStr = string.Empty;
+                    try
+                    {
+                        ascLibrary.ascDBUtils tmpDBUtils = new ascLibrary.ascDBUtils();
+                        tmpDBUtils.BuildConnectString("AliasWCS");
+                        wcsConnStr = tmpDBUtils.myConnString;
+                    }
+                    catch { }
+                    if( String.IsNullOrEmpty( wcsConnStr))
+                        wcsConnStr = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ascWCSPicking";
+
+                    ASCTracWCSProcess.wcsGlobals.InitWCSGlobalsForInterface("ASCTracInterface", "ASCTracInterface", "ASCWEB", true, myConnStr, wcsConnStr);
+                    myWCSPickImport = new ASCTracWCSProcess.Imports.dmPickImport(aFuncType, myParse.Globals);
+                }
             }
             catch (Exception ex)
             {
@@ -96,6 +115,10 @@ namespace ASCTracInterfaceDll
         internal bool FunctionAuthorized( string aFuncType)
         {
             bool retval = true;
+            if( aFuncType.Equals( "WCS"))
+            {
+                retval = myParse.Globals.myConfig.gwWCSKAR.boolValue || myParse.Globals.myConfig.gwWCSKN.boolValue;
+            }
 
             return (retval);
         }

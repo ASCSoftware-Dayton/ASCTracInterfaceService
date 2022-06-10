@@ -39,6 +39,8 @@ namespace ASCTracInterfaceService.Filters
 
         public int Authenticate(string userName, string password)
         {
+            int retval = 1;
+            /*
             int retval = 0;
             string aerrmsg = string.Empty;
             if( InitAuthenticate())
@@ -52,21 +54,8 @@ namespace ASCTracInterfaceService.Filters
                 {
 
                 }
-                /*
-
-                string amsg = ascLibrary.dbConst.cmdSIGN_ON;
-                amsg += ascLibrary.dbConst.HHDELIM + userName;
-                amsg += ascLibrary.dbConst.HHDELIM + "WEB";
-                amsg += ascLibrary.dbConst.HHDELIM + password;
-
-                string rtnmsg = iParse.myParseNet.ParseMessage(amsg);
-
-                if (rtnmsg.StartsWith(ascLibrary.dbConst.stOK))
-                {
-                    retval = 1;
-                }
-                */
             }
+            */
             return (retval);
         }
     }

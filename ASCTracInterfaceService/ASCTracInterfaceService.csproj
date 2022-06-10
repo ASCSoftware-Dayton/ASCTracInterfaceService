@@ -34,6 +34,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>app_data\xmlDocument.xml</DocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,9 +47,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ascLibrary, Version=10.0.7.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ascLibrary, Version=11.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\ASCTracParse\Beta\ascLibrary.dll</HintPath>
+      <HintPath>\\asc-cin-dc04\asc-net-dev\C# Source\VS19Projects\ASCTracInterfaceService\ASCTracInterfaceService\ReferemceDlls\ascLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -176,6 +178,9 @@
     <Compile Include="Controllers\Import\POImportController.cs" />
     <Compile Include="Controllers\Import\VendorImportController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\WCS\WCSPicksController.cs" />
+    <Compile Include="Controllers\WCS\WCSRepickController.cs" />
+    <Compile Include="Controllers\WCS\WCSUnpickController.cs" />
     <Compile Include="Filters\ApiAuthenticationFilter.cs" />
     <Compile Include="Filters\ASCTracRestAuthenticationFilter.cs" />
     <Compile Include="Filters\BasicAuthenticationIdentity.cs" />
