@@ -602,9 +602,14 @@
             </summary>
             <param name="data">The data to be imported.</param>
         </member>
+        <member name="M:ASCTracInterfaceService.Controllers.WCS.WCSPicksController.doExportWCSPicks(System.String)">
+            <summary>
+            Get List of WCS Picks for ORder Type.  Content contains list of WCSPicks.
+            </summary>
+        </member>
         <member name="M:ASCTracInterfaceService.Controllers.WCS.WCSPicksController.PostPick(ASCTracInterfaceModel.Model.WCS.WCSPick)">
             <summary>
-            Process a Customer Order Pick
+            Process a Customer Order Pick Record
             </summary>
             <param name="data">The data to be imported.</param>
         </member>

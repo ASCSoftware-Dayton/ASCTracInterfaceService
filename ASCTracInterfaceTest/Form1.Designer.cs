@@ -73,6 +73,7 @@
             "POExport - Licenses",
             "TranfileExport",
             "",
+            "WCS-GetPicks",
             "WCS-Pick",
             "WCS-Repick",
             "WCS-Unpick"});

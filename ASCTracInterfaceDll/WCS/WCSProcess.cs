@@ -99,7 +99,7 @@ namespace ASCTracInterfaceDll.WCS
             return (retval);
         }
 
-        public static HttpStatusCode doWCSPickExport(ref List<ASCTracInterfaceModel.Model.WCS.WCSPick> aData, ref string errmsg)
+        public static HttpStatusCode doWCSPickExport(string aOrderType, ref List<ASCTracInterfaceModel.Model.WCS.WCSPick> aData, ref string errmsg)
         {
             string funcType = "WCS";
             HttpStatusCode retval = HttpStatusCode.OK;
@@ -114,7 +114,7 @@ namespace ASCTracInterfaceDll.WCS
                     else
                     {
                         //currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
-                        string sqlstr = BuildWCSExportSQL(ref errmsg);
+                        string sqlstr = BuildWCSExportSQL(aOrderType, ref errmsg);
                         if (!String.IsNullOrEmpty(sqlstr))
                         {
                             retval = BuildExportList(myClass, sqlstr, ref aData, ref errmsg);
@@ -136,12 +136,14 @@ namespace ASCTracInterfaceDll.WCS
             return (retval);
         }
 
-        private static string BuildWCSExportSQL(ref string errmsg)
+        private static string BuildWCSExportSQL(string aOrderType, ref string errmsg)
         {
             string retval = string.Empty;
 
             retval = "SELECT PA.* FROM PICK_ASSIGNMENTS PA" +
                 " WHERE PA.STATUS_FLAG='R' ";
+            if (!String.IsNullOrEmpty(aOrderType))
+                retval += " AND PA.ORDER_TYPE='" + aOrderType + "'";
             retval += " ORDER BY PA.DATE_TIME_CREATED, PA.ID";
 
 
@@ -211,7 +213,10 @@ namespace ASCTracInterfaceDll.WCS
                         }
                         */
                         if (fok)
+                        {
                             aData.Add(rec);
+                            retval = HttpStatusCode.OK;
+                        }
                     }
                     catch (Exception ex)
                     {

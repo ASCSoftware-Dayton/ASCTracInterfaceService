@@ -11,7 +11,35 @@ namespace ASCTracInterfaceService.Controllers.WCS
     public class WCSPicksController : ApiController
     {
         /// <summary>
-        /// Process a Customer Order Pick
+        /// Get List of WCS Picks for Order Type.  Content contains list of WCSPicks.
+        /// </summary>
+        [HttpGet]
+        public HttpResponseMessage doExportWCSPicks(string aOrderType)
+        {
+            HttpStatusCode statusCode = HttpStatusCode.OK;
+            var aData = new List<ASCTracInterfaceModel.Model.WCS.WCSPick>();
+            string errmsg = string.Empty;
+            try
+            {
+                statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(aOrderType, ref aData, ref errmsg);
+            }
+            catch (Exception ex)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+                errmsg = ex.Message;
+            }
+            var retval = new HttpResponseMessage(statusCode);
+            if (statusCode == HttpStatusCode.OK)
+                retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(aData));
+            else
+                retval.Content = new StringContent(errmsg);
+
+            return (retval);
+        }
+
+
+        /// <summary>
+        /// Process a Customer Order Pick Record
         /// </summary>
         /// <param name="data">The data to be imported.</param>
         [HttpPost]
@@ -32,23 +60,6 @@ namespace ASCTracInterfaceService.Controllers.WCS
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);
             //var retval = new Models.ModelReturnType(errMsg);
-            return (retval);
-        }
-
-        [HttpGet]
-        public static HttpStatusCode doExportWCSPicks( ref List<ASCTracInterfaceModel.Model.WCS.WCSPick> aData, ref string errmsg)
-        {
-            HttpStatusCode retval = HttpStatusCode.OK;
-            aData = new List<ASCTracInterfaceModel.Model.WCS.WCSPick>();
-            try
-            {
-                retval = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(ref aData, ref errmsg);
-            }
-            catch (Exception ex)
-            {
-                retval = HttpStatusCode.BadRequest;
-                errmsg = ex.Message;
-            }
             return (retval);
         }
 

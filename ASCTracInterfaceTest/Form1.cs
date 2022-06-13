@@ -90,6 +90,8 @@ namespace ASCTracInterfaceTest
                 doParcelExport();
             else if (cbFunction.Text == "TranfileExport")
                 doTranfileExport();
+            else if (cbFunction.Text == "WCS-GetPicks")
+                doWCSGetPicks();
             else if (cbFunction.Text == "WCS-Pick")
                 doWCSExport("C");
             else if (cbFunction.Text == "WCS-Repick")
@@ -872,6 +874,33 @@ namespace ASCTracInterfaceTest
             }
         }
 
+        async private void doWCSGetPicks()
+        {
+            var myResult = myRestService.doWCSGetPicks(string.Empty).Result;
+
+            lblResultCode.Text = myResult.StatusCode.ToString();
+            tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+            /*
+    if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+    {
+        if (MessageBox.Show("Update Tranfile Results", "Tran File Export", MessageBoxButtons.YesNoCancel) == DialogResult.Yes)
+        {
+            var mylist = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ASCTracInterfaceModel.Model.WCS.WCSPick>>(tbContent.Text);
+            foreach (var rec in mylist)
+            {
+                rec.SUCCESSFUL = true;
+            }
+            myResult = myRestService.updateTranfileExport(mylist).Result;
+
+            lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+                }
+            }
+            */
+
+        }
 
         async private void doWCSExport(string aOrderType)
         {
