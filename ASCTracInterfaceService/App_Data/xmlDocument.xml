@@ -604,7 +604,7 @@
         </member>
         <member name="M:ASCTracInterfaceService.Controllers.WCS.WCSPicksController.doExportWCSPicks(System.String)">
             <summary>
-            Get List of WCS Picks for ORder Type.  Content contains list of WCSPicks.
+            Get List of WCS Picks for Order Type.  Content contains list of WCSPicks.
             </summary>
         </member>
         <member name="M:ASCTracInterfaceService.Controllers.WCS.WCSPicksController.PostPick(ASCTracInterfaceModel.Model.WCS.WCSPick)">

@@ -502,7 +502,9 @@ namespace ASCTracInterfaceDll.Imports
                     uomField = "UNIT_MEAS4";
 
                 double convFact = 1;
-                if (!String.IsNullOrEmpty(uomField))
+                if (rec.BUY_TO_STOCK_CONV_FACTOR > 0)
+                    convFact = rec.BUY_TO_STOCK_CONV_FACTOR;
+                else if (!String.IsNullOrEmpty(uomField))
                     convFact = myClass.GetItemConv(ascItemId, "STOCK_UOM", uomField);
 
                 double qtyRcvd = 0;
@@ -689,6 +691,7 @@ namespace ASCTracInterfaceDll.Imports
                     }
 
                     ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, "ALT_LOTID", rec.ALT_LOTID);
+                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, "PROJECT_NUMBER", rec.PROJECT_NUMBER);
                     //////////////////////
 
 
