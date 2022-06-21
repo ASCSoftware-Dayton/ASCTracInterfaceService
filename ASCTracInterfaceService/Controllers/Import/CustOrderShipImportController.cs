@@ -19,6 +19,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrderConfirmShip(aOrderNumber, ref errMsg);
             }
             catch (Exception ex)

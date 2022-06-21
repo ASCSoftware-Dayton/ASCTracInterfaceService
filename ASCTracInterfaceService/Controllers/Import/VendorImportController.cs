@@ -21,6 +21,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Imports.ImportVendor.doImportVendor(aData, ref errMsg);
             }
             catch (Exception ex)

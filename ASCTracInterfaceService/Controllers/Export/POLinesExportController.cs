@@ -22,6 +22,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportPOLines.doExportPOLines(aData, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -50,6 +51,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportPOLines.doExportPOLines(aData, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -76,6 +78,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportPOLines.updateExportPOLines(aList, ref errMsg);
             }
             catch (Exception ex)

@@ -21,6 +21,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport("R", aData, ref errMsg);
             }
             catch (Exception ex)

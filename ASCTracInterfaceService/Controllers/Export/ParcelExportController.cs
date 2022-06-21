@@ -21,6 +21,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportParcel.doExportParcel(aData, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -50,6 +51,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportParcel.doExportParcel(aData, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -76,6 +78,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportParcel.UpdateExport(aList, ref errMsg);
             }
             catch (Exception ex)

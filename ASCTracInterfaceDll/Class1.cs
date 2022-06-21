@@ -14,6 +14,7 @@ namespace ASCTracInterfaceDll
      */
     public class Class1
     {
+        public static string fDefaultConnectionStr = string.Empty;
         internal ASCTracWCSProcess.Imports.dmPickImport myWCSPickImport ;
         private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
@@ -70,7 +71,7 @@ namespace ASCTracInterfaceDll
                     catch
                     { }
                     if (String.IsNullOrEmpty(myConnStr))
-                        myConnStr = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ASCTRAC904Dev";
+                        myConnStr = fDefaultConnectionStr; // "";
                     myParse.InitParse(myConnStr, ref errmsg);
                 }
                 if (!String.IsNullOrEmpty(errmsg))

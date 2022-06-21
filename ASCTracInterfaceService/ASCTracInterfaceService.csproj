@@ -191,6 +191,7 @@
     </Compile>
     <Compile Include="Models\ModelReturnType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadMyAppSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />

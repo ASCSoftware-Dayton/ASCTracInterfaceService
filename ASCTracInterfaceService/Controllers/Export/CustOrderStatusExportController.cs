@@ -22,6 +22,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportCustOrderStatus.doExportCustOrderStatus(aData, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -49,6 +50,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aData = new ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter("C", aCustID, string.Empty);
                 statusCode = ASCTracInterfaceDll.Exports.ExportCustOrderStatus.doExportCustOrderStatus(aData, ref outdata, ref errMsg);
             }
@@ -76,6 +78,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Exports.ExportCustOrderStatus.updateExportCustOrderStatus(aList, ref errMsg);
             }
             catch (Exception ex)

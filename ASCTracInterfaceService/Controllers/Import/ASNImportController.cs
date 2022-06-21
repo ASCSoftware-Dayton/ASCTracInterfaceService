@@ -20,6 +20,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Imports.ImportASN.doImportASN(aData, ref errMsg);
                 //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
 

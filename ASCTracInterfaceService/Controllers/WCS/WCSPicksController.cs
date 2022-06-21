@@ -21,6 +21,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             string errmsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(aOrderType, ref aData, ref errmsg);
             }
             catch (Exception ex)
@@ -49,6 +50,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             string errMsg = string.Empty;
             try
             {
+                ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport( "C", aData, ref errMsg);
             }
             catch (Exception ex)
