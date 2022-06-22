@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCTracInterfaceDll", "ASCT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCTracInterfaceTest", "ASCTracInterfaceTest\ASCTracInterfaceTest.csproj", "{FA4E4464-D4BF-4DEC-B5F7-1FF51E77C5FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCTracInterfaceModel", "ASCTracInterfaceModel\ASCTracInterfaceModel.csproj", "{49F32861-7FE0-4361-B89D-42B55DD4ED2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASCTracInterfaceModel", "ASCTracInterfaceModel\ASCTracInterfaceModel.csproj", "{49F32861-7FE0-4361-B89D-42B55DD4ED2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCTracInterfaceSample", "ASCTracInterfaceSample\ASCTracInterfaceSample.csproj", "{A7159BDC-9A74-4E4D-BFCB-E9BD88AC10CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{49F32861-7FE0-4361-B89D-42B55DD4ED2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F32861-7FE0-4361-B89D-42B55DD4ED2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F32861-7FE0-4361-B89D-42B55DD4ED2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7159BDC-9A74-4E4D-BFCB-E9BD88AC10CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7159BDC-9A74-4E4D-BFCB-E9BD88AC10CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7159BDC-9A74-4E4D-BFCB-E9BD88AC10CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7159BDC-9A74-4E4D-BFCB-E9BD88AC10CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
