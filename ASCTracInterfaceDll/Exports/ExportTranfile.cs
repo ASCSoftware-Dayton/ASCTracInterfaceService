@@ -14,7 +14,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode doExportTranfile(ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter aExportfilter, ref List<ASCTracInterfaceModel.Model.TranFile.TranfileExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType);
+            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.TranFile.TranfileExport>();
             string OrderNum = string.Empty;
@@ -346,7 +346,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode UpdateExport(List<ASCTracInterfaceModel.Model.TranFile.TranfileExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("Update" + funcType);
+            myClass = Class1.InitParse("Update" + funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             string sqlstr = string.Empty;

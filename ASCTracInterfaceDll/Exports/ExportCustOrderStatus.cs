@@ -14,7 +14,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode doExportCustOrderStatus (ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aCOExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderStatusExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType);
+            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.CustOrder.CustOrderStatusExport>();
             string OrderNum = string.Empty;

@@ -13,7 +13,7 @@ namespace ASCTracInterfaceDll.Imports
         private static Model.Item.ItemImportConfig currImportConfig;
         public static HttpStatusCode doImportItem(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType);
+            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string ItemID = aData.PRODUCT_CODE;
             string updstr = string.Empty;

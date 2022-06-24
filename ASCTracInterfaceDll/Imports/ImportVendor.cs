@@ -10,7 +10,7 @@ namespace ASCTracInterfaceDll.Imports
         private static string funcType = "IM_VENDOR";
         public static HttpStatusCode doImportVendor(ASCTracInterfaceModel.Model.Vendor.VendorImport aData, ref string errmsg)
         {
-            var myClass = Class1.InitParse(funcType);
+            var myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.VENDOR_CODE;
             string updstr = string.Empty;

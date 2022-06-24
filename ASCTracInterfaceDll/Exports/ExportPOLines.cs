@@ -14,7 +14,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode doExportPOLines(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter,  ref List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType);
+            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.PO.POExportLines>();
             string OrderNum = string.Empty;
@@ -306,7 +306,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode updateExportPOLines(List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("UpdateExportPO");
+            myClass = Class1.InitParse("UpdateExportPO", ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             string sqlstr = string.Empty;

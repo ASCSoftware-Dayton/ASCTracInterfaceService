@@ -13,7 +13,7 @@ namespace ASCTracInterfaceDll.WCS
         {
             string funcType = "WCS";
             HttpStatusCode retval = HttpStatusCode.OK;
-            var myClass = Class1.InitParse("WCS");
+            var myClass = Class1.InitParse(funcType, ref errMsg);
             string OrderNum = aData.ORDERNUMBER;
             string updstr = string.Empty;
             try
@@ -106,7 +106,7 @@ namespace ASCTracInterfaceDll.WCS
             string OrderNum = string.Empty;
             try
             {
-                var myClass = Class1.InitParse(funcType);
+                var myClass = Class1.InitParse(funcType, ref errmsg);
                 if (myClass != null)
                 {
                     if (!myClass.FunctionAuthorized(funcType))

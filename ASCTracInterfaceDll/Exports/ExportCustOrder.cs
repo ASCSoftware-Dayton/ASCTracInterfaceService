@@ -15,7 +15,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode doExportCustOrders(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aCOExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType);
+            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport>();
             string OrderNum = string.Empty;
@@ -517,7 +517,7 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode updateExportCustOrder(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("UpdateExportCustOrder");
+            myClass = Class1.InitParse("UpdateExportCustOrder", ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             string sqlstr = string.Empty;

@@ -13,7 +13,7 @@ namespace ASCTracInterfaceDll.Imports
         private static Model.PO.POImportConfig currPOImportConfig;
         public static HttpStatusCode doImportPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType);
+            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.PONUMBER;
             string updstr = string.Empty;

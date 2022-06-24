@@ -23,7 +23,7 @@ namespace ASCTracInterfaceDll
         //public static ascLibrary.ascDBUtils myInterface
         //public static bool fInitParse = false;
 
-        public static Class1 InitParse(string aFuncType)
+        public static Class1 InitParse(string aFuncType, ref string errmsg)
         {
             Class1 retval;
             if (parseList.ContainsKey(aFuncType))
@@ -31,7 +31,7 @@ namespace ASCTracInterfaceDll
             else
             {
                 retval = new Class1();
-                if (!retval.Init(aFuncType))
+                if (!retval.Init(aFuncType, ref errmsg))
                     retval = null;
                 else
                     parseList.Add(aFuncType, retval);
@@ -39,11 +39,10 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
-        internal bool Init(string aFuncType)
+        internal bool Init(string aFuncType, ref string errmsg)
         {
             fFuncType = aFuncType;
             bool retval = true;
-            string errmsg = string.Empty;
             try
             {
                 bool fOK = false;

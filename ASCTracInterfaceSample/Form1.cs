@@ -556,7 +556,7 @@ namespace ASCTracInterfaceSample
             rec.COSTEACH = 1.75;
             rec.CW_NOT_BASE_UOM = 0;
             rec.CW_UOM = "CW_UOM";
-            rec.STATUS_FLAG = "STATUS_FLAG";
+            rec.STATUS_FLAG = "A";
             rec.LIST_PRICE = 0;
             rec.ORDER_STATUS = "ORDER_STATUS";
             rec.HOST_UOM = "HOST_UOM";
