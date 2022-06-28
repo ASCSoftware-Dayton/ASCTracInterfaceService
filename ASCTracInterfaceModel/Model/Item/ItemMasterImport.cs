@@ -144,16 +144,6 @@ namespace ASCTracInterfaceModel.Model.Item
 
         public string VMI_RESPID { get; set; }
 
-        public string ITEM_CUSTOMDATA8 { get; set; }
-
-        public string ITEM_CUSTOMDATA7 { get; set; }
-
-        public string ITEM_CUSTOMDATA6 { get; set; }
-
-        public string ITEM_CUSTOMDATA5 { get; set; }
-
-        public string ITEM_CUSTOMDATA4 { get; set; }
-
         public string THUMBNAIL_FILENAME { get; set; }
 
         public string ORGANIC_FLAG { get; set; }
@@ -165,7 +155,9 @@ namespace ASCTracInterfaceModel.Model.Item
         public string MFG_ID { get; set; }
 
         public string VENDOR1ITEMNUM { get; set; }
-
+        public string ZONEID { get; set; }
+        public double ORDERMINIMUM { get; set; }
+        public double MRP_SAFETY_STOCK { get; set; }
         public Dictionary<string,string> ExtDataList { get; set; }
         public List<NotesImport> NotesList { get; set; }
         public List<ModelCustomData> CustomList { get; set; }

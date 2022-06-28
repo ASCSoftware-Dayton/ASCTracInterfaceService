@@ -43,6 +43,7 @@ namespace ASCTracInterfaceDll
         {
             fFuncType = aFuncType;
             bool retval = true;
+            string Status = "Status: 004";
             try
             {
                 bool fOK = false;
@@ -71,12 +72,14 @@ namespace ASCTracInterfaceDll
                     { }
                     if (String.IsNullOrEmpty(myConnStr))
                         myConnStr = fDefaultConnectionStr; // "";
+                    Status = "Status: Web.Config";
                     myParse.InitParse(myConnStr, ref errmsg);
                 }
                 if (!String.IsNullOrEmpty(errmsg))
                     ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
                 else if (aFuncType.StartsWith("WCS"))
                 {
+                    Status = "WCS";
                     string wcsConnStr = string.Empty;
                     try
                     {
@@ -98,7 +101,10 @@ namespace ASCTracInterfaceDll
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
             }
             if (!String.IsNullOrEmpty(errmsg))
+            {
                 retval = false;
+                errmsg += "(" + Status + ")";
+            }
 
             return (retval);
         }

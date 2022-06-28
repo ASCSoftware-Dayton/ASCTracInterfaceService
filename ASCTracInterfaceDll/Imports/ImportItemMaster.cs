@@ -88,7 +88,9 @@ namespace ASCTracInterfaceDll.Imports
             if (itemDesc2.Length > 60)  //added 03-11-16 (JXG)
                 itemDesc2 = itemDesc2.Substring(0, 60);
 
-            zoneId = myClass.GetZone(siteid);
+            zoneId = aData.ZONEID;
+            if (string.IsNullOrEmpty(zoneId))
+                zoneId = myClass.GetZone(siteid);
 
             stockUom = aData.STOCK_UOM.Trim();
             cwUom = aData.CW_UOM.Trim();
@@ -204,6 +206,10 @@ namespace ASCTracInterfaceDll.Imports
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOLD_DATA", aData.AUTO_QC_REASON.Trim());
 
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BUNDLE_SIZE", aData.BUNDLE_SIZE.Trim());
+
+            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "ORDERMINIMUM", aData.ORDERMINIMUM.ToString());
+            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "MRP_SAFETY_STOCK", aData.MRP_SAFETY_STOCK.ToString());
+
             //ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr,"THUMBNAIL_FILENAME", thumbnailFilename);  //taken out 10-02-17 (JXG)
             if (String.IsNullOrEmpty(buyUom))
                 buyUom = stockUom;
