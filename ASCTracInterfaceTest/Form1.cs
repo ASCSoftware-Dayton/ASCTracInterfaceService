@@ -658,7 +658,7 @@ namespace ASCTracInterfaceTest
                     data.CUST_SHIPTO_PO_NUM = dr["CUST_SHIPTO_PO_NUM"].ToString();
                     data.STATUS_FLAG = dr["STATUS_FLAG"].ToString();
                     data.LOAD_PLAN_NUM = dr["LOAD_PLAN_NUM"].ToString();
-                    data.LOAD_STOP_SEQ = dr["LOAD_STOP_SEQ"].ToString();
+                    data.LOAD_STOP_SEQ = ascLibrary.ascUtils.ascStrToInt( dr["LOAD_STOP_SEQ"].ToString(), 0);
                     data.PRIORITY_ID = ascLibrary.ascUtils.ascStrToDouble(dr["PRIORITY_ID"].ToString(), 0);
                     data.RECIPIENT_EMAIL = dr["RECIPIENT_EMAIL"].ToString();
                     data.BOL_NUMBER = dr["BOL_NUMBER"].ToString();

@@ -770,6 +770,7 @@ namespace ASCTracInterfaceDll.Imports
                     /////////////////////////////////////
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS1", aData.SHIP_TO_ADDR_LINE1);
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS2", aData.SHIP_TO_ADDR_LINE2);
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS3", aData.SHIP_TO_ADDR_LINE3);
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCITY", aData.SHIP_TO_CITY);
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOSTATE", aData.SHIP_TO_STATE);
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOZIPCODE", aData.SHIP_TO_ZIP);
@@ -960,7 +961,6 @@ namespace ASCTracInterfaceDll.Imports
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "MUST_ARRIVE_BY_DATE", aData.MUST_ARRIVE_BY_DATE.ToShortDateString());
                 }
                 /////////////////////////////////
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS3", aData.SHIP_TO_ADDR_LINE3);
                 // Added for Numrich
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SALESORDERNUMBER", aData.SALESORDERNUMBER);
 
@@ -995,7 +995,7 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 if (String.IsNullOrEmpty(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr)))  //added 07-31-13 (JXG) suppress update if already assigned to load
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LINK_SEQ_NUM", aData.LOAD_STOP_SEQ);
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LINK_SEQ_NUM", aData.LOAD_STOP_SEQ.ToString());
                 }
                 //added 09-17-15 (JXG) for Driscoll's
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COD_AMT", aData.COD_AMT.ToString());

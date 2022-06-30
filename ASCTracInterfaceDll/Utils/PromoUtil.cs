@@ -13,12 +13,11 @@ namespace ASCTracInterfaceDll.Utils
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "SITE_ID", siteid);
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "MASTER_CLIENT", acustid);
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "DESCRIPTION", "Imported");
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "PROMO_CODE", promoCode);
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_USERID", Globals.curUserID);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_DATE", "GETDATE()");
+            ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "CREATE_DATE", "GETDATE()");
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_USERID", "IMPORT");
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
-            Globals.mydmupdate.InsertRecord("PROMO", updStr);
+            ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
+            Globals.mydmupdate.InsertRecord("PROMOS", updStr);
 
         }
 
@@ -41,9 +40,9 @@ namespace ASCTracInterfaceDll.Utils
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTYALLOCATED", "0");
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTYFILLED", "0");
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_USERID", Globals.curUserID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_DATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "CREATE_DATE", "GETDATE()");
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_USERID", Globals.curUserID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
                 Globals.mydmupdate.InsertRecord("PROMO_ITEMS", updStr);
             }
         }
@@ -67,9 +66,9 @@ namespace ASCTracInterfaceDll.Utils
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTYORDERED", orderQty.ToString());
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTYFILLED", "0");
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_USERID", Globals.curUserID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_DATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "CREATE_DATE", "GETDATE()");
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_USERID", Globals.curUserID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
                 Globals.mydmupdate.InsertRecord("PROMO_ORDERS", updStr);
             }
             else
@@ -77,7 +76,7 @@ namespace ASCTracInterfaceDll.Utils
                 updStr = string.Empty;
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTYORDERED", orderQty.ToString());
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_USERID", Globals.curUserID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "LAST_UPDATE_DATE", "GETDATE()");
                 Globals.mydmupdate.UpdateFields("PROMO_ORDERS", updStr, wherestr);
             }
             UpdatePromoItemQty(promoCode, siteid, ascItemId, orderType, Globals);

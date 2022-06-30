@@ -66,8 +66,8 @@ namespace ASCTracInterfaceDll.Imports
 
             myClass.myParse.Globals.initsite(siteid);
 
-            itemId = aData.PRODUCT_CODE;
-            vmiCustId = aData.VMI_CUSTID;
+            itemId = aData.PRODUCT_CODE.ToUpper().Trim();
+            vmiCustId = aData.VMI_CUSTID.ToUpper().Trim();
 
 
             bool fUseVMI = myClass.myParse.Globals.myConfig.iniGNVMI.boolValue;

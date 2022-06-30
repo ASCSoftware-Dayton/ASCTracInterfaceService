@@ -110,11 +110,11 @@ namespace ASCTracInterfaceSample
             data.VENDORID = "VENDORID";
             data.SCC14 = "SCC14";
             data.CUBIC_PER_EACH = 0;
-            data.ABC_ZONE = "ABC_ZONE";
+            data.ABC_ZONE = "A";
             data.SHELF_LIFE = 90;
-            data.AUTO_QC_REASON = "AUTO_QC_REASON";
+            data.AUTO_QC_REASON = "QCReason";
             data.RETAIL_PRICE = 2.25;
-            data.COUNTRY_OF_ORIGIN = "COUNTRY_OF_ORIGIN";
+            data.COUNTRY_OF_ORIGIN = "Country";
             data.SKID_TRACKED = "T";
 
             data.SERIAL_TRACKED = "F";
@@ -149,7 +149,7 @@ namespace ASCTracInterfaceSample
 
             data.VMI_CUSTID = "CUSTID";
 
-            data.VMI_RESPID = "CUSTOD";
+            data.VMI_RESPID = "CUSTID";
 
             data.THUMBNAIL_FILENAME = "";
             data.ORGANIC_FLAG = "F";
@@ -184,21 +184,21 @@ namespace ASCTracInterfaceSample
             data.ADDR_LINE2 = "ADDR_LINE2";
             data.CITY = "CITY";
             data.STATE = "STATE";
-            data.ZIP = "ZIP";
+            data.ZIP = "99999";
             data.COUNTRY = "COUNTRY";
             data.CONTACT_NAME = "CONTACT_NAME";
-            data.CONTACT_TEL = "CONTACT_TEL";
-            data.CONTACT_FAX = "CONTACT_FAX";
+            data.CONTACT_TEL = "1-800-555-5555";
+            data.CONTACT_FAX = "1-800-555-5555";
 
             data.REMIT_TO_ADDR_LINE1 = "REMIT_TO_ADDR_LINE1";
             data.REMIT_TO_ADDR_LINE2 = "REMIT_TO_ADDR_LINE2";
             data.REMIT_TO_CITY = "REMIT_TO_CITY";
             data.REMIT_TO_STATE = "REMIT_TO_STATE";
-            data.REMIT_TO_ZIP = "REMIT_TO_ZIP";
+            data.REMIT_TO_ZIP = "99999";
             data.REMIT_TO_COUNTRY = "REMIT_TO_COUNTRY";
             data.REMIT_TO_CONTACT_NAME = "REMIT_TO_CONTACT_NAME";
-            data.REMIT_TO_CONTACT_TEL = "REMIT_TO_CONTACT_TEL";
-            data.REMIT_TO_CONTACT_FAX = "REMIT_TO_CONTACT_FAX";
+            data.REMIT_TO_CONTACT_TEL = "1-800-555-5555";
+            data.REMIT_TO_CONTACT_FAX = "1-800-555-5555";
 
             data.TERMS_ID = "T1";
             data.STATUS = "A";
@@ -228,20 +228,20 @@ namespace ASCTracInterfaceSample
             data.DELIVERY_INSTRUCTIONS = "DELIVERY_INSTRUCTIONS";
             data.ADDR_LINE1 = "ADDR_LINE1";
             data.ADDR_LINE2 = "ADDR_LINE2";
+            data.ADDR_LINE3 = "ADDR_LINE3";
             data.CITY = "CITY";
             data.STATE = "STATE";
-            data.ZIP = "ZIP";
+            data.ZIP = "99999";
             data.COUNTRY = "COUNTRY";
             data.CONTACT_NAME = "CONTACT_NAME";
-            data.CONTACT_TEL = "CONTACT_TEL";
-            data.CONTACT_FAX = "CONTACT_FAX";
-            data.STATUS_FLAG = "STATUS_FLAG";
+            data.CONTACT_TEL = "1-800-555-5555";
+            data.CONTACT_FAX = "1-800-555-5555";
+            data.STATUS_FLAG = "O";
             data.CustomList.Add(new ASCTracInterfaceModel.Model.ModelCustomData("CUSTOM_DATA1", "Data 1"));
             data.CustomList.Add(new ASCTracInterfaceModel.Model.ModelCustomData("CUSTOM_DATA2", "Data 2"));
             data.RMA_TYPE = "RMA_TYPE";
             data.LINKED_ORDERNUMBER = "LINKED_ORDERNUMBER";
             data.BUYER_CODE_ID = "BUYER_CODE_ID";
-            data.ADDR_LINE3 = "ADDR_LINE3";
             data.TERMS_ID = "t1";
             data.RELEASENUM = "00";
             data.REQ_NUM = "REQ_NUM";
@@ -251,16 +251,16 @@ namespace ASCTracInterfaceSample
             //data.BILL_CITY_LINE3 = "BILL_CITY_LINE3";
             data.BILL_CITY = "BILL_CITY";
             data.BILL_STATE = "BILL_STATE";
-            data.BILL_ZIP = "BILL_ZIP";
-            data.BILL_COUNTRY = "BILL_COUNTRY";
+            data.BILL_ZIP = "99999";
+            data.BILL_COUNTRY = "US";
             data.BILL_CONTACT_NAME = "BILL_CONTACT_NAME";
-            data.BILL_CONTACT_TEL = "BILL_CONTACT_TEL";
-            data.BILL_CONTACT_FAX = "BILL_CONTACT_FAX";
-            data.DIRECT_SHIP_ORDERNUMBER = "DIRECT_SHIP_ORDERNUMBER";
+            data.BILL_CONTACT_TEL = "1-800-555-5555";
+            data.BILL_CONTACT_FAX = "1-800-555-5555";
+            data.DIRECT_SHIP_ORDERNUMBER = "DSORDERNUMBER";
             data.SHIP_TO_NAME = "SHIP_TO_NAME";
             data.BILL_TO_NAME = "BILL_TO_NAME";
             data.SEAL_NUM = "SEAL_NUM";
-            data.VMI_CUSTID = "VMI_CUSTID";
+            data.VMI_CUSTID = "CUSTID";
             data.ASN = "ASN";
             data.PROMO_CODE = "PROMO_CODE";
 
@@ -382,7 +382,7 @@ namespace ASCTracInterfaceSample
             data.VENDORID = "VENDORID";
             data.PACKINGSLIP = "PACKINGSLIP";
 
-            data.ASN_TYPE = "ASN_TYPE";
+            data.ASN_TYPE = "A";
             AddASNDet(data);
 
             var myResult = myRestService.doASNImport(data).Result;
@@ -424,7 +424,7 @@ namespace ASCTracInterfaceSample
             var data = new ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport();
 
             data.FACILITY = "HostSiteID";
-            data.ORDER_TYPE = "ORDER_TYPE";
+            data.ORDER_TYPE = "S";
             data.ORDERNUMBER = "ORDERNUMBER";
             data.ORDER_CREATE_DATE = DateTime.Now;
 
@@ -435,63 +435,63 @@ namespace ASCTracInterfaceSample
             data.CARRIER = "CARRIER";
             data.PAYMENT_TYPE = "PAYMENT_TYPE";
 
-            data.SHIP_TO_CUST_ID = "SHIP_TO_CUST_ID";
+            data.SHIP_TO_CUST_ID = "CUSTID";
             data.SHIP_TO_NAME = "SHIP_TO_NAME";
             data.SHIP_TO_ADDR_LINE1 = "SHIP_TO_ADDR_LINE1";
             data.SHIP_TO_ADDR_LINE2 = "SHIP_TO_ADDR_LINE2";
             data.SHIP_TO_ADDR_LINE3 = "SHIP_TO_ADDR_LINE3";
             data.SHIP_TO_CITY = "SHIP_TO_CITY";
-            data.SHIP_TO_STATE = "SHIP_TO_STATE";
-            data.SHIP_TO_ZIP = "SHIP_TO_ZIP";
-            data.SHIP_TO_COUNTRY = "SHIP_TO_COUNTRY";
+            data.SHIP_TO_STATE = "ZZ";
+            data.SHIP_TO_ZIP = "99999";
+            data.SHIP_TO_COUNTRY = "US";
             data.SHIP_TO_CONTACT_NAME = "SHIP_TO_CONTACT_NAME";
-            data.SHIP_TO_CONTACT_TEL = "SHIP_TO_CONTACT_TEL";
-            data.SHIP_TO_CONTACT_FAX = "SHIP_TO_CONTACT_FAX";
+            data.SHIP_TO_CONTACT_TEL = "1-800-555-5555";
+            data.SHIP_TO_CONTACT_FAX = "1-800-555-5555";
 
-            data.BILL_TO_CUST_ID = "BILL_TO_CUST_ID";
+            data.BILL_TO_CUST_ID = "CUSTID";
             data.BILL_TO_NAME = "BILL_TO_NAME";
             data.BILL_TO_ADDR_LINE1 = "BILL_TO_ADDR_LINE1";
             data.BILL_TO_ADDR_LINE2 = "BILL_TO_ADDR_LINE2";
             data.BILL_TO_ADDR_LINE3 = "BILL_TO_ADDR_LINE3";
             data.BILL_TO_CITY = "BILL_TO_CITY";
-            data.BILL_TO_STATE = "BILL_TO_STATE";
-            data.BILL_TO_ZIP = "BILL_TO_ZIP";
-            data.BILL_TO_COUNTRY = "BILL_TO_COUNTRY";
+            data.BILL_TO_STATE = "ZZ";
+            data.BILL_TO_ZIP = "99999";
+            data.BILL_TO_COUNTRY = "US";
             data.BILL_TO_CONTACT_NAME = "BILL_TO_CONTACT_NAME";
-            data.BILL_TO_CONTACT_TEL = "BILL_TO_CONTACT_TEL";
-            data.BILL_TO_CONTACT_FAX = "BILL_TO_CONTACT_FAX";
+            data.BILL_TO_CONTACT_TEL = "1-800-555-5555";
+            data.BILL_TO_CONTACT_FAX = "1-800-555-5555";
 
             data.CUST_PO_NUM = "CUST_PO_NUM";
             data.CUST_BILLTO_PO_NUM = "CUST_BILLTO_PO_NUM";
             data.CUST_SHIPTO_PO_NUM = "CUST_SHIPTO_PO_NUM";
             data.STATUS_FLAG = "A";
-            data.LOAD_PLAN_NUM = "LOAD_PLAN_NUM";
-            data.LOAD_STOP_SEQ = "LOAD_STOP_SEQ";
+            data.LOAD_PLAN_NUM = "";
+            data.LOAD_STOP_SEQ = 0;
             data.PRIORITY_ID = 0;
             data.RECIPIENT_EMAIL = "RECIPIENT_EMAIL";
             data.BOL_NUMBER = "BOL_NUMBER";
-            data.FREIGHT_ACCOUNT_NUMBER = "FREIGHT_ACCOUNT_NUMBER";
+            data.FREIGHT_ACCOUNT_NUMBER = "ACCT123";
             data.REFERENCE_NUMBER = "REFERENCE_NUMBER";
-            data.PREPAY_COLLECT = "PREPAY_COLLECT";
+            data.PREPAY_COLLECT = "02";
             data.CANCEL_DATE = DateTime.MinValue;
-            data.CARRIER_SERVICE_CODE = "CARRIER_SERVICE_CODE";
+            data.CARRIER_SERVICE_CODE = "CSCODE";
             data.DELIVERY_INSTRUCTIONS = "DELIVERY_INSTRUCTIONS";
 
             data.COD_AMT = 0;
             data.MUST_ARRIVE_BY_DATE = DateTime.MinValue;
             data.SALESPERSON = "SALESPERSON";
-            data.TERMS_ID = "TERMS_ID";
+            data.TERMS_ID = "";
             data.LINKED_PONUMBER = "LINKED_PONUMBER";
-            data.CREDIT_HOLD_STATUS = "CREDIT_HOLD_STATUS";
+            data.CREDIT_HOLD_STATUS = "";
             data.CLIENTDEPT = "CLIENTDEPT";
             data.CLIENTDIVISION = "CLIENTDIVISION";
             data.CLIENTGLACCT = "CLIENTGLACCT";
             data.CLIENTPROFIT = "CLIENTPROFIT";
-            data.ALLOW_SHORT_SHIP = "ALLOW_SHORT_SHIP";
-            data.RESIDENTIAL_FLAG = "RESIDENTIAL_FLAG";
+            data.ALLOW_SHORT_SHIP = "S";
+            data.RESIDENTIAL_FLAG = "F";
             data.SHIP_VIA = "SHIP_VIA";
             data.AREA = "AREA";
-            data.ALLOW_OVER_SHIP = "ALLOW_OVER_SHIP";
+            data.ALLOW_OVER_SHIP = "S";
             data.SALESORDERNUMBER = "SALESORDERNUMBER";
 
             data.THIRDPARTYCUSTID = "THIRDPARTYCUSTID";
@@ -500,22 +500,22 @@ namespace ASCTracInterfaceSample
             data.THIRDPARTYADDRESS2 = "THIRDPARTYADDRESS2";
             data.THIRDPARTYADDRESS3 = "THIRDPARTYADDRESS3";
             data.THIRDPARTYCITY = "THIRDPARTYCITY";
-            data.THIRDPARTYSTATE = "THIRDPARTYSTATE";
-            data.THIRDPARTYZIPCODE = "THIRDPARTYZIPCODE";
-            data.THIRDPARTYCOUNTRY = "THIRDPARTYCOUNTRY";
+            data.THIRDPARTYSTATE = "ZZ";
+            data.THIRDPARTYZIPCODE = "99999";
+            data.THIRDPARTYCOUNTRY = "US";
 
-            data.STORE_NUM = "STORE_NUM";
+            data.STORE_NUM = "123";
             data.DEPT = "DEPT";
-            data.PACKLIST_REQ = "PACKLIST_REQ";
-            data.DROP_SHIP = "DROP_SHIP";
-            data.BATCH_NUM = "BATCH_NUM";
-            data.ROUTEID = "ROUTEID";
+            data.PACKLIST_REQ = "";
+            data.DROP_SHIP = "";
+            data.BATCH_NUM = "";
+            data.ROUTEID = "R123";
             data.PROMO_CODE = "PROMO_CODE";
-            data.CUSTORDERCAT = "CUSTORDERCAT";
+            data.CUSTORDERCAT = "CCAT";
             data.FOB = "FOB";
             data.COMPLIANCE_LABEL = "COMPLIANCE_LABEL";
-            data.VMI_GROUPID = "VMI_GROUPID";
-            data.ORDER_SOURCE_SYSTEM = "ORDER_SOURCE_SYSTEM";
+            data.VMI_GROUPID = "Cust";
+            data.ORDER_SOURCE_SYSTEM = "API";
 
             data.FREIGHTBILLTONAME = "FREIGHTBILLTONAME";
             data.FREIGHTBILLTOCONTACT = "FREIGHTBILLTOCONTACT";
@@ -524,12 +524,12 @@ namespace ASCTracInterfaceSample
             data.FREIGHTBILLTOADDRESS3 = "FREIGHTBILLTOADDRESS3";
             data.FREIGHTBILLTOADDRESS4 = "FREIGHTBILLTOADDRESS4";
             data.FREIGHTBILLTOCITY = "FREIGHTBILLTOCITY";
-            data.FREIGHTBILLTOSTATE = "FREIGHTBILLTOSTATE";
-            data.FREIGHTBILLTOZIPCODE = "FREIGHTBILLTOZIPCODE";
-            data.FREIGHTBILLTOCOUNTRY = "FREIGHTBILLTOCOUNTRY";
-            data.FREIGHTBILLTOTELEPHONE = "FREIGHTBILLTOTELEPHONE";
-            data.FREIGHTBILLTOALTTEL = "FREIGHTBILLTOALTTEL";
-            data.FREIGHTBILLTOFAX = "FREIGHTBILLTOFAX";
+            data.FREIGHTBILLTOSTATE = "ZZ";
+            data.FREIGHTBILLTOZIPCODE = "99999";
+            data.FREIGHTBILLTOCOUNTRY = "US";
+            data.FREIGHTBILLTOTELEPHONE = "1-800-555-5555";
+            data.FREIGHTBILLTOALTTEL = "1-800-555-5555";
+            data.FREIGHTBILLTOFAX = "1-800-555-5555";
 
             AddCODet(data);
             AddCONotes(data);
@@ -547,7 +547,7 @@ namespace ASCTracInterfaceSample
 
             rec.LINE_NUMBER = 1;
             rec.CUST_ITEMID = "CUST_ITEMID";
-            rec.PRODUCT_CODE = "PRODUCT_CODE";
+            rec.PRODUCT_CODE = "ItemID";
             rec.QUANTITY = 10;
 
             rec.CREATE_DATETIME = DateTime.Now;
@@ -558,8 +558,8 @@ namespace ASCTracInterfaceSample
             rec.CW_UOM = "CW_UOM";
             rec.STATUS_FLAG = "A";
             rec.LIST_PRICE = 0;
-            rec.ORDER_STATUS = "ORDER_STATUS";
-            rec.HOST_UOM = "HOST_UOM";
+            rec.ORDER_STATUS = "O";
+            rec.HOST_UOM = "";
             rec.REQUESTED_LOT = "REQUESTED_LOT";
             rec.CLIENTDEPT = "CLIENTDEPT";
             rec.CLIENTDIVISION = "CLIENTDIVISION";
@@ -570,7 +570,7 @@ namespace ASCTracInterfaceSample
 
             rec.SOLD_PRICE = 0;
             rec.QTYBACKORDERED = 0;
-            rec.COUNTRY_OF_DESTINATION = "COUNTRY_OF_DESTINATION";
+            rec.COUNTRY_OF_DESTINATION = "COUNTRY";
 
             data.DetailList.Add(rec);
         }

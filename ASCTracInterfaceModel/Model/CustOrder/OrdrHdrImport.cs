@@ -78,7 +78,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         public string LOAD_PLAN_NUM { get; set; }
 
-        public string LOAD_STOP_SEQ { get; set; }
+        public long LOAD_STOP_SEQ { get; set; }
 
         public double PRIORITY_ID { get; set; }
 

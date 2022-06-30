@@ -62,12 +62,14 @@ namespace ASCTracInterfaceDll.Imports
             if (CanImportAsn(asn))
             {
                 DeleteAsnIfExists(asn);
-                if (ImportAsnHdr(aData) && ImportAsnDet(aData))
+                if (ImportAsnHdr(aData, ref errmsg) && ImportAsnDet(aData))
                 {
                     string sqlStr = "UPDATE ASN_HDR SET STATUS='N' WHERE ASN='" + asn + "'";
                     myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
                     //////////////////////
                 }
+                else
+                    retval = HttpStatusCode.BadRequest;
             }
             else
             {
@@ -124,7 +126,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static bool ImportAsnHdr(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData)
+        private static bool ImportAsnHdr(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
         {
 
             string tmpStr = string.Empty;
@@ -139,8 +141,8 @@ namespace ASCTracInterfaceDll.Imports
                 fromSiteId = myClass.GetSiteIdFromHostId(aData.FROM_FACILITY);
                 if (String.IsNullOrEmpty(fromSiteId))
                 {
-                    string errMsg = "No site exists in ASCTrac with Host Site ID '" + aData.FROM_FACILITY + "'.";
-                    Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
+                    errmsg = "No site exists in ASCTrac with Host Site ID '" + aData.FROM_FACILITY + "'.";
+                    Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errmsg, "");
                     return false;
                 }
             }
