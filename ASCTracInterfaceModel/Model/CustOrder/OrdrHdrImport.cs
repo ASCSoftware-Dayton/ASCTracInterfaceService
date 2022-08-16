@@ -33,43 +33,27 @@ namespace ASCTracInterfaceModel.Model.CustOrder
         public string PAYMENT_TYPE { get; set; }
 
         public string SHIP_TO_NAME { get; set; }
-
         public string SHIP_TO_ADDR_LINE1 { get; set; }
-
         public string SHIP_TO_ADDR_LINE2 { get; set; }
-
+        public string SHIP_TO_ADDR_LINE3 { get; set; }
         public string SHIP_TO_CITY { get; set; }
-
         public string SHIP_TO_STATE { get; set; }
-
         public string SHIP_TO_ZIP { get; set; }
-
         public string SHIP_TO_COUNTRY { get; set; }
-
         public string SHIP_TO_CONTACT_NAME { get; set; }
-
         public string SHIP_TO_CONTACT_TEL { get; set; }
-
         public string SHIP_TO_CONTACT_FAX { get; set; }
 
         public string BILL_TO_NAME { get; set; }
-
         public string BILL_TO_ADDR_LINE1 { get; set; }
-
         public string BILL_TO_ADDR_LINE2 { get; set; }
-
+        public string BILL_TO_ADDR_LINE3 { get; set; }
         public string BILL_TO_CITY { get; set; }
-
         public string BILL_TO_STATE { get; set; }
-
         public string BILL_TO_ZIP { get; set; }
-
         public string BILL_TO_COUNTRY { get; set; }
-
         public string BILL_TO_CONTACT_NAME { get; set; }
-
         public string BILL_TO_CONTACT_TEL { get; set; }
-
         public string BILL_TO_CONTACT_FAX { get; set; }
 
         public string CUST_PO_NUM { get; set; }
@@ -101,9 +85,6 @@ namespace ASCTracInterfaceModel.Model.CustOrder
         public string CARRIER_SERVICE_CODE { get; set; }
 
         public string DELIVERY_INSTRUCTIONS { get; set; }
-
-
-        public string SHIP_TO_ADDR_LINE3 { get; set; }
 
         public string CUST_SHIPTO_PO_NUM { get; set; }
 
@@ -157,8 +138,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         public string THIRDPARTYCOUNTRY { get; set; }
 
-        public string BILL_TO_ADDR_LINE3 { get; set; }
-
+        
         public string STORE_NUM { get; set; }
 
         public string DEPT { get; set; }

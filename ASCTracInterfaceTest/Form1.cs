@@ -82,6 +82,8 @@ namespace ASCTracInterfaceTest
                 doPOLicensesExport();
             else if (cbFunction.Text == "ASNImport")
                 doASNImport();
+            else if (cbFunction.Text == "ControlledCountImport")
+                doCountImport();
             else if (cbFunction.Text == "CustOrderImport")
                 doCOImport();
             else if (cbFunction.Text == "CustOrderExport")
@@ -793,6 +795,70 @@ namespace ASCTracInterfaceTest
 
         }
 
+
+        async private void doCountImport()
+        {
+            string sql = "SELECT * FROM TBL_TOASC_COUNT_HDR WHERE PROCESS_FLAG = 'R'";
+            SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sql, myConnection);
+            myConnection.Open();
+            try
+            {
+                SqlDataReader dr = myCommand.ExecuteReader();
+                while ((dr.Read()))
+                {
+                    var data = new ASCTracInterfaceModel.Model.Count.ModelCountHeader();
+
+                    data.FACILITY = dr["FACILITY"].ToString();
+                    data.COUNT_TYPE = dr["COUNT_TYPE"].ToString();
+                    data.DESCRIPTION = dr["DESCRIPTION"].ToString();
+                    data.SCHED_START_DATE = ascLibrary.ascUtils.ascStrToDate(dr["SCHED_START_DATE"].ToString(), DateTime.Now);
+                    data.SCHED_END_DATE = ascLibrary.ascUtils.ascStrToDate(dr["SCHED_END_DATE"].ToString(), DateTime.Now);
+                    data.USERLEVELNUMBER = ascLibrary.ascUtils.ascStrToInt(dr["USERLEVELNUMBER"].ToString(), 0);
+
+                    AddCountDetail(dr["COUNTID"].ToString(), data);
+
+                    var myResult = myRestService.doControlledCountImport(data).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+                }
+            }
+            finally
+            {
+                myConnection.Close();
+            }
+
+        }
+
+        private void AddCountDetail( string countID, ASCTracInterfaceModel.Model.Count.ModelCountHeader data)
+        {
+            string sql = "SELECT * FROM TBL_TOASC_COUNT_DETAIL (NOLOCK) WHERE COUNTID='" + countID + "' AND PROCESS_FLAG='R' ORDER BY ID";
+            SqlConnection myConnection = new SqlConnection(myDBUtils.myConnString);
+            SqlCommand myCommand = new SqlCommand(sql, myConnection);
+            myConnection.Open();
+            try
+            {
+                SqlDataReader dr = myCommand.ExecuteReader();
+                while ((dr.Read()))
+                {
+                    var rec = new ASCTracInterfaceModel.Model.Count.ModelCountDetail();
+
+                    rec.FIELDNAME = dr["FIELDNAME"].ToString();
+                    rec.FILTER_TYPE = dr["FILTER_TYPE"].ToString();
+                    rec.FUNCTIONID = dr["FUNCTIONID"].ToString();
+                    rec.START_VALUE = dr["START_VALUE"].ToString();
+                    rec.END_VALUE = dr["END_VALUE"].ToString();
+                    rec.GROUP_SEQ = ascLibrary.ascUtils.ascStrToInt(dr["GROUP_SEQ"].ToString(), 0);
+
+                    data.DetailList.Add(rec);
+                }
+            }
+            finally
+            {
+                myConnection.Close();
+            }
+        }
 
         async private void doCOExport()
         {

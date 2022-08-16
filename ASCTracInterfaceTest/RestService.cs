@@ -249,7 +249,33 @@ namespace ASCTracInterfaceTest
             return (response);
         }
 
-        
+
+        public async Task<HttpResponseMessage> doControlledCountImport(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData)
+        {
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fURL);
+            Uri uri = new Uri(baseuri, "/api/controlledcount"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
 
         public async Task<HttpResponseMessage> doCOImport(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
         {

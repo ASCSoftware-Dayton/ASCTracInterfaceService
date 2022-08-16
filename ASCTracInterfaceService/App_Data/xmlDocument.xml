@@ -576,6 +576,11 @@
             Import a ASN Order (Header and Details)
             </summary>
         </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.ControlledCountController.PostASN(ASCTracInterfaceModel.Model.Count.ModelCountHeader)">
+            <summary>
+            Import a Controlled Count(Header and Details)
+            </summary>
+        </member>
         <member name="M:ASCTracInterfaceService.Controllers.Import.CustOrderImportController.PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport)">
             <summary>
             Import a Customer Order (Header and Details)
