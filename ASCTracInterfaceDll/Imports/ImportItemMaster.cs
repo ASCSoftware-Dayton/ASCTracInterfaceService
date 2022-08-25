@@ -152,6 +152,7 @@ namespace ASCTracInterfaceDll.Imports
                 if (!String.IsNullOrEmpty(labelUom))
                 {
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LABEL_UOM", labelUom);
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LABEL_UOM", labelUom);
                     uom1 = labelUom;
                 }
                 else if (stockUom == "EA")

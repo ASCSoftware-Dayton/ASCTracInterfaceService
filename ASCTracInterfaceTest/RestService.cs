@@ -27,10 +27,48 @@ namespace ASCTracInterfaceTest
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
         }
 
-
         public string fURL;
+        public string fTokenURL;
+        public string fToken = string.Empty;
 
-        
+        public void SetToken( string aToken)
+        {
+            string authInfo = "k" + ":" + aToken;
+            authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
+        }
+
+        public async Task<HttpResponseMessage> GetToken()
+        {
+            ASCTracInterfaceModel.Model.ModelToken aData = new ASCTracInterfaceModel.Model.ModelToken();
+            aData.client_id = "ADMIN";
+            aData.client_secret = "ADMIN";
+            aData.resource = fURL;
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+            HttpResponseMessage response;
+            Uri baseuri = new Uri(fTokenURL);
+            Uri uri = new Uri(baseuri, "/api/Authorize"); // string.Format(RestUrl, string.Empty));
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            try
+            {
+                //ascLibrary.ascUtils.ascWriteLog( "IMPORT", "Before Send", true);
+                response = client.PostAsync(uri, content).Result; // .GetAsync( uri, .GetAsync(uri, content);
+                //ascLibrary.ascUtils.ascWriteLog("IMPORT", "After Send", true);
+                if (response.IsSuccessStatusCode)
+                {
+                }
+                else
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                response.Content = new StringContent(ex.ToString());
+            }
+            return (response);
+        }
         public async Task<HttpResponseMessage> doItemImport(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData)
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);

@@ -45,30 +45,39 @@ namespace ASCTracInterfaceTest
 
             edURL.Text = tmp;
 
+            if (!myASCDBUtils.ReadFieldFromDB("SELECT CFGDATA FROM CFGSETTINGS WHERE CFGFIELD='InterfaceTokenTestUrl'", "", ref tmp))
+                tmp = "http://10.169.0.30/ASCTracAuthAPI/";
+            // https://localhost:44344/
+            // http://10.169.0.30/
+            // Example of getting structure
+            // http://10.169.0.30/Help/Api/POST-api-VendorImport
+            // https://localhost:44344/Help/Api/POST-api-VendorImport
+
+            edTokenURL.Text = tmp;
+
             myRestService = new RestService();
         }
 
-        private void SetURL()
+        private void SetURL(string aID, string aURL, string aDescription)
         {
             string tmp = "";
-            if (myASCDBUtils.ReadFieldFromDB("SELECT CFGDATA FROM CFGSETTINGS WHERE CFGFIELD='InterfaceTestUrl'", "", ref tmp))
+            if (myASCDBUtils.ReadFieldFromDB("SELECT CFGDATA FROM CFGSETTINGS WHERE CFGFIELD='" + aID + "'", "", ref tmp))
             {
-                myASCDBUtils.RunSqlCommand("UPDATE CFGSETTINGS SET CFGDATA='" + edURL.Text + "' WHERE CFGFIELD='InterfaceTestUrl'");
+                myASCDBUtils.RunSqlCommand("UPDATE CFGSETTINGS SET CFGDATA='" + aURL+ "' WHERE CFGFIELD='" + aID + "'");
             }
             else
             {
                 myASCDBUtils.RunSqlCommand("INSERT INTO CFGSETTINGS" +
                     " (SITE_ID, USERID, CFGFIELD, CFGDATA, SECTION, DESCRIPTION)" +
-                    " VALUES ( '1', 'GW', 'InterfaceTestUrl', '" + edURL.Text + "', '[INTERFACE]', 'Test Interface URL')");
+                    " VALUES ( '1', 'GW', '" + aID + "', '" + aURL+ "', '[INTERFACE]', '" + aDescription + "')");
 
             }
-
-            myRestService.fURL = edURL.Text;
         }
 
         private void btnGo_Click(object sender, EventArgs e)
         {
-            SetURL();
+            SetURL("InterfaceTestUrl", edURL.Text, "Test Interfac URL");
+            myRestService.fURL = edURL.Text;
 
             if (cbFunction.Text == "ItemImport")
                 doItemImport();
@@ -1039,5 +1048,23 @@ namespace ASCTracInterfaceTest
             }
         }
 
+        async private void btnToken_Click(object sender, EventArgs e)
+        {
+            SetURL("InterfaceTokenTestUrl", edTokenURL.Text, "Test Token Interfac URL");
+            SetURL("InterfaceTestUrl", edURL.Text, "Test Interfac URL");
+            myRestService.fTokenURL = edTokenURL.Text;
+            myRestService.fURL = edURL.Text;
+
+            var myResult = myRestService.GetToken().Result;
+
+            lblResultCode.Text = myResult.StatusCode.ToString();
+            tbTokenContent.Text = await myResult.Content.ReadAsStringAsync();
+
+            if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var myData = Newtonsoft.Json.JsonConvert.DeserializeObject<ASCTracInterfaceModel.Model.ModelTokenResponse>(tbTokenContent.Text);
+                myRestService.SetToken(myData.access_token);
+            }
+        }
     }
 }
