@@ -1055,7 +1055,7 @@ namespace ASCTracInterfaceTest
             myRestService.fTokenURL = edTokenURL.Text;
             myRestService.fURL = edURL.Text;
 
-            var myResult = myRestService.GetToken().Result;
+            var myResult = myRestService.GetToken(tbGWInterfaceClientID.Text, tbGWInterfaceClientSecret.Text).Result;
 
             lblResultCode.Text = myResult.StatusCode.ToString();
             tbTokenContent.Text = await myResult.Content.ReadAsStringAsync();

@@ -38,11 +38,11 @@ namespace ASCTracInterfaceTest
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
         }
 
-        public async Task<HttpResponseMessage> GetToken()
+        public async Task<HttpResponseMessage> GetToken(string aclientID, string aClientSecret)
         {
             ASCTracInterfaceModel.Model.ModelToken aData = new ASCTracInterfaceModel.Model.ModelToken();
-            aData.client_id = "ADMIN";
-            aData.client_secret = "ADMIN";
+            aData.client_id = aclientID; // "ADMIN";
+            aData.client_secret = aClientSecret; // "ADMIN";
             aData.resource = fURL;
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
