@@ -24,6 +24,43 @@ namespace ASCTracInterfaceService.Filters
 
         private readonly bool _isActive = true;
 
+        private ascLibrary.ascDBUtils myDBUtils = new ascLibrary.ascDBUtils();
+        private bool fInit = false;
+        private bool fUsingAuthentication = false;
+
+        private bool InitAuthenticate()
+        {
+            if (!fInit)
+            {
+                try
+                {
+                    string tmp = string.Empty;
+                    var currDT = string.Empty;
+                    try
+                    {
+                        myDBUtils.BuildConnectString("AliasASCTrac");
+                        if (myDBUtils.ReadFieldFromDB("select CFGDATA from CFGSETTINGS WHERE CFGFIELD = 'GWInterfaceUseAuthentication'", "", ref tmp))
+                            fUsingAuthentication = tmp.Equals("T");
+                    }
+                    catch (Exception EX1)
+                    {
+                        ascLibrary.ascUtils.ascWriteLog("ASCTracInterface", "Exception at BuildConnectString: " + EX1.ToString(), false);
+                        myDBUtils.myConnString = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ASCTRAC904Dev";
+                        if (myDBUtils.ReadFieldFromDB("select CFGDATA from CFGSETTINGS WHERE CFGFIELD = 'GWInterfaceUseAuthentication'", "", ref tmp))
+                            fUsingAuthentication = tmp.Equals("T");
+                    }
+                    myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref currDT);
+                    fInit = true;
+                }
+                catch (Exception ex)
+                {
+                    ascLibrary.ascUtils.ascWriteLog("ASCTracInterface", "Exception during Init Authenticate" + ex.ToString(), false);
+                }
+            }
+            return (fInit);
+        }
+
+
         /// <summary>  
         /// parameter isActive explicitly enables/disables this filetr.  
         /// </summary>  
@@ -40,10 +77,16 @@ namespace ASCTracInterfaceService.Filters
         public override void OnAuthorization(HttpActionContext filterContext)
         {
             if (!_isActive) return;
+
+            InitAuthenticate();
+
             var identity = FetchAuthHeader(filterContext);
             if (identity == null)
             {
-                ChallengeAuthRequest(filterContext);
+                if (fUsingAuthentication)
+                {
+                    ChallengeAuthRequest(filterContext);
+                }
                 return;
             }
             var genericPrincipal = new GenericPrincipal(identity, null);

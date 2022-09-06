@@ -9,7 +9,7 @@ namespace ASCTracInterfaceService.Filters
     {
         private ascLibrary.ascDBUtils myDBUtils = new ascLibrary.ascDBUtils();
         private bool fInit = false;
-        private bool fUsingAuthentication = true;
+        private bool fUsingAuthentication = false;
 
         private bool InitAuthenticate()
         {
