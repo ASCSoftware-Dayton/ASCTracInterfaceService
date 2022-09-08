@@ -38,7 +38,7 @@ namespace ASCTracInterfaceTest
             if (!myASCDBUtils.ReadFieldFromDB("SELECT CFGDATA FROM CFGSETTINGS WHERE CFGFIELD='InterfaceTestUrl'", "", ref tmp))
                 tmp = "https://localhost:44344/";
             // https://localhost:44344/
-            // http://10.169.0.30/
+            // fhttp://10.169.0.30/
             // Example of getting structure
             // http://10.169.0.30/Help/Api/POST-api-VendorImport
             // https://localhost:44344/Help/Api/POST-api-VendorImport
@@ -97,6 +97,8 @@ namespace ASCTracInterfaceTest
                 doCOImport();
             else if (cbFunction.Text == "CustOrderExport")
                 doCOExport();
+            else if (cbFunction.Text == "CustOrderStatusExport")
+                doCOStatusExport();
             else if (cbFunction.Text == "ParcelExport")
                 doParcelExport();
             else if (cbFunction.Text == "TranfileExport")
@@ -887,6 +889,34 @@ namespace ASCTracInterfaceTest
                         rec.SUCCESSFUL = true;
                     }
                     myResult = myRestService.updateCOLinesExport(mylist).Result;
+
+                    lblResultCode.Text = myResult.StatusCode.ToString();
+                    tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+                }
+            }
+        }
+
+
+
+        async private void doCOStatusExport()
+        {
+            ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter coExportFilter = new ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter("C", "", "");
+            var myResult = myRestService.doCOStatusExport(coExportFilter).Result;
+
+            lblResultCode.Text = myResult.StatusCode.ToString();
+            tbContent.Text = await myResult.Content.ReadAsStringAsync();
+
+            if (myResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                if (MessageBox.Show("Update Cust Order Results", "Cust Order Status Export", MessageBoxButtons.YesNoCancel) == DialogResult.Yes)
+                {
+                    var mylist = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ASCTracInterfaceModel.Model.CustOrder.CustOrderStatusExport>>(tbContent.Text);
+                    foreach (var rec in mylist)
+                    {
+                        rec.SUCCESSFUL = true;
+                    }
+                    myResult = myRestService.updateCOStatusExport(mylist).Result;
 
                     lblResultCode.Text = myResult.StatusCode.ToString();
                     tbContent.Text = await myResult.Content.ReadAsStringAsync();

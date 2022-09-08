@@ -56,12 +56,12 @@ namespace ASCTracInterfaceDll.Exports
                 "FROM TRANFILE (NOLOCK) " +
                 "LEFT JOIN ORDRHDR (NOLOCK) ON ORDRHDR.ORDERNUMBER=TRANFILE.ORDERNUM " +
                 "LEFT JOIN SITES (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
-                " WHERE TRANFILE.TRANTYPE IN ( 'LC', 'LO', 'CS', 'CU', LU')" +
-                "WHERE (TRANFILE.TRANTYPE='LC' " +  //re-schedule Cust Order
-                "    OR TRANFILE.TRANTYPE='LO') " +  //Cust Order Pick Status change
-                "AND (TRANFILE." + postedFlagField + "='F' OR TRANFILE." + postedFlagField + " IS NULL) " +
-                "AND (SITES.HOST_SITE_ID<>'') " +
-                "AND ORDRHDR.ORDERTYPE<>'C' ";  //"AND ORDRHDR.ORDERTYPE<>'T' AND ORDRHDR.PICKSTATUS<>'C' AND ORDRHDR.PICKSTATUS<>'X'"
+                " WHERE TRANFILE.TRANTYPE IN ( 'LC', 'LO', 'CS', 'CU', 'LU')" +
+               // "WHERE (TRANFILE.TRANTYPE='LC' " +  //re-schedule Cust Order
+               // "    OR TRANFILE.TRANTYPE='LO') " +  //Cust Order Pick Status change
+                " AND (TRANFILE." + postedFlagField + "='F' OR TRANFILE." + postedFlagField + " IS NULL) " +
+                " AND (SITES.HOST_SITE_ID<>'') " +
+                " AND ORDRHDR.ORDERTYPE<>'C' ";  //"AND ORDRHDR.ORDERTYPE<>'T' AND ORDRHDR.PICKSTATUS<>'C' AND ORDRHDR.PICKSTATUS<>'X'"
             Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ORDRHDR|CUST");
             /*
             sql += " UNION " +
@@ -79,9 +79,9 @@ namespace ASCTracInterfaceDll.Exports
             */
             sql += " UNION " +
                 "SELECT TRANFILE.TRANDATE, TRANFILE.TRANTYPE, TRANFILE.ID, TRANFILE.ORDERNUM, TRANFILE.RELEASENUM, TRANFILE.ACCTNUM, TRANFILE.SERIALNUM, TRANFILE.AREA, POHDR.RECEIVED AS ORDER_STATUS, POHDR.VENDORID AS CUST_VEND_ID, SITES.HOST_SITE_ID " +
-                "FROM TRANFILE T (NOLOCK) " +
+                "FROM TRANFILE (NOLOCK) " +
                 "LEFT JOIN POHDR (NOLOCK) ON POHDR.PONUMBER=TRANFILE.ORDERNUM AND POHDR.RELEASENUM=TRANFILE.RELEASENUM " +
-                "LEFT JOIN SITES S (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
+                "LEFT JOIN SITES (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
                 "WHERE TRANFILE.TRANTYPE='LR' " +  //re-schedule PO
                 "AND (TRANFILE." + postedFlagField + "='F' OR TRANFILE." + postedFlagField + " IS NULL) " +
                 "AND (SITES.HOST_SITE_ID<>'') " +

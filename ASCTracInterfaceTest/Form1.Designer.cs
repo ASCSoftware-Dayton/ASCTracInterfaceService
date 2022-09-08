@@ -78,6 +78,7 @@
             "VendorImport",
             "",
             "CustOrderExport",
+            "CustOrderStatusExport",
             "ParcelExport",
             "POExport - Lines",
             "POExport - Licenses",
