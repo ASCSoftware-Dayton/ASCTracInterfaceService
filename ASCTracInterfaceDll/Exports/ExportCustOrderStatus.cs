@@ -180,12 +180,15 @@ namespace ASCTracInterfaceDll.Exports
         private static void SetPosted(string wherestr, string aERROR_MESSAGE, string aPostedflag)
         {
             int msgLen = Convert.ToInt32(myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
+            string shortErrorMessage = aERROR_MESSAGE;
+            if (shortErrorMessage.Length > msgLen)
+                shortErrorMessage = aERROR_MESSAGE.Substring(0, msgLen);
             string sqlStr = "UPDATE TRANFILE";
             if (!aPostedflag.Equals("E"))
                 sqlStr += " SET " + currExportConfig.StatusPostedFlagField + "='" + aPostedflag + " ', " + currExportConfig.StatusPosteddateField + "=GETDATE() ";
             else
                 sqlStr = " SET " + currExportConfig.StatusPostedFlagField + "='E', " + currExportConfig.StatusPosteddateField + "=GETDATE(), " +
-                    "ERR_MESSAGE='" + aERROR_MESSAGE.Substring(0, msgLen).Replace("'", "''") + "', " +
+                    "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE " + wherestr;
             if (aPostedflag.Equals("S"))
@@ -208,6 +211,7 @@ namespace ASCTracInterfaceDll.Exports
                 string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'LC', 'LO', 'LR', 'LU', 'CS', 'CU')";
                 SetPosted(where, rec.ERROR_MESSAGE, posted);
             }
+            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             return (retval);
         }
     }

@@ -350,12 +350,16 @@ namespace ASCTracInterfaceDll.Exports
         private static void SetPosted(string aPONUMBER, string aRELEASENUM, long aLINE_NUMBER, string aPRODUCT_CODE, string aLOTID, string aRECEIVER_NO, string aERROR_MESSAGE,  string aPostedflag)
         {
             int msgLen = Convert.ToInt32(myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
+            string shortErrorMessage = aERROR_MESSAGE;
+            if (shortErrorMessage.Length > msgLen)
+                shortErrorMessage = aERROR_MESSAGE.Substring(0, msgLen);
+            
             string sqlStr = "UPDATE TRANFILE";
             if( !aPostedflag.Equals("E" ))
                 sqlStr += " SET " + currPOExportConfig.postedFlagField + "='" + aPostedflag + " ', " + currPOExportConfig.posteddateField + "=GETDATE() ";
             else
                 sqlStr = " SET " + currPOExportConfig.postedFlagField + "='E', " + currPOExportConfig.posteddateField + "=GETDATE(), " +
-                    "ERR_MESSAGE='" + aERROR_MESSAGE.Substring(0, msgLen).Replace("'", "''") + "', " +
+                    "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
 
             sqlStr += " WHERE ORDERNUM='" + aPONUMBER + "' AND TRANTYPE IN ('RX', 'RF', 'RA') ";

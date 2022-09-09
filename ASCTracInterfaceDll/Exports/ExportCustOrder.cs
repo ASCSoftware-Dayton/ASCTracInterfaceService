@@ -484,12 +484,16 @@ namespace ASCTracInterfaceDll.Exports
         private static void SetPosted(string wherestr, string aERROR_MESSAGE, string aPostedflag)
         {
             int msgLen = Convert.ToInt32(myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
+            string shortErrorMessage = aERROR_MESSAGE;
+            if (shortErrorMessage.Length > msgLen)
+                shortErrorMessage = aERROR_MESSAGE.Substring(0, msgLen);
+
             string sqlStr = "UPDATE TRANFILE";
             if (!aPostedflag.Equals("E"))
                 sqlStr += " SET " + currExportConfig.postedFlagField + "='" + aPostedflag + " ', " + currExportConfig.posteddateField + "=GETDATE() ";
             else
                 sqlStr = " SET " + currExportConfig.postedFlagField + "='E', " + currExportConfig.posteddateField + "=GETDATE(), " +
-                    "ERR_MESSAGE='" + aERROR_MESSAGE.Substring(0, msgLen).Replace("'", "''") + "', " +
+                    "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE " + wherestr;
             if (aPostedflag.Equals("S"))
