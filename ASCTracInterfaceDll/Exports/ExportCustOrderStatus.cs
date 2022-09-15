@@ -185,9 +185,9 @@ namespace ASCTracInterfaceDll.Exports
                 shortErrorMessage = aERROR_MESSAGE.Substring(0, msgLen);
             string sqlStr = "UPDATE TRANFILE";
             if (!aPostedflag.Equals("E"))
-                sqlStr += " SET " + currExportConfig.StatusPostedFlagField + "='" + aPostedflag + " ', " + currExportConfig.StatusPosteddateField + "=GETDATE() ";
+                sqlStr += " SET " + currExportConfig.StatusPostedFlagField + "='" + aPostedflag + "', " + currExportConfig.StatusPosteddateField + "=GETDATE() ";
             else
-                sqlStr = " SET " + currExportConfig.StatusPostedFlagField + "='E', " + currExportConfig.StatusPosteddateField + "=GETDATE(), " +
+                sqlStr += " SET " + currExportConfig.StatusPostedFlagField + "='E', " + currExportConfig.StatusPosteddateField + "=GETDATE(), " +
                     "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE " + wherestr;
@@ -203,15 +203,27 @@ namespace ASCTracInterfaceDll.Exports
         public static HttpStatusCode updateExportCustOrderStatus(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderStatusExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            foreach (var rec in aData)
+            string OrderNum = string.Empty;
+            try
             {
-                string posted = "T";
-                if (!rec.SUCCESSFUL)
-                    posted = "E";
-                string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'LC', 'LO', 'LR', 'LU', 'CS', 'CU')";
-                SetPosted(where, rec.ERROR_MESSAGE, posted);
+                foreach (var rec in aData)
+                {
+                    OrderNum = rec.ORDERNUMBER;
+                    string posted = "T";
+                    if (!rec.SUCCESSFUL)
+                        posted = "E";
+                    string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'LC', 'LO', 'LR', 'LU', 'CS', 'CU')";
+                    SetPosted(where, rec.ERROR_MESSAGE, posted);
+                }
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             }
-            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+            catch (Exception ex)
+            {
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), "");
+                retval = HttpStatusCode.BadRequest;
+                errmsg = ex.Message;
+            }
+
             return (retval);
         }
     }

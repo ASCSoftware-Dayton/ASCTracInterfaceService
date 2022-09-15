@@ -288,6 +288,8 @@ namespace ASCTracInterfaceDll.Exports
                     SetPosted(rec.ORDERNUMBER, rec.RELEASENUM, rec.LINE_NUMBER, rec.PRODUCT_CODE, rec.LOTID, rec.SKIDID, rec.RECEIVER_NO, string.Empty, "S");
                     aData.Add(rec);
                 }
+                if (retval == HttpStatusCode.OK)
+                    myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             }
             finally
             {
@@ -379,17 +381,17 @@ namespace ASCTracInterfaceDll.Exports
 
             string sqlStr = "UPDATE TRANFILE";
             if (!aPostedflag.Equals("E"))
-                sqlStr += " SET " + currPOExportConfig.postedFlagField + "='" + aPostedflag + " ', " + currPOExportConfig.posteddateField + "=GETDATE() ";
+                sqlStr += " SET " + currPOExportConfig.postedFlagField + "='" + aPostedflag + "', " + currPOExportConfig.posteddateField + "=GETDATE() ";
             else
-                sqlStr = " SET " + currPOExportConfig.postedFlagField + "='E', " + currPOExportConfig.posteddateField + "=GETDATE(), " +
+                sqlStr += " SET " + currPOExportConfig.postedFlagField + "='E', " + currPOExportConfig.posteddateField + "=GETDATE(), " +
                     "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
 
             sqlStr += " WHERE ORDERNUM='" + aPONUMBER + "' AND TRANTYPE IN ('RX', 'RF', 'RA') ";
             if (aPostedflag.Equals("S"))
-                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') = 'F'";
+                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + ",'F') = 'F'";
             else
-                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') = 'S'";
+                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + ",'F') = 'S'";
             //" AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') NOT IN ( 'T', 'X', 'D', 'E', 'P', '" + aPostedflag + "')";
             //"AND (" + currPOExportConfig.postedFlagField + " IN ('F', 'N', '0', '') OR " + currPOExportConfig.postedFlagField + " IS NULL) ";
             if (!String.IsNullOrEmpty(aRELEASENUM))

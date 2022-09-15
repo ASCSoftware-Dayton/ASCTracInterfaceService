@@ -200,6 +200,7 @@ namespace ASCTracInterfaceDll.Exports
                     WritePicks(hdrRec, shipmentId);
                     WriteUnpickedLines(hdrRec);
                     WriteContainers(hdrRec, shipmentId);
+                    WriteSerNums(hdrRec);
                     //if (exportNotes)  //added 04-11-16 (JXG) for Driscoll's
                     //    WriteNotes(hdrRec);
 
@@ -475,6 +476,36 @@ namespace ASCTracInterfaceDll.Exports
             }
         }
 
+        private static void WriteSerNums(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
+        {
+            string sqlStr = "SELECT * FROM SER_NUM (NOLOCK) WHERE CUST_ORDER_NUM=@orderNum " + 
+                    "ORDER BY ORDLINENUM, SER_NUM";
+            using (SqlDataAdapter daHostPallet = new SqlDataAdapter())
+            using (SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
+            using (SqlCommand cmd = new SqlCommand(sqlStr, conn))
+            {
+
+                conn.Open();
+                cmd.Parameters.Add("@orderNum", SqlDbType.VarChar, 100).Value = aHdrRec.ORDERNUMBER;
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        ASCTracInterfaceModel.Model.CustOrder.CustOrderSerNumExport rec = new ASCTracInterfaceModel.Model.CustOrder.CustOrderSerNumExport();
+                        rec.CREATE_DATETIME = aHdrRec.CREATE_DATETIME;
+                        rec.ITEMID = dr["ITEMID"].ToString();
+                        rec.LOTID = dr["LOTID"].ToString();
+                        rec.ORDER_LINENUM = ascLibrary.ascUtils.ascStrToInt(dr["ORDLINENUM"].ToString(), 0);
+                        rec.QTY = ascLibrary.ascUtils.ascStrToDouble(dr["QTY"].ToString(), 0);
+                        rec.SER_NUM = dr["SER_NUM"].ToString();
+                        aHdrRec.SerialsList.Add(rec);
+                    }
+                }
+
+            }
+        }
+
         //private static void WriteNotes(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
         //{
         //
@@ -490,9 +521,9 @@ namespace ASCTracInterfaceDll.Exports
 
             string sqlStr = "UPDATE TRANFILE";
             if (!aPostedflag.Equals("E"))
-                sqlStr += " SET " + currExportConfig.postedFlagField + "='" + aPostedflag + " ', " + currExportConfig.posteddateField + "=GETDATE() ";
+                sqlStr += " SET " + currExportConfig.postedFlagField + "='" + aPostedflag + "', " + currExportConfig.posteddateField + "=GETDATE() ";
             else
-                sqlStr = " SET " + currExportConfig.postedFlagField + "='E', " + currExportConfig.posteddateField + "=GETDATE(), " +
+                sqlStr += " SET " + currExportConfig.postedFlagField + "='E', " + currExportConfig.posteddateField + "=GETDATE(), " +
                     "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE " + wherestr;

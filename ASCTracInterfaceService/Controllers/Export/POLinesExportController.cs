@@ -85,6 +85,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+
             }
             var retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(errMsg);

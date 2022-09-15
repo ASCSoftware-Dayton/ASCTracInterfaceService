@@ -395,9 +395,9 @@ namespace ASCTracInterfaceDll.Exports
             
             string sqlStr = "UPDATE TRANFILE";
             if (!aPostedflag.Equals("E"))
-                sqlStr += " SET " + currExportConfig.postedFlagField + "='" + aPostedflag + " ', " + currExportConfig.posteddateField + "=GETDATE() ";
+                sqlStr += " SET " + currExportConfig.postedFlagField + "='" + aPostedflag + "', " + currExportConfig.posteddateField + "=GETDATE() ";
             else
-                sqlStr = " SET " + currExportConfig.postedFlagField + "='E', " + currExportConfig.posteddateField + "=GETDATE(), " +
+                sqlStr += " SET " + currExportConfig.postedFlagField + "='E', " + currExportConfig.posteddateField + "=GETDATE(), " +
                     "ERR_MESSAGE='" + shortErrorMessage.Replace("'", "''") + "', " +
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE ID = " + recId;

@@ -12,6 +12,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
             ERROR_MESSAGE = string.Empty;
             PicksList = new List<CustOrderPicksExport>();
             ContainersList = new List<CustOrderContainersExport>();
+            SerialsList = new List<CustOrderSerNumExport>();
         }
         public bool SUCCESSFUL { get; set; }
         public string ERROR_MESSAGE { get; set; }
@@ -90,5 +91,6 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         public List<CustOrderPicksExport> PicksList { get; set; }
         public List<CustOrderContainersExport> ContainersList { get; set; }
+        public List<CustOrderSerNumExport> SerialsList { get; set; }
     }
 }
