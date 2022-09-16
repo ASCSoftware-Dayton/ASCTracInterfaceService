@@ -77,22 +77,26 @@ namespace ASCTracInterfaceDll
                 }
                 if (!String.IsNullOrEmpty(errmsg))
                     ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
-                else if (aFuncType.StartsWith("WCS"))
+                else
                 {
-                    Status = "WCS";
-                    string wcsConnStr = string.Empty;
-                    try
+                    myParse.Globals.initASCLog("INTERFACE", "ASCTracInterface", "1", "ASCTrac Interface API");
+                    if (aFuncType.StartsWith("WCS"))
                     {
-                        ascLibrary.ascDBUtils tmpDBUtils = new ascLibrary.ascDBUtils();
-                        tmpDBUtils.BuildConnectString("AliasWCS");
-                        wcsConnStr = tmpDBUtils.myConnString;
-                    }
-                    catch { }
-                    if( String.IsNullOrEmpty( wcsConnStr))
-                        wcsConnStr = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ascWCSPicking";
+                        Status = "WCS";
+                        string wcsConnStr = string.Empty;
+                        try
+                        {
+                            ascLibrary.ascDBUtils tmpDBUtils = new ascLibrary.ascDBUtils();
+                            tmpDBUtils.BuildConnectString("AliasWCS");
+                            wcsConnStr = tmpDBUtils.myConnString;
+                        }
+                        catch { }
+                        if (String.IsNullOrEmpty(wcsConnStr))
+                            wcsConnStr = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ascWCSPicking";
 
-                    ASCTracWCSProcess.wcsGlobals.InitWCSGlobalsForInterface("ASCTracInterface", "ASCTracInterface", "ASCWEB", true, myConnStr, wcsConnStr);
-                    myWCSPickImport = new ASCTracWCSProcess.Imports.dmPickImport(aFuncType, myParse.Globals);
+                        ASCTracWCSProcess.wcsGlobals.InitWCSGlobalsForInterface("ASCTracInterface", "ASCTracInterface", "ASCWEB", true, myConnStr, wcsConnStr);
+                        myWCSPickImport = new ASCTracWCSProcess.Imports.dmPickImport(aFuncType, myParse.Globals);
+                    }
                 }
             }
             catch (Exception ex)
@@ -138,7 +142,7 @@ namespace ASCTracInterfaceDll
                     myParse = rec.Value.myParse;
                 if (myParse != null)
                 {
-                    myParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr);
+                    myParse.Globals.WriteAppLog( "", aFunc, "", aData, ErrorStr);
                     /*
                     var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
                     try

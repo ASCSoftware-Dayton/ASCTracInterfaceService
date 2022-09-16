@@ -27,7 +27,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
-                errmsg = ex.Message;
+                errmsg = "(ExportWCSPick) " + ex.Message;
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -57,7 +57,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             {
                 
                 statusCode = HttpStatusCode.BadRequest;
-                errMsg = ex.Message;
+                errMsg = "(PostWCSPick) " +  ex.Message;
             }
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);

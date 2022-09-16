@@ -67,7 +67,7 @@ namespace ASCTracInterfaceDll.Imports
             myClass.myParse.Globals.initsite(siteid);
 
             itemId = aData.PRODUCT_CODE.ToUpper().Trim();
-            vmiCustId = aData.VMI_CUSTID.ToUpper().Trim();
+            vmiCustId = Utils.ASCUtils.GetTrimString(aData.VMI_CUSTID, string.Empty).ToUpper();
 
 
             bool fUseVMI = myClass.myParse.Globals.myConfig.iniGNVMI.boolValue;
@@ -80,9 +80,9 @@ namespace ASCTracInterfaceDll.Imports
             recExists = myClass.myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref fcCode);
 
             string itemstatus = ascLibrary.ascStrUtils.GetNextWord(ref fcCode);
-            itemDesc = aData.DESCRIPTION.Trim();
-            itemDesc2 = aData.PROD_ALTDESC.Trim();
-            vendorId = aData.VENDORID.Trim();
+            itemDesc = Utils.ASCUtils.GetTrimString(aData.DESCRIPTION, string.Empty);
+            itemDesc2 = Utils.ASCUtils.GetTrimString(aData.PROD_ALTDESC, string.Empty);
+            vendorId = Utils.ASCUtils.GetTrimString(aData.VENDORID, String.Empty);
             if (itemDesc.Length > 60)  //added 03-11-16 (JXG)
                 itemDesc = itemDesc.Substring(0, 60);
             if (itemDesc2.Length > 60)  //added 03-11-16 (JXG)
@@ -92,9 +92,9 @@ namespace ASCTracInterfaceDll.Imports
             if (string.IsNullOrEmpty(zoneId))
                 zoneId = myClass.GetZone(siteid);
 
-            stockUom = aData.STOCK_UOM.Trim();
-            cwUom = aData.CW_UOM.Trim();
-            labelUom = aData.LABEL_UOM.Trim();
+            stockUom = Utils.ASCUtils.GetTrimString(aData.STOCK_UOM, "EA");
+            cwUom = Utils.ASCUtils.GetTrimString(aData.CW_UOM, String.Empty);
+            labelUom = Utils.ASCUtils.GetTrimString(aData.LABEL_UOM, "PL");
 
             dualUnitItem = false;
             if (String.IsNullOrEmpty(cwUom) == false)
@@ -103,12 +103,9 @@ namespace ASCTracInterfaceDll.Imports
             if (dualUnitItem)
                 buyUom = cwUom;
             else
-                buyUom = aData.RECEIVING_UOM.Trim();
+                buyUom = Utils.ASCUtils.GetTrimString(aData.RECEIVING_UOM, stockUom);
 
-
-            abcZone = aData.ABC_ZONE.Trim();
-            if (String.IsNullOrEmpty(abcZone))
-                abcZone = "B";
+            abcZone = Utils.ASCUtils.GetTrimString(aData.ABC_ZONE, "B");
 
             string updstr = string.Empty;
 
@@ -175,23 +172,23 @@ namespace ASCTracInterfaceDll.Imports
 
             //moved from out of !recEists 06-10-16 (JXG)
             //changed 06-10-16 (JXG)
-            string serTrack = aData.SERIAL_TRACKED.Trim();
+            string serTrack = Utils.ASCUtils.GetTrimString(aData.SERIAL_TRACKED, string.Empty);
             if (!string.IsNullOrEmpty(serTrack))
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SER_NUM_FLAG", serTrack);
 
             //moved from out of !recEists 06-10-16 (JXG)
-            string skidTrack = aData.SKID_TRACKED.Trim();
+            string skidTrack = Utils.ASCUtils.GetTrimString(aData.SKID_TRACKED, string.Empty);
             if (!recExists && String.IsNullOrEmpty(skidTrack))  //added !recExists 06-10-16 (JXG)
                 skidTrack = currImportConfig.defTrackBy;
             if (!string.IsNullOrEmpty(skidTrack) && !myClass.myParse.Globals.myDBUtils.ifRecExists("SELECT TOP 1 SKIDID FROM LOCITEMS WHERE ASCITEMID='" + ascItemId + "'"))
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "TRACKBYSKID", skidTrack);
             ////////////////////////////////////////////
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BUYER", aData.BUYER.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BUYER", Utils.ASCUtils.GetTrimString(aData.BUYER, string.Empty));
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CATID", aData.CATEGORY.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CATID", Utils.ASCUtils.GetTrimString(aData.CATEGORY, string.Empty));
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CAT2ID", aData.CATEGORY_2.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CAT2ID", Utils.ASCUtils.GetTrimString(aData.CATEGORY_2, string.Empty));
 
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DESCRIPTION", itemDesc.Trim());
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DESCRIPTION2", itemDesc2.Trim());
@@ -200,13 +197,13 @@ namespace ASCTracInterfaceDll.Imports
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "STOCK_UOM", stockUom);
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "RETAILPRICE", aData.RETAIL_PRICE.ToString());
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SCC14", aData.SCC14.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SCC14", Utils.ASCUtils.GetTrimString(aData.SCC14, ""));
 
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHELFLIFE", aData.SHELF_LIFE.ToString());
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOLD_DATA", aData.AUTO_QC_REASON.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOLD_DATA", Utils.ASCUtils.GetTrimString(aData.AUTO_QC_REASON, string.Empty));
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BUNDLE_SIZE", aData.BUNDLE_SIZE.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BUNDLE_SIZE", Utils.ASCUtils.GetTrimString(aData.BUNDLE_SIZE, string.Empty));
 
             ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "ORDERMINIMUM", aData.ORDERMINIMUM.ToString());
             ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "MRP_SAFETY_STOCK", aData.MRP_SAFETY_STOCK.ToString());
@@ -254,37 +251,36 @@ namespace ASCTracInterfaceDll.Imports
                             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr,"LABELDATA9", aData.CUSTOM_DATA9.Trim());
                             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr,"LABELDATA10", aData.CUSTOM_DATA10.Trim());
             */
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "UPCCODE", aData.UPC_CODE.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "UPCCODE", Utils.ASCUtils.GetTrimString(aData.UPC_CODE, string.Empty));
 
-            tmpStr = aData.ITEM_TYPE.Trim();
+            tmpStr = Utils.ASCUtils.GetTrimString(aData.ITEM_TYPE, string.Empty);
             if (string.IsNullOrEmpty(tmpStr) && !recExists)
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PURORMFG", currImportConfig.defItemType);
             else
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PURORMFG", tmpStr);
 
-            if (String.IsNullOrEmpty(aData.UNIT1_UOM.Trim()) == false)
-
-                uom1 = aData.UNIT1_UOM.Trim();
-            else if (recExists && currImportConfig.doNotUpdateUOMValues)
+            uom1 = Utils.ASCUtils.GetTrimString(aData.UNIT1_UOM, uom1);
+            if (String.IsNullOrEmpty(uom1))
+            {
+                if (stockUom == "EA")
+                    uom1 = "EA";
+            }
+            if (recExists && currImportConfig.doNotUpdateUOMValues)
                 uom1 = string.Empty;
-            else if (stockUom == "EA")
-                uom1 = "EA";
 
-            if (String.IsNullOrEmpty(aData.UNIT2_UOM.Trim()) == false)
-
-                uom2 = aData.UNIT2_UOM.Trim();
-            else if (recExists && currImportConfig.doNotUpdateUOMValues)
+            uom2 = Utils.ASCUtils.GetTrimString(aData.UNIT2_UOM, uom2);
+            if (String.IsNullOrEmpty(uom2))
+            {
+            }
+            if (recExists && currImportConfig.doNotUpdateUOMValues)
                 uom2 = string.Empty;
 
-            if (String.IsNullOrEmpty(aData.UNIT3_UOM.Trim()) == false)
-
-                uom3 = aData.UNIT3_UOM.Trim();
-            else if (recExists && currImportConfig.doNotUpdateUOMValues)
+            uom3 = Utils.ASCUtils.GetTrimString(aData.UNIT3_UOM, uom2);
+            if (recExists && currImportConfig.doNotUpdateUOMValues)
                 uom3 = string.Empty;
 
-            if (String.IsNullOrEmpty(aData.UNIT4_UOM.Trim()) == false)
-                uom4 = aData.UNIT4_UOM.Trim();
-            else if (recExists && currImportConfig.doNotUpdateUOMValues)
+            uom4 = Utils.ASCUtils.GetTrimString(aData.UNIT4_UOM, uom4);
+            if (recExists && currImportConfig.doNotUpdateUOMValues)
                 uom4 = string.Empty;
 
             if (aData.CONVERSION_UNIT_1 > 0 )
@@ -318,13 +314,10 @@ namespace ASCTracInterfaceDll.Imports
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CONV_FACT_23", conv23);
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CONV_FACT_34", conv34);
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT1_ID", aData.GTIN_CODE_1.Trim());
-
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT2_ID", aData.GTIN_CODE_2.Trim());
-
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT3_ID", aData.GTIN_CODE_3.Trim());
-
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT4_ID", aData.GTIN_CODE_4.Trim());
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT1_ID", Utils.ASCUtils.GetTrimString(aData.GTIN_CODE_1, string.Empty));
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT2_ID", Utils.ASCUtils.GetTrimString(aData.GTIN_CODE_2, string.Empty));
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT3_ID", Utils.ASCUtils.GetTrimString(aData.GTIN_CODE_3, string.Empty));
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "GTIN_UNIT4_ID", Utils.ASCUtils.GetTrimString(aData.GTIN_CODE_4, string.Empty)); 
 
 
             unitWidth = aData.UNITWIDTH;

@@ -495,7 +495,7 @@ namespace ASCTracInterfaceDll.Exports
                         ASCTracInterfaceModel.Model.CustOrder.CustOrderSerNumExport rec = new ASCTracInterfaceModel.Model.CustOrder.CustOrderSerNumExport();
                         rec.CREATE_DATETIME = aHdrRec.CREATE_DATETIME;
                         rec.ITEMID = dr["ITEMID"].ToString();
-                        rec.LOTID = dr["LOTID"].ToString();
+                        rec.LOTID = dr["LOT_NUM"].ToString();
                         rec.ORDER_LINENUM = ascLibrary.ascUtils.ascStrToInt(dr["ORDLINENUM"].ToString(), 0);
                         rec.QTY = ascLibrary.ascUtils.ascStrToDouble(dr["QTY"].ToString(), 0);
                         rec.SER_NUM = dr["SER_NUM"].ToString();

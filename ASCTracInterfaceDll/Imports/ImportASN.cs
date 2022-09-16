@@ -241,8 +241,8 @@ namespace ASCTracInterfaceDll.Imports
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "DATETIMEPROD", rec.DATETIMEPROD.ToString());
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ACTUAL_WEIGHT", rec.ACTUAL_WEIGHT.ToString());
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ALT_SKIDID", rec.ALT_SKIDID.ToString());
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ALT_LOTID", rec.ALT_LOTID.ToString());
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ALT_SKIDID", rec.ALT_SKIDID);
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ALT_LOTID", rec.ALT_LOTID);
                 SaveCustomFields(ref updStr, rec.CustomList, GWTranslation);
 
                 myClass.myParse.Globals.mydmupdate.InsertRecord("ASN_DET", updStr);

@@ -2161,31 +2161,37 @@ namespace ASCTracInterfaceDll.Imports
         public static HttpStatusCode doImportCustOrderConfirmShip( string aOrderNum, ref string aErrMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            try
-            {
-                string siteId = string.Empty;
-                myClass.myParse.Globals.myGetInfo.GetOrderInfo(aOrderNum, "SITE_ID", ref siteId);
-                //Service1.Parse.Globals.curSiteID = siteId;
-                myClass.myParse.Globals.initsite(siteId);
-                myClass.myParse.Globals.mydmupdate.InitUpdate();
-                ascLibrary.TDBReturnType ret = myClass.myParse.Globals.dmConfShip.confirmshiporder(aOrderNum, "", "T", false, false, true, DateTime.Now);
-                if (ret == ascLibrary.TDBReturnType.dbrtOK)
-                {
-                    myClass.myParse.Globals.mydmupdate.ProcessUpdates();
-                }
-                else
-                {
-                    retval = HttpStatusCode.BadRequest;
-                    aErrMsg= "Error confirm shipping order " + aOrderNum + ": " + ParseNet.dmascmessages.GetErrorMsg(ret);
-                }
-            }
-            catch (Exception ex)
-            {
-                Class1.WriteException(funcType, aOrderNum, aOrderNum, ex.ToString(), "");
-                retval = HttpStatusCode.BadRequest;
-                aErrMsg= ex.Message;
-            }
+            myClass = Class1.InitParse(funcType, ref aErrMsg);
 
+            if (myClass == null)
+                retval = HttpStatusCode.InternalServerError;
+            else
+            {
+                try
+                {
+                    string siteId = string.Empty;
+                    myClass.myParse.Globals.myGetInfo.GetOrderInfo(aOrderNum, "SITE_ID", ref siteId);
+                    //Service1.Parse.Globals.curSiteID = siteId;
+                    myClass.myParse.Globals.initsite(siteId);
+                    myClass.myParse.Globals.mydmupdate.InitUpdate();
+                    ascLibrary.TDBReturnType ret = myClass.myParse.Globals.dmConfShip.confirmshiporder(aOrderNum, "", "T", false, false, true, DateTime.Now);
+                    if (ret == ascLibrary.TDBReturnType.dbrtOK)
+                    {
+                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                    }
+                    else
+                    {
+                        retval = HttpStatusCode.BadRequest;
+                        aErrMsg = "Error confirm shipping order " + aOrderNum + ": " + ParseNet.dmascmessages.GetErrorMsg(ret);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Class1.WriteException(funcType, aOrderNum, aOrderNum, ex.ToString(), "");
+                    retval = HttpStatusCode.BadRequest;
+                    aErrMsg = ex.Message;
+                }
+            }
             return (retval);
         }
     }
