@@ -34,43 +34,30 @@ namespace ASCTracInterfaceDll.WCS
                             pickSeqNum = aData.PICK_SEQUENCE_NO.ToString();
                         double qtyLefttoPick = aData.QTY_PICKED;
 
-                        string lotid = string.Empty;
-                        if (!String.IsNullOrEmpty(aData.LOTID))
-                            lotid = aData.LOTID;
-
-                        string locid = string.Empty;
-                        if (!String.IsNullOrEmpty(aData.LOCATIONID))
-                            locid = aData.LOCATIONID;
-
-                        string containerid = string.Empty;
-                        if (!String.IsNullOrEmpty(aData.CONTAINER_ID))
-                            containerid = aData.CONTAINER_ID;
-
-                        string sernum = string.Empty;
-                        if (!String.IsNullOrEmpty(aData.SER_NUM))
-                            sernum = aData.SER_NUM;
+                        string itemid = Utils.ASCUtils.GetTrimString(aData.ITEMID, string.Empty);
+                        string lotid = Utils.ASCUtils.GetTrimString(aData.LOTID, string.Empty);
+                        string locid = Utils.ASCUtils.GetTrimString(aData.LOCATIONID, string.Empty);
+                        string containerid = Utils.ASCUtils.GetTrimString(aData.CONTAINER_ID, string.Empty);
+                        string sernum = Utils.ASCUtils.GetTrimString(aData.SER_NUM, string.Empty);
+                        string userid = Utils.ASCUtils.GetTrimString(aData.USERID, string.Empty);
 
                         DateTime dtPicked = myClass.myParse.Globals.GetSiteCurrDateTime();
                         if (aData.DATETIME_PICKED != null)
                             dtPicked = aData.DATETIME_PICKED;
-
-                        string userid = myClass.myParse.Globals.curUserID;
-                        if (!String.IsNullOrEmpty(aData.SER_NUM))
-                            userid = aData.USERID;
 
                         switch (aImportType)
                         {
                             case "C":
                                 // Ticket 2056-11.00, remove Type of pick check
                                 errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
-                                            aData.ITEMID, lotid, locid, aData.SKIDID,
+                                            itemid, lotid, locid, aData.SKIDID,
                                             containerid, sernum, dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
                                             ref qtyLefttoPick);
                                 break;
                             case "E":
                                 errMsg = myClass.myWCSPickImport.ProcessReplen(aData.TYPE_OF_PICK, siteID,
                                     aData.DELIVERY_LOCATION,
-                                    aData.ITEMID, locid, aData.SKIDID,
+                                    itemid, locid, aData.SKIDID,
                                      dtPicked.ToString(), userid, aData.QTY_PICKED);
                                 break;
                             case "I": // Issue
@@ -84,7 +71,7 @@ namespace ASCTracInterfaceDll.WCS
                                 break;
                             case "N": // Unpick
                                 errMsg = myClass.myWCSPickImport.ProcessUnpick(aData.ORDERNUMBER, pickSeqNum,
-                                    aData.ITEMID, lotid, locid, aData.SKIDID,
+                                    itemid, lotid, locid, aData.SKIDID,
                                     containerid, sernum, dtPicked.ToString(), userid,
                                     ref qtyLefttoPick);
                                 break;
@@ -93,7 +80,7 @@ namespace ASCTracInterfaceDll.WCS
                                 if (String.IsNullOrEmpty(errMsg))
                                 {
                                     errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
-                                                aData.ITEMID, lotid, locid, aData.SKIDID,
+                                                itemid, lotid, locid, aData.SKIDID,
                                                 containerid, sernum,
                                                 dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
                                                 ref qtyLefttoPick);
@@ -104,7 +91,7 @@ namespace ASCTracInterfaceDll.WCS
                                     aData.SKIDID, ref qtyLefttoPick);
                                 break;
                             case "U":
-                                errMsg = myClass.myWCSPickImport.ProcessPutaway(aData.TYPE_OF_PICK, aData.ITEMID, locid, aData.SKIDID,
+                                errMsg = myClass.myWCSPickImport.ProcessPutaway(aData.TYPE_OF_PICK, itemid, locid, aData.SKIDID,
                                     dtPicked.ToString(), userid);
                                 break;
                         }

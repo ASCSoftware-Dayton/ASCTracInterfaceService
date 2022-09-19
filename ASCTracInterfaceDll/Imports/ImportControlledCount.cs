@@ -34,9 +34,12 @@ namespace ASCTracInterfaceDll.Imports
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
-                        retval = ImportControlledCountRecord(aData, ref errmsg);
-                        if (retval == HttpStatusCode.OK)
-                            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                        else
+                        {
+                            retval = ImportControlledCountRecord(aData, ref errmsg);
+                            if (retval == HttpStatusCode.OK)
+                                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                        }
                     }
                 }
                 else
@@ -72,8 +75,8 @@ namespace ASCTracInterfaceDll.Imports
             ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SITE_ID", siteid);
             ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SCHED_START_DATE", aData.SCHED_START_DATE.ToString());
             ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SCHED_END_DATE", aData.SCHED_END_DATE.ToString());
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "COUNT_TYPE", aData.COUNT_TYPE);
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "DESCRIPTION", aData.DESCRIPTION);
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COUNT_TYPE", aData.COUNT_TYPE);
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DESCRIPTION", aData.DESCRIPTION);
             if (aData.USERLEVELNUMBER > 0)
                 ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "USERLEVELNUMBER", aData.USERLEVELNUMBER.ToString());
             myClass.myParse.Globals.mydmupdate.InitUpdate();
@@ -110,10 +113,10 @@ namespace ASCTracInterfaceDll.Imports
                     ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATE", "GETDATE()");
                     ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "CREATE_USERID", "IMPORT");
                     ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "FILTER_TYPE", TranslateFilterType(rec.FILTER_TYPE));
-                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "FUNCTIONID", rec.FUNCTIONID);
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FUNCTIONID", rec.FUNCTIONID);
                     ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "FIELDNAME", fieldName.ToUpper());
-                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "START_VALUE", rec.START_VALUE);
-                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "END_VALUE", rec.END_VALUE);
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "START_VALUE", rec.START_VALUE);
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "END_VALUE", rec.END_VALUE);
                     if (rec.GROUP_SEQ > 0)
                         ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "GROUP_SEQ", rec.GROUP_SEQ.ToString());
                     myClass.myParse.Globals.mydmupdate.InsertRecord("COUNT_DET", updstr);

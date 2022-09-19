@@ -35,7 +35,8 @@ namespace ASCTracInterfaceDll.Imports
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
-                        retval = ImportCORecord(aData, ref errmsg);
+                        else
+                            retval = ImportCORecord(aData, ref errmsg);
                     }
                 }
                 else
@@ -454,7 +455,7 @@ namespace ASCTracInterfaceDll.Imports
 
                     if (okToDelete)
                     {
-                        CancelOrder(orderNum, false);
+                        //CancelOrder(orderNum, false);
                         string sqlStr = "DELETE FROM ORDRDET WHERE ORDERNUMBER='" + orderNum + "'";
                         myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
                         sqlStr = "DELETE FROM ORDRHDR WHERE ORDERNUMBER='" + orderNum + "'";
@@ -589,7 +590,7 @@ namespace ASCTracInterfaceDll.Imports
             return ascLibrary.ascUtils.ascStrToDouble(tmp, 0);
         }
 
-        private static void SaveCustomFields(ref string updStr,List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
+        private static void SaveCustomFields(ref string updStr, string aTblName, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
             foreach (var rec in CustomList)
             {
@@ -598,8 +599,7 @@ namespace ASCTracInterfaceDll.Imports
                     var asclist = TranslationList[rec.FieldName];
                     foreach (var ascfield in asclist)
                     {
-                        
-                        ascLibrary.ascStrUtils.ascAppendSetStr(ref updStr, ascfield, rec.Value);
+                        Utils.ASCUtils.CheckAndAppend( ref updStr, aTblName, ascfield, rec.Value);
                     }
                 }
             }
@@ -675,37 +675,37 @@ namespace ASCTracInterfaceDll.Imports
                 if (!String.IsNullOrEmpty(stCustId) && !myClass.myParse.Globals.myGetInfo.GetCustInfo(stCustId, "CUSTID", ref tmpStr))
                 {
                     updstr = string.Empty;
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTID", stCustId);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCONTACT", aData.SHIP_TO_CONTACT_NAME);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS1", aData.SHIP_TO_ADDR_LINE1);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS2", aData.SHIP_TO_ADDR_LINE2);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS3", aData.SHIP_TO_ADDR_LINE3);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCITY", aData.SHIP_TO_CITY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOSTATE", aData.SHIP_TO_STATE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOZIPCODE", aData.SHIP_TO_ZIP);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCOUNTRY", aData.SHIP_TO_COUNTRY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOTELEPHONE", aData.SHIP_TO_CONTACT_TEL);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOFAX", aData.SHIP_TO_CONTACT_FAX);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCONTACT", aData.BILL_TO_CONTACT_NAME);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS1", aData.BILL_TO_ADDR_LINE1);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS2", aData.BILL_TO_ADDR_LINE2);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS3", aData.BILL_TO_ADDR_LINE3);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCITY", aData.BILL_TO_CITY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOSTATE", aData.BILL_TO_STATE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOZIPCODE", aData.BILL_TO_ZIP);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCOUNTRY", aData.BILL_TO_COUNTRY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOTELEPHONE", aData.BILL_TO_CONTACT_TEL);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOFAX", aData.BILL_TO_CONTACT_FAX);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "CUSTID", stCustId);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOCONTACT", aData.SHIP_TO_CONTACT_NAME);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOADDRESS1", aData.SHIP_TO_ADDR_LINE1);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOADDRESS2", aData.SHIP_TO_ADDR_LINE2);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOADDRESS3", aData.SHIP_TO_ADDR_LINE3);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOCITY", aData.SHIP_TO_CITY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOSTATE", aData.SHIP_TO_STATE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOZIPCODE", aData.SHIP_TO_ZIP);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOCOUNTRY", aData.SHIP_TO_COUNTRY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOTELEPHONE", aData.SHIP_TO_CONTACT_TEL);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTOFAX", aData.SHIP_TO_CONTACT_FAX);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOCONTACT", aData.BILL_TO_CONTACT_NAME);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOADDRESS1", aData.BILL_TO_ADDR_LINE1);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOADDRESS2", aData.BILL_TO_ADDR_LINE2);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOADDRESS3", aData.BILL_TO_ADDR_LINE3);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOCITY", aData.BILL_TO_CITY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOSTATE", aData.BILL_TO_STATE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOZIPCODE", aData.BILL_TO_ZIP);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOCOUNTRY", aData.BILL_TO_COUNTRY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOTELEPHONE", aData.BILL_TO_CONTACT_TEL);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOFAX", aData.BILL_TO_CONTACT_FAX);
 
                     if (String.IsNullOrEmpty(stName))
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTONAME", custName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTONAME", custName);
                     else
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTONAME", stName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTONAME", stName);
 
                     if (String.IsNullOrEmpty(custName))
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTONAME", stName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTONAME", stName);
                     else
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTONAME", custName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTONAME", custName);
 
                     myClass.myParse.Globals.mydmupdate.InsertRecord("CUST", updstr);
 
@@ -714,28 +714,28 @@ namespace ASCTracInterfaceDll.Imports
                 if (!String.IsNullOrEmpty(btCustId) && !stCustId.Equals( btCustId, StringComparison.OrdinalIgnoreCase) && !myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "CUSTID", ref tmpStr))
                 {
                     updstr = string.Empty;
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTID", btCustId);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCONTACT", aData.BILL_TO_CONTACT_NAME);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS1", aData.BILL_TO_ADDR_LINE1);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS2", aData.BILL_TO_ADDR_LINE2);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS3", aData.BILL_TO_ADDR_LINE3);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCITY", aData.BILL_TO_CITY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOSTATE", aData.BILL_TO_STATE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOZIPCODE", aData.BILL_TO_ZIP);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCOUNTRY", aData.BILL_TO_COUNTRY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOTELEPHONE", aData.BILL_TO_CONTACT_TEL);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOFAX", aData.BILL_TO_CONTACT_FAX);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "VMI_GROUPID", aData.VMI_GROUPID);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "CUSTID", btCustId);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOCONTACT", aData.BILL_TO_CONTACT_NAME);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOADDRESS1", aData.BILL_TO_ADDR_LINE1);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOADDRESS2", aData.BILL_TO_ADDR_LINE2);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOADDRESS3", aData.BILL_TO_ADDR_LINE3);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOCITY", aData.BILL_TO_CITY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOSTATE", aData.BILL_TO_STATE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOZIPCODE", aData.BILL_TO_ZIP);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOCOUNTRY", aData.BILL_TO_COUNTRY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOTELEPHONE", aData.BILL_TO_CONTACT_TEL);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTOFAX", aData.BILL_TO_CONTACT_FAX);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "VMI_GROUPID", aData.VMI_GROUPID);
 
                     if (String.IsNullOrEmpty(stName))
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTONAME", custName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTONAME", custName);
                     else
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTONAME", stName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "SHIPTONAME", stName);
 
                     if (String.IsNullOrEmpty(custName))
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTONAME", stName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTONAME", stName);
                     else
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTONAME", custName);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "BILLTONAME", custName);
                     myClass.myParse.Globals.mydmupdate.InsertRecord("CUST", updstr);
                 }
             }
@@ -755,29 +755,29 @@ namespace ASCTracInterfaceDll.Imports
                     if (String.IsNullOrEmpty(stName))
                         stName = tmpName;
 
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS1", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS2", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCITY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOSTATE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOZIPCODE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCOUNTRY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCONTACT", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOTELEPHONE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOFAX", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOADDRESS1", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOADDRESS2", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCITY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOSTATE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOZIPCODE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCOUNTRY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCONTACT", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOTELEPHONE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOFAX", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
                 }
                 else
                 {
                     /////////////////////////////////////
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS1", aData.SHIP_TO_ADDR_LINE1);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS2", aData.SHIP_TO_ADDR_LINE2);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOADDRESS3", aData.SHIP_TO_ADDR_LINE3);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCITY", aData.SHIP_TO_CITY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOSTATE", aData.SHIP_TO_STATE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOZIPCODE", aData.SHIP_TO_ZIP);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCOUNTRY", aData.SHIP_TO_COUNTRY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCONTACT", aData.SHIP_TO_CONTACT_NAME);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOTELEPHONE", aData.SHIP_TO_CONTACT_TEL);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOFAX", aData.SHIP_TO_CONTACT_FAX);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOADDRESS1", aData.SHIP_TO_ADDR_LINE1);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOADDRESS2", aData.SHIP_TO_ADDR_LINE2);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOADDRESS3", aData.SHIP_TO_ADDR_LINE3);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCITY", aData.SHIP_TO_CITY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOSTATE", aData.SHIP_TO_STATE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOZIPCODE", aData.SHIP_TO_ZIP);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCOUNTRY", aData.SHIP_TO_COUNTRY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCONTACT", aData.SHIP_TO_CONTACT_NAME);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOTELEPHONE", aData.SHIP_TO_CONTACT_TEL);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOFAX", aData.SHIP_TO_CONTACT_FAX);
                 }
 
                 //added 05-10-16 (JXG) for Alto Systems
@@ -787,62 +787,62 @@ namespace ASCTracInterfaceDll.Imports
                     "FREIGHTBILLTOTELEPHONE, FREIGHTBILLTOALTTEL, FREIGHTBILLTOFAX", ref tmpStr);
                 if (useFreightBillToAddrFromCustTable && custExist)
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTONAME", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOCONTACT", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS1", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS2", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS3", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOCITY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOSTATE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOZIPCODE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOCOUNTRY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOTELEPHONE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOALTTEL", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOFAX", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTONAME", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOCONTACT", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS1", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS2", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS3", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOCITY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOSTATE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOZIPCODE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOCOUNTRY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOTELEPHONE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOALTTEL", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOFAX", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
                 }
                 else
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTONAME", aData.FREIGHTBILLTONAME);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOCONTACT", aData.FREIGHTBILLTOCONTACT);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS1", aData.FREIGHTBILLTOADDRESS1);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS2", aData.FREIGHTBILLTOADDRESS2);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS3", aData.FREIGHTBILLTOADDRESS3);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOADDRESS4", aData.FREIGHTBILLTOADDRESS4);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOCITY", aData.FREIGHTBILLTOCITY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOSTATE", aData.FREIGHTBILLTOSTATE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOZIPCODE", aData.FREIGHTBILLTOZIPCODE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOCOUNTRY", aData.FREIGHTBILLTOCOUNTRY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOTELEPHONE", aData.FREIGHTBILLTOTELEPHONE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOALTTEL", aData.FREIGHTBILLTOALTTEL);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTBILLTOFAX", aData.FREIGHTBILLTOFAX);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTONAME", aData.FREIGHTBILLTONAME);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOCONTACT", aData.FREIGHTBILLTOCONTACT);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS1", aData.FREIGHTBILLTOADDRESS1);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS2", aData.FREIGHTBILLTOADDRESS2);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS3", aData.FREIGHTBILLTOADDRESS3);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOADDRESS4", aData.FREIGHTBILLTOADDRESS4);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOCITY", aData.FREIGHTBILLTOCITY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOSTATE", aData.FREIGHTBILLTOSTATE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOZIPCODE", aData.FREIGHTBILLTOZIPCODE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOCOUNTRY", aData.FREIGHTBILLTOCOUNTRY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOTELEPHONE", aData.FREIGHTBILLTOTELEPHONE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOALTTEL", aData.FREIGHTBILLTOALTTEL);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTBILLTOFAX", aData.FREIGHTBILLTOFAX);
                 }
 
                 custExist = myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "BILLTOADDRESS1, BILLTOADDRESS2, BILLTOCITY, BILLTOSTATE, " +
                     "BILLTOZIPCODE, BILLTOCOUNTRY, BILLTOCONTACT, BILLTOTELEPHONE, BILLTOFAX", ref tmpStr);
                 if (useAddrFromCustTable && custExist)
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS1", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS2", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCITY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOSTATE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOZIPCODE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCOUNTRY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCONTACT", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOTELEPHONE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOFAX", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOADDRESS1", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOADDRESS2", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOCITY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOSTATE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOZIPCODE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOCOUNTRY", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOCONTACT", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOTELEPHONE", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOFAX", ascLibrary.ascStrUtils.GetNextWord(ref tmpStr));
                 }
                 else
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS1", aData.BILL_TO_ADDR_LINE1);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS2", aData.BILL_TO_ADDR_LINE2);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOADDRESS3", aData.BILL_TO_ADDR_LINE3);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCITY", aData.BILL_TO_CITY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOSTATE", aData.BILL_TO_STATE);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOZIPCODE", aData.BILL_TO_ZIP);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCOUNTRY", aData.BILL_TO_COUNTRY);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOCONTACT", aData.BILL_TO_CONTACT_NAME);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOTELEPHONE", aData.BILL_TO_CONTACT_TEL);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTOFAX", aData.BILL_TO_CONTACT_FAX);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOADDRESS1", aData.BILL_TO_ADDR_LINE1);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOADDRESS2", aData.BILL_TO_ADDR_LINE2);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOADDRESS3", aData.BILL_TO_ADDR_LINE3);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOCITY", aData.BILL_TO_CITY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOSTATE", aData.BILL_TO_STATE);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOZIPCODE", aData.BILL_TO_ZIP);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOCOUNTRY", aData.BILL_TO_COUNTRY);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOCONTACT", aData.BILL_TO_CONTACT_NAME);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOTELEPHONE", aData.BILL_TO_CONTACT_TEL);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTOFAX", aData.BILL_TO_CONTACT_FAX);
                 }
 
                 myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "BILLTONAME, SHIPTONAME", ref tmpStr);
@@ -885,12 +885,12 @@ namespace ASCTracInterfaceDll.Imports
                  Pro # - Not found in standard import
                  Carrier BOL# - Not found in standard import
                  *******/
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CARRIER_SERVICE_CODE", sServiceCode);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CARRIER_SERVICE_CODE", sServiceCode);
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHT_BILL_ACCT_NUM", aData.FREIGHT_ACCOUNT_NUMBER);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHT_BILL_ACCT_NUM", aData.FREIGHT_ACCOUNT_NUMBER);
 
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PREASSIGN_BOLNUM", aData.BOL_NUMBER);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "PREASSIGN_BOLNUM", aData.BOL_NUMBER);
                 /********************
                 Order Info Tab:
                  Do Not Ship Before
@@ -943,8 +943,8 @@ namespace ASCTracInterfaceDll.Imports
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTOMERORDERDATE", aData.ENTRY_DATE.ToString());
                 if (!fExist)  //added 11-10-15 (JXG)
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "OURORDERDATE", DateTime.Now.ToString());
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CARRIER", sCarrier);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CARRIER_SERVICE_CODE", sServiceCode);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CARRIER", sCarrier);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CARRIER_SERVICE_CODE", sServiceCode);
 
                 //added 03-31-14 (JXG) for cabot
                 var custOrderCat = aData.CUSTORDERCAT;
@@ -952,7 +952,7 @@ namespace ASCTracInterfaceDll.Imports
                     myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "CUSTCATEGORY", ref custOrderCat);
                 ////////////////////////////////
                 //CheckFieldChanged("H", false, orderNum, fExist, "MUST_ARRIVE_BY_DATE", ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr, "MUST_ARRIVE_BY_DATE, aData.MUST_ARRIVE_BY_DATE);  //added 09-17-15 (JXG) for Driscoll's
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTORDERCAT", custOrderCat);  // aData.CUSTORDERCAT");
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CUSTORDERCAT", custOrderCat);  // aData.CUSTORDERCAT");
                                                                                                              //added 12-22-15 (JXG) for Didion
                 if (aData.MUST_ARRIVE_BY_DATE != DateTime.MinValue)
                 {
@@ -981,47 +981,47 @@ namespace ASCTracInterfaceDll.Imports
                     }
                 }
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTOCUSTID", stCustId);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPTONAME", stName);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SOLDTOCUSTID", btCustId);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BILLTONAME", custName);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTPONUM", aData.CUST_PO_NUM);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTOCUSTID", stCustId);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPTONAME", stName);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SOLDTOCUSTID", btCustId);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BILLTONAME", custName);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CUSTPONUM", aData.CUST_PO_NUM);
 
 
                 myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "LINK_NUM, LINK_SEQ_NUM", ref tmpStr);
                 if (String.IsNullOrEmpty(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr)))  //added 07-31-13 (JXG) suppress update if already assigned to load
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LINK_NUM", aData.LOAD_PLAN_NUM);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "LINK_NUM", aData.LOAD_PLAN_NUM);
                 }
                 if (String.IsNullOrEmpty(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr)))  //added 07-31-13 (JXG) suppress update if already assigned to load
                 {
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LINK_SEQ_NUM", aData.LOAD_STOP_SEQ.ToString());
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "LINK_SEQ_NUM", aData.LOAD_STOP_SEQ.ToString());
                 }
                 //added 09-17-15 (JXG) for Driscoll's
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COD_AMT", aData.COD_AMT.ToString());
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SALESPERSON", aData.SALESPERSON);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "TERMS_ID", aData.TERMS_ID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LINKED_PO_NUM", aData.LINKED_PONUMBER);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYCUSTID", aData.THIRDPARTYCUSTID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYNAME", aData.THIRDPARTYNAME);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYADDRESS1", aData.THIRDPARTYADDRESS1);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYADDRESS2", aData.THIRDPARTYADDRESS2);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYADDRESS3", aData.THIRDPARTYADDRESS3);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYCITY", aData.THIRDPARTYCITY);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYSTATE", aData.THIRDPARTYSTATE);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYZIPCODE", aData.THIRDPARTYZIPCODE);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "THIRDPARTYCOUNTRY", aData.THIRDPARTYCOUNTRY);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PREASSIGN_BOLNUM", aData.BOL_NUMBER);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "STORE_NUM", aData.STORE_NUM);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DEPT", aData.DEPT);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PACKLIST_REQ", aData.PACKLIST_REQ);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DROP_SHIP", aData.DROP_SHIP);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "BATCH_NUM", aData.BATCH_NUM);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ROUTEID", aData.ROUTEID);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "COD_AMT", aData.COD_AMT.ToString());
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SALESPERSON", aData.SALESPERSON);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "TERMS_ID", aData.TERMS_ID);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "LINKED_PO_NUM", aData.LINKED_PONUMBER);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYCUSTID", aData.THIRDPARTYCUSTID);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYNAME", aData.THIRDPARTYNAME);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYADDRESS1", aData.THIRDPARTYADDRESS1);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYADDRESS2", aData.THIRDPARTYADDRESS2);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYADDRESS3", aData.THIRDPARTYADDRESS3);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYCITY", aData.THIRDPARTYCITY);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYSTATE", aData.THIRDPARTYSTATE);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYZIPCODE", aData.THIRDPARTYZIPCODE);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "THIRDPARTYCOUNTRY", aData.THIRDPARTYCOUNTRY);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "PREASSIGN_BOLNUM", aData.BOL_NUMBER);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "STORE_NUM", aData.STORE_NUM);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "DEPT", aData.DEPT);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "PACKLIST_REQ", aData.PACKLIST_REQ);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "DROP_SHIP", aData.DROP_SHIP);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "BATCH_NUM", aData.BATCH_NUM);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "ROUTEID", aData.ROUTEID);
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTSHIPPONUM", aData.CUST_SHIPTO_PO_NUM);  //changed from CUST_SHIP_TO_PO_NUM 12-06-16 (JXG)
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTBILLPONUM", aData.CUST_BILLTO_PO_NUM);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COMPLIANCELABEL", aData.COMPLIANCE_LABEL);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CUSTSHIPPONUM", aData.CUST_SHIPTO_PO_NUM);  //changed from CUST_SHIP_TO_PO_NUM 12-06-16 (JXG)
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CUSTBILLPONUM", aData.CUST_BILLTO_PO_NUM);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "COMPLIANCELABEL", aData.COMPLIANCE_LABEL);
 
                 string carrierId = sCarrier;
                 if (currCOImportConfig.GWWillCallCarrierFlag && currCOImportConfig.GWWillCallCarrier.Equals(carrierId, StringComparison.OrdinalIgnoreCase))
@@ -1034,14 +1034,14 @@ namespace ASCTracInterfaceDll.Imports
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PRIORITYID", aData.PRIORITY_ID.ToString());
                 }
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTOMER_EMAIL_TO", aData.RECIPIENT_EMAIL);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHTCODE", aData.PREPAY_COLLECT);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CUSTOMER_EMAIL_TO", aData.RECIPIENT_EMAIL);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHTCODE", aData.PREPAY_COLLECT);
 
                 if (aData.CANCEL_DATE != DateTime.MinValue)
                 {
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DONOTSHIPDATE", aData.CANCEL_DATE.ToShortDateString());
                 }
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FREIGHT_BILL_ACCT_NUM", aData.FREIGHT_ACCOUNT_NUMBER);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "FREIGHT_BILL_ACCT_NUM", aData.FREIGHT_ACCOUNT_NUMBER);
 
 
                 string ignoreInvAvail = "";
@@ -1073,15 +1073,15 @@ namespace ASCTracInterfaceDll.Imports
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "RESIDENTIAL_FLAG", residentialFlag);
 
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTDEPT", aData.CLIENTDEPT);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTDIVISION", aData.CLIENTDIVISION);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTGLACCT", aData.CLIENTGLACCT);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTPROFIT", aData.CLIENTPROFIT);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CLIENTDEPT", aData.CLIENTDEPT);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CLIENTDIVISION", aData.CLIENTDIVISION);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CLIENTGLACCT", aData.CLIENTGLACCT);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CLIENTPROFIT", aData.CLIENTPROFIT);
                 string shipvia = aData.SHIP_VIA;
                 if (String.IsNullOrEmpty(shipvia))
                     myClass.myParse.Globals.myGetInfo.GetCarrierInfo(sCarrier, "SHIPVIA_ID", ref shipvia);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPVIA", shipvia);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "AREA", aData.AREA);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "SHIPVIA", shipvia);
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "AREA", aData.AREA);
 
                 //added 08-13-15 (JXG) for Allen Dist
                 string pickToContr = "";
@@ -1090,11 +1090,11 @@ namespace ASCTracInterfaceDll.Imports
                 if (String.IsNullOrEmpty(pickToContr))
                     myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "CPTOCONTAINER", ref pickToContr);
                 if (String.IsNullOrEmpty(pickToContr) || (pickToContr == "U"))
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PICKTOCONTAINER", pickToContr);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "PICKTOCONTAINER", pickToContr);
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FOB", aData.FOB);
             } // end else if (UpdateAltofieldsOnly)
 
-            SaveCustomFields(ref updstr, aData.CustomList, currCOImportConfig.GWCOHdrTranslation);
+            SaveCustomFields(ref updstr, "ORDRHDR", aData.CustomList, currCOImportConfig.GWCOHdrTranslation);
 
             if (!fExist)
             {
@@ -1536,9 +1536,9 @@ namespace ASCTracInterfaceDll.Imports
                     if (!recExists || (qtyPicked == 0 && qtyShipped == 0))
                     {
                         /////////////////////////////////////
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ASCITEMID", ascItemId);
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ITEMID", itemId);
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PARENT_ITEMID", itemId);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "ASCITEMID", ascItemId);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "ITEMID", itemId);
+                        Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "PARENT_ITEMID", itemId);
                     }
                     else if (itemId != oldItemId)
                     {
@@ -1577,33 +1577,33 @@ namespace ASCTracInterfaceDll.Imports
 
                     if (custConvFact > 0)
                     {
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOST_CONV_FACT", convFact.ToString());
+                        ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "HOST_CONV_FACT", convFact.ToString());
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOST_QTYORDERED", rec.QUANTITY.ToString());
                     }
                     else if (!String.IsNullOrEmpty(hostUom))
                     {
                         /////////////////////////////////////
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOST_CONV_FACT", convFact.ToString());
-                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOST_QTYORDERED", rec.QUANTITY.ToString());
+                        ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "HOST_CONV_FACT", convFact.ToString());
+                        ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "HOST_QTYORDERED", rec.QUANTITY.ToString());
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOST_UOM", hostUom);
                     }
 
 
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYBACKORDERED", rec.QTYBACKORDERED.ToString());
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUST_ITEMID", custItemID); // rec.CUST_ITEMID
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COSTEACH", rec.COSTEACH.ToString());
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "RETAIL_PRICE", rec.SOLD_PRICE.ToString());
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COUNTRY_OF_DESTINATION", rec.COUNTRY_OF_DESTINATION);
+                    ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "QTYBACKORDERED", rec.QTYBACKORDERED.ToString());
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "CUST_ITEMID", custItemID); // rec.CUST_ITEMID
+                    ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "COSTEACH", rec.COSTEACH.ToString());
+                    ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "RETAIL_PRICE", rec.SOLD_PRICE.ToString());
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "COUNTRY_OF_DESTINATION", rec.COUNTRY_OF_DESTINATION);
 
 
                     //ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr, "HOST_LINENUMBER", rec.HOST_LINENUMBER);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SHIPDESC", rec.SHIPDESC);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTDEPT", rec.CLIENTDEPT);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTDIVISION", rec.CLIENTDIVISION);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTGLACCT", rec.CLIENTGLACCT);
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CLIENTPROFIT", rec.CLIENTPROFIT);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "SHIPDESC", rec.SHIPDESC);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "CLIENTDEPT", rec.CLIENTDEPT);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "CLIENTDIVISION", rec.CLIENTDIVISION);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "CLIENTGLACCT", rec.CLIENTGLACCT);
+                    Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRDET", "CLIENTPROFIT", rec.CLIENTPROFIT);
 
-                    SaveCustomFields(ref updstr, rec.CustomList, currCOImportConfig.GWCODetTranslation);
+                    SaveCustomFields(ref updstr, "ORDRDET", rec.CustomList, currCOImportConfig.GWCODetTranslation);
                     if (!recExists)
                     {
                         myClass.myParse.Globals.mydmupdate.InsertRecord("ORDRDET", updstr);

@@ -113,12 +113,15 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
-        public string GetSiteIdFromHostId( string aHostSiteId)
+        public string GetSiteIdFromHostId(string aHostSiteId)
         {
             string retval = string.Empty;
-            string sqlStr = "SELECT SITE_ID FROM SITES (NOLOCK)" +
-                            " WHERE HOST_SITE_ID='" + aHostSiteId + "'";
-            myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref retval);
+            if (!String.IsNullOrEmpty(aHostSiteId))
+            {
+                string sqlStr = "SELECT SITE_ID FROM SITES (NOLOCK)" +
+                                " WHERE HOST_SITE_ID='" + aHostSiteId + "'";
+                myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref retval);
+            }
             return (retval);
         }
 

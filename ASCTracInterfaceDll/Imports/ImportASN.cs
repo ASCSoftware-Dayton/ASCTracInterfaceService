@@ -29,15 +29,19 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         myClass.myParse.Globals.mydmupdate.InitUpdate();
                         siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
                         if (String.IsNullOrEmpty(siteid))
                         {
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
-                        retval = ImportASNRecord(aData, ref errmsg);
-                        if (retval == HttpStatusCode.OK)
-                            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                        else
+                        {
+                            Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
+
+                            retval = ImportASNRecord(aData, ref errmsg);
+                            if (retval == HttpStatusCode.OK)
+                                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                        }
                     }
                 }
                 else
