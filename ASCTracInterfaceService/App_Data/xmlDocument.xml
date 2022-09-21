@@ -645,8 +645,8 @@
             <summary>
             Protected overriden method for authorizing user
             </summary>
-            <param name="username"></param>
-            <param name="password"></param>
+            <param name="token"></param>
+            <param name="param"></param>
             <param name="actionContext"></param>
             <returns></returns>
         </member>
@@ -693,14 +693,14 @@
             Basic Authentication identity
             </summary>
         </member>
-        <member name="P:ASCTracInterfaceService.Filters.BasicAuthenticationIdentity.Password">
+        <member name="P:ASCTracInterfaceService.Filters.BasicAuthenticationIdentity.Param">
             <summary>
-            Get/Set for password
+            Get/Set for Extra Parameter
             </summary>
         </member>
-        <member name="P:ASCTracInterfaceService.Filters.BasicAuthenticationIdentity.UserName">
+        <member name="P:ASCTracInterfaceService.Filters.BasicAuthenticationIdentity.Token">
             <summary>
-            Get/Set for UserName
+            Get/Set for Token
             </summary>
         </member>
         <member name="P:ASCTracInterfaceService.Filters.BasicAuthenticationIdentity.UserId">
@@ -712,8 +712,8 @@
             <summary>
             Basic Authentication Identity Constructor
             </summary>
-            <param name="userName"></param>
-            <param name="password"></param>
+            <param name="token"></param>
+            <param name="param"></param>
         </member>
     </members>
 </doc>

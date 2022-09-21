@@ -41,7 +41,7 @@ namespace ASCTracInterfaceService.Filters
             return (fInit);
         }
 
-        public int Authenticate(string userName, string password)
+        public int Authenticate(string token, string param)
         {
             int retval = 1;
             string aerrmsg = string.Empty;
@@ -50,7 +50,7 @@ namespace ASCTracInterfaceService.Filters
                 if (fUsingAuthentication)
                 {
                     string tmp = string.Empty;
-                    if (myDBUtils.ReadFieldFromDB("SELECT START_DATE, END_DATE, GetDate() FROM ASCREST_AUTH WHERE TOKEN_VALUE='" + password + "'", "", ref tmp))
+                    if (myDBUtils.ReadFieldFromDB("SELECT START_DATE, END_DATE, GetDate() FROM ASCREST_AUTH WHERE TOKEN_VALUE='" + token + "'", "", ref tmp))
                     {
                         DateTime startDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);
                         DateTime endDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);

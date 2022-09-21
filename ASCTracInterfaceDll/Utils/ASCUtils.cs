@@ -38,10 +38,13 @@ namespace ASCTracInterfaceDll.Utils
                 maxlen = Convert.ToInt32(ascLibrary.ascUtils.ascStrToInt(tmp, 0));
                 myFieldList.Add(aFieldname, maxlen);
             }
-            if ((maxlen > 0) && (maxlen < aValue.Length))
-                throw new Exception("Value for Column " + aFieldname + " in table " + aTblName + " is too large.");
+            if (!String.IsNullOrEmpty(aValue))
+            {
+                if ((maxlen > 0) && (maxlen < aValue.Length))
+                    throw new Exception("Value for Column " + aFieldname + " in table " + aTblName + " is too large.");
 
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, aFieldname, aValue);
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, aFieldname, aValue);
+            }
         }
         
 

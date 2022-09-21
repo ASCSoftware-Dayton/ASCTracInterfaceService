@@ -2,6 +2,6 @@
 {
     internal interface IUserServices
     {
-        int Authenticate(string userName, string password);
+        int Authenticate(string token, string param);
     }
 }

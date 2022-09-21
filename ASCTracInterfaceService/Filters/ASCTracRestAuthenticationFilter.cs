@@ -91,7 +91,7 @@ namespace ASCTracInterfaceService.Filters
             }
             var genericPrincipal = new GenericPrincipal(identity, null);
             Thread.CurrentPrincipal = genericPrincipal;
-            if (!OnAuthorizeUser(identity.Name, identity.Password, filterContext))
+            if (!OnAuthorizeUser(identity.Token, identity.Param, filterContext))
             {
                 ChallengeAuthRequest(filterContext);
                 return;
@@ -124,7 +124,7 @@ namespace ASCTracInterfaceService.Filters
             if (string.IsNullOrEmpty(authHeaderValue)) return null;
             authHeaderValue = Encoding.Default.GetString(Convert.FromBase64String(authHeaderValue));
             var credentials = authHeaderValue.Split(':');
-            return credentials.Length < 2 ? null : new BasicAuthenticationIdentity(credentials[0], credentials[1]);
+            return credentials.Length < 2 ? new BasicAuthenticationIdentity(credentials[0], String.Empty) : new BasicAuthenticationIdentity(credentials[0], credentials[1]);
         }
 
 

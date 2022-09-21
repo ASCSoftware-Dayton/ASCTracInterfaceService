@@ -22,7 +22,8 @@ namespace ASCTracInterfaceTest
           client = new HttpClient();
 #endif
 
-            string authInfo = "k" + ":" + "34sddff";
+            //string authInfo = "k" + ":" + "34sddff";
+            string authInfo = "34sddff";
             authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
         }
@@ -33,7 +34,8 @@ namespace ASCTracInterfaceTest
 
         public void SetToken( string aToken)
         {
-            string authInfo = "k" + ":" + aToken;
+            //string authInfo = "k" + ":" + aToken;
+            string authInfo = aToken; // + ":" ;
             authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
         }

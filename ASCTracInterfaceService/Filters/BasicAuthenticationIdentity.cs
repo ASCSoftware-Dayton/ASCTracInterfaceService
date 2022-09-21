@@ -8,13 +8,13 @@ namespace ASCTracInterfaceService.Filters
     public class BasicAuthenticationIdentity : GenericIdentity
     {
         /// <summary>
-        /// Get/Set for password
+        /// Get/Set for Extra Parameter
         /// </summary>
-        public string Password { get; set; }
+        public string Param { get; set; }
         /// <summary>
-        /// Get/Set for UserName
+        /// Get/Set for Token
         /// </summary>
-        public string UserName { get; set; }
+        public string Token { get; set; }
         /// <summary>
         /// Get/Set for UserId
         /// </summary>
@@ -23,13 +23,13 @@ namespace ASCTracInterfaceService.Filters
         /// <summary>
         /// Basic Authentication Identity Constructor
         /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="password"></param>
-        public BasicAuthenticationIdentity(string userName, string password)
-            : base(userName, "Basic")
+        /// <param name="token"></param>
+        /// <param name="param"></param>
+        public BasicAuthenticationIdentity(string token, string param)
+            : base(token, "Basic")
         {
-            Password = password;
-            UserName = userName;
+            Token = token;
+            Param = param;
         }
     }
 }
