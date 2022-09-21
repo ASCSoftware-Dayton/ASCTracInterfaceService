@@ -26,7 +26,7 @@ namespace ASCTracInterfaceService.Filters
         /// <param name="token"></param>
         /// <param name="param"></param>
         public BasicAuthenticationIdentity(string token, string param)
-            : base(token, "Basic")
+            : base(token, "Bearer")
         {
             Token = token;
             Param = param;

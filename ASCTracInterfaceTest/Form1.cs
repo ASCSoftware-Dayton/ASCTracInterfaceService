@@ -53,6 +53,11 @@ namespace ASCTracInterfaceTest
             // http://10.169.0.30/Help/Api/POST-api-VendorImport
             // https://localhost:44344/Help/Api/POST-api-VendorImport
 
+            /*
+             * ClientID AAb244676
+               Secret: 231999785kckcjemxjsm
+             */
+
             edTokenURL.Text = tmp;
 
             myRestService = new RestService();

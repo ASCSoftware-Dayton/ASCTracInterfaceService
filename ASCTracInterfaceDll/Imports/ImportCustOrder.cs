@@ -45,6 +45,7 @@ namespace ASCTracInterfaceDll.Imports
             catch (Exception ex)
             {
                 Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
+                
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 

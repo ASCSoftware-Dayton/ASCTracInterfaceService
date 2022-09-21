@@ -37,7 +37,7 @@ namespace ASCTracInterfaceTest
             //string authInfo = "k" + ":" + aToken;
             string authInfo = aToken; // + ":" ;
             authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authInfo);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authInfo);
         }
 
         public async Task<HttpResponseMessage> GetToken(string aclientID, string aClientSecret)

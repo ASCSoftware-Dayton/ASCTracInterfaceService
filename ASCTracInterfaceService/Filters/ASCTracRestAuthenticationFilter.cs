@@ -71,7 +71,7 @@ namespace ASCTracInterfaceService.Filters
         }
 
         /// <summary>  
-        /// Checks basic authentication request  
+        /// Checks Bearer authentication request  
         /// </summary>  
         /// <param name="filterContext"></param>  
         public override void OnAuthorization(HttpActionContext filterContext)
@@ -91,7 +91,7 @@ namespace ASCTracInterfaceService.Filters
             }
             var genericPrincipal = new GenericPrincipal(identity, null);
             Thread.CurrentPrincipal = genericPrincipal;
-            if (!OnAuthorizeUser(identity.Token, identity.Param, filterContext))
+            if (!OnAuthorizeUser(identity.Token, filterContext))
             {
                 ChallengeAuthRequest(filterContext);
                 return;
@@ -103,12 +103,23 @@ namespace ASCTracInterfaceService.Filters
         /// Virtual method.Can be overriden with the custom Authorization.  
         /// </summary>  
         /// <param name="user"></param>  
-        /// <param name=""></param>  
+        /// <param name="psswd"></param>  
         /// <param name="filterContext"></param>  
         /// <returns></returns>  
         protected virtual bool OnAuthorizeUser(string user, string psswd, HttpActionContext filterContext)
         {
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(psswd)) return false;
+            return true;
+        }
+        /// <summary>  
+        /// Virtual method.Can be overriden with the custom Authorization.  
+        /// </summary>  
+        /// <param name="token"></param>  
+        /// <param name="filterContext"></param>  
+        /// <returns></returns>  
+        protected virtual bool OnAuthorizeUser(string token, HttpActionContext filterContext)
+        {
+            if (string.IsNullOrEmpty(token) ) return false;
             return true;
         }
 
@@ -120,9 +131,9 @@ namespace ASCTracInterfaceService.Filters
         {
             string authHeaderValue = null;
             var authRequest = filterContext.Request.Headers.Authorization;
-            if (authRequest != null && !String.IsNullOrEmpty(authRequest.Scheme) && authRequest.Scheme == "Basic") authHeaderValue = authRequest.Parameter;
+            if (authRequest != null && !String.IsNullOrEmpty(authRequest.Scheme) && authRequest.Scheme == "Bearer") authHeaderValue = authRequest.Parameter;
             if (string.IsNullOrEmpty(authHeaderValue)) return null;
-            authHeaderValue = Encoding.Default.GetString(Convert.FromBase64String(authHeaderValue));
+           // authHeaderValue = authHeaderValue; // Encoding.Default.GetString(Convert.FromBase64String(authHeaderValue));
             var credentials = authHeaderValue.Split(':');
             return credentials.Length < 2 ? new BasicAuthenticationIdentity(credentials[0], String.Empty) : new BasicAuthenticationIdentity(credentials[0], credentials[1]);
         }
@@ -136,7 +147,7 @@ namespace ASCTracInterfaceService.Filters
         {
             var dnsHost = filterContext.Request.RequestUri.DnsSafeHost;
             filterContext.Response = filterContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
-            filterContext.Response.Headers.Add("WWW-Authenticate", string.Format("Basic realm=\"{0}\"", dnsHost));
+            filterContext.Response.Headers.Add("WWW-Authenticate", string.Format("Bearer realm=\"{0}\"", dnsHost));
         }
     }
 }

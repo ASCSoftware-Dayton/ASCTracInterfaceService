@@ -32,14 +32,15 @@ namespace ASCTracInterfaceService.Filters
         /// <param name="param"></param>
         /// <param name="actionContext"></param>
         /// <returns></returns>
-        protected override bool OnAuthorizeUser(string token, string param, HttpActionContext actionContext)
+        //protected override bool OnAuthorizeUser(string token, string param, HttpActionContext actionContext)
+        protected override bool OnAuthorizeUser(string token,  HttpActionContext actionContext)
         {
             var provider = new Filters.StandardUserServices();
                 //actionContext.ControllerContext.Configuration
                 //               .DependencyResolver.GetService(typeof(IUserServices)) as IUserServices;
             if (provider != null)
             {
-                var userId = provider.Authenticate(token, param);
+                var userId = provider.Authenticate(token);
                 if (userId > 0)
                 {
                     var basicAuthenticationIdentity = Thread.CurrentPrincipal.Identity as BasicAuthenticationIdentity;

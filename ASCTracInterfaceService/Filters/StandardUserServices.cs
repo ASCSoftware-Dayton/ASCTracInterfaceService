@@ -69,5 +69,33 @@ namespace ASCTracInterfaceService.Filters
 
             return (retval);
         }
+        public int Authenticate(string token )
+        {
+            int retval = 1;
+            string aerrmsg = string.Empty;
+            if (InitAuthenticate())
+            {
+                if (fUsingAuthentication)
+                {
+                    string tmp = string.Empty;
+                    if (myDBUtils.ReadFieldFromDB("SELECT START_DATE, END_DATE, GetDate() FROM ASCREST_AUTH WHERE TOKEN_VALUE='" + token + "'", "", ref tmp))
+                    {
+                        DateTime startDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);
+                        DateTime endDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);
+                        DateTime currDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);
+                        if ((currDT < startDT) || (currDT > endDT))
+                            retval = 0;
+                        else
+                            retval = 1;
+                    }
+                    else
+                    {
+                        retval = 0;
+                    }
+                }
+            }
+
+            return (retval);
+        }
     }
 }

@@ -641,7 +641,7 @@
             </summary>
             <param name="isActive"></param>
         </member>
-        <member name="M:ASCTracInterfaceService.Filters.ApiAuthenticationFilter.OnAuthorizeUser(System.String,System.String,System.Web.Http.Controllers.HttpActionContext)">
+        <member name="M:ASCTracInterfaceService.Filters.ApiAuthenticationFilter.OnAuthorizeUser(System.String,System.Web.Http.Controllers.HttpActionContext)">
             <summary>
             Protected overriden method for authorizing user
             </summary>
@@ -663,7 +663,7 @@
         </member>
         <member name="M:ASCTracInterfaceService.Filters.ASCTracRestAuthenticationFilter.OnAuthorization(System.Web.Http.Controllers.HttpActionContext)">
             <summary>  
-            Checks basic authentication request  
+            Checks Bearer authentication request  
             </summary>  
             <param name="filterContext"></param>  
         </member>
@@ -672,7 +672,15 @@
             Virtual method.Can be overriden with the custom Authorization.  
             </summary>  
             <param name="user"></param>  
-            <param name=""></param>  
+            <param name="psswd"></param>  
+            <param name="filterContext"></param>  
+            <returns></returns>  
+        </member>
+        <member name="M:ASCTracInterfaceService.Filters.ASCTracRestAuthenticationFilter.OnAuthorizeUser(System.String,System.Web.Http.Controllers.HttpActionContext)">
+            <summary>  
+            Virtual method.Can be overriden with the custom Authorization.  
+            </summary>  
+            <param name="token"></param>  
             <param name="filterContext"></param>  
             <returns></returns>  
         </member>
