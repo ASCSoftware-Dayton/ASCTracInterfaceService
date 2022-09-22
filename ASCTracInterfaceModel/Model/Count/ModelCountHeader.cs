@@ -10,7 +10,9 @@ namespace ASCTracInterfaceModel.Model.Count
         {
             DetailList = new List<ModelCountDetail>();
             USERLEVELNUMBER = 0;
+            COUNTID = 0;
         }
+        public long COUNTID { get; set; }
         public string DESCRIPTION { get; set; }
         public DateTime SCHED_START_DATE { get; set; }
         public DateTime SCHED_END_DATE { get; set; }

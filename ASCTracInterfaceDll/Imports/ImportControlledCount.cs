@@ -61,27 +61,31 @@ namespace ASCTracInterfaceDll.Imports
             if (periodNum < 0)
                 throw new Exception(String.Format("No period exists for scheduled start date  {0}", aData.SCHED_START_DATE));
 
-            long countId = myClass.myParse.Globals.dmMiscFunc.getnextinorder("COUNT_HDR", "COUNT_NUM IS NOT NULL", "COUNT_NUM");
+            long countId = aData.COUNTID;
+            if ( countId <= 0 )
+                countId = myClass.myParse.Globals.dmMiscFunc.getnextinorder("COUNT_HDR", "COUNT_NUM IS NOT NULL", "COUNT_NUM");
 
-            string updstr = string.Empty;
-
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "COUNT_NUM", countId.ToString());
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "PERIOD_NUM", periodNum.ToString());
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "STATUS", "S");
-            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATE", "GETDATE()");
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "CREATE_USERID", "IMPORT");
-            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "LAST_UPDATE", "GETDATE()");
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "LAST_UPDATE_USERID", "IMPORT");
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SITE_ID", siteid);
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SCHED_START_DATE", aData.SCHED_START_DATE.ToString());
-            ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SCHED_END_DATE", aData.SCHED_END_DATE.ToString());
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COUNT_TYPE", aData.COUNT_TYPE);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DESCRIPTION", aData.DESCRIPTION);
-            if (aData.USERLEVELNUMBER > 0)
-                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "USERLEVELNUMBER", aData.USERLEVELNUMBER.ToString());
             myClass.myParse.Globals.mydmupdate.InitUpdate();
-            myClass.myParse.Globals.mydmupdate.InsertRecord("COUNT_HDR", updstr);
+            if (!myClass.myParse.Globals.myDBUtils.ifRecExists("SELECT STATUS FROM COUNT_HDR WHERE COUNT_NUM='" + countId.ToString() + "'"))
+            {
+                string updstr = string.Empty;
 
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "COUNT_NUM", countId.ToString());
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "PERIOD_NUM", periodNum.ToString());
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "STATUS", "S");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "CREATE_USERID", "IMPORT");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "LAST_UPDATE", "GETDATE()");
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "LAST_UPDATE_USERID", "IMPORT");
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SITE_ID", siteid);
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SCHED_START_DATE", aData.SCHED_START_DATE.ToString());
+                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SCHED_END_DATE", aData.SCHED_END_DATE.ToString());
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "COUNT_TYPE", aData.COUNT_TYPE);
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "DESCRIPTION", aData.DESCRIPTION);
+                if (aData.USERLEVELNUMBER > 0)
+                    ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "USERLEVELNUMBER", aData.USERLEVELNUMBER.ToString());
+                myClass.myParse.Globals.mydmupdate.InsertRecord("COUNT_HDR", updstr);
+            }
             InportControlledCountDetails(aData, countId);
 
             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
