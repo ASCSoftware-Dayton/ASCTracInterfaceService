@@ -30,12 +30,16 @@ namespace ASCTracInterfaceDll.Configs
             siteid = aSiteID;
             var retval = new Model.Item.ItemImportConfig();
             retval.GatewayUserID = ConfigUtils.GetUserID("", Globals);
-            retval.doNotUpdateUOMValues = ConfigUtils.ReadConfigSetting( "GWDontUpdateUOMValues", false, Globals);
-            retval.defLabelUOM = ConfigUtils.ReadConfigSetting( "GWDefaultLabelUOM", "PL", Globals);
-            retval.defFreightClass = ConfigUtils.ReadConfigSetting( "GWDefaultFreightClassCode", "", Globals);
-            retval.defItemType = ConfigUtils.ReadConfigSetting( "GWDefaultItemType", "F", Globals);
-            retval.defTrackBy = ConfigUtils.ReadConfigSetting( "GWDefaultTrackBy", "T", Globals);
-            retval.allowMultiSiteItemImport = ConfigUtils.ReadConfigSetting( "GWAllowMultiSiteItemImport", false, Globals);  //added 08-26-15 (JXG)
+            retval.doNotUpdateUOMValues = ConfigUtils.ReadConfigSetting("GWDontUpdateUOMValues", false, Globals);
+            retval.defLabelUOM = ConfigUtils.ReadConfigSetting("GWDefaultLabelUOM", "PL", Globals);
+            retval.defFreightClass = ConfigUtils.ReadConfigSetting("GWDefaultFreightClassCode", "", Globals);
+            retval.defItemType = ConfigUtils.ReadConfigSetting("GWDefaultItemType", "F", Globals);
+            retval.defTrackBy = ConfigUtils.ReadConfigSetting("GWDefaultTrackBy", "T", Globals);
+            retval.allowMultiSiteItemImport = ConfigUtils.ReadConfigSetting("GWAllowMultiSiteItemImport", false, Globals);  //added 08-26-15 (JXG)
+
+            retval.InvAuditExportLotId = ConfigUtils.ReadConfigSetting("GWExportLotIDInAudits", false, Globals);
+            retval.InvAuditExportExcludeNonPickable = ConfigUtils.ReadConfigSetting("GWExcludeNonPickableInvInAudits", false, Globals);
+            retval.InvAuditExportExcludeZeroQuantity = ConfigUtils.ReadConfigSetting("GWExcludeZeroQtyInAudits", false, Globals);
 
             ConfigUtils.ReadTransationFields(retval.GWTranslation, "ITEMMSTR", Globals);
 

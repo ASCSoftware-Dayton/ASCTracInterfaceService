@@ -99,8 +99,6 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         if (ImportOrderHdr(orderNum, pickstatus, fExist, aData, ref errmsg))
                         {
-
-
                             bool fPostit = false;
                             if (ImportOrderDet(orderNum, pickstatus, aData.ORDER_TYPE, aData, ref errmsg))
                             {
@@ -157,6 +155,8 @@ namespace ASCTracInterfaceDll.Imports
                 {
                     myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                 }
+                else
+                    retval = HttpStatusCode.BadRequest;
 
             }
             return (retval);
@@ -282,7 +282,7 @@ namespace ASCTracInterfaceDll.Imports
 
                             sql = "SELECT H.STATUS,D.COMP_ASCITEMID, SUM( D.QTY - D.QTY_PICKED) AS QTYTOPICK" +
                                 " FROM WO_HDR H " +
-                                " JOIN WO_DET D ON D.WORKORDER_ID=H.WORKORDER-ID" +
+                                " JOIN WO_DET D ON D.WORKORDER_ID=H.WORKORDER_ID" +
                                 " WHERE H.LINKED_CO_NUM='" + orderNum + "' " +
                                 " AND H.STATUS NOT IN ('X', 'F')" +
                                 " GROUP BY H.STATUS, D.COMP_ASCITEMID";

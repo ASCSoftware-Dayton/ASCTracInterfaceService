@@ -32,12 +32,18 @@ namespace ASCTracInterfaceDll.Imports
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
-                        else if (aData.ORDER_TYPE.Equals("R"))
-                            retval = ImportRMARecord(aData, ref errmsg);
-                        else if (aData.ORDER_TYPE.Equals("A"))
-                            retval = ImportASNRecord(aData, ref errmsg);
                         else
-                            retval = ImportPORecord(aData, ref errmsg);
+                        {
+                            if (aData.ORDER_TYPE.Equals("R"))
+                                retval = ImportRMARecord(aData, ref errmsg);
+                            else if (aData.ORDER_TYPE.Equals("A"))
+                                retval = ImportASNRecord(aData, ref errmsg);
+                            else
+                                retval = ImportPORecord(aData, ref errmsg);
+                            if( !String.IsNullOrEmpty( errmsg))
+                                retval = HttpStatusCode.BadRequest;
+                        }
+
                     }
                 }
                 else
@@ -63,7 +69,10 @@ namespace ASCTracInterfaceDll.Imports
             {
                 fExist = true;
                 if (tmp.Equals("C"))
+                    {
+                    
                     errmsg = "Cannot update RMA# " + aData.PONUMBER + ": RMA is already received.";
+                }
             }
             if (String.IsNullOrEmpty(errmsg))
             {

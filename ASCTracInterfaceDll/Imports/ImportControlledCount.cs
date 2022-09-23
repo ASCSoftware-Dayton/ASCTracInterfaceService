@@ -96,7 +96,13 @@ namespace ASCTracInterfaceDll.Imports
             }
             else
             {
-                errmsg = "Error updating inventory for count " + countId + ": " + ParseNet.dmascmessages.GetErrorMsg(ret) + "\r\n" + errmsg;
+                string tmperrmsg ;
+                if (ret == ascLibrary.TDBReturnType.dbrtCLOSED)
+                    tmperrmsg = ParseNet.dmascmessages.getmessagebyid(ParseNet.TASCMessageType.PMSG_PROMPT_COUNT) + countId.ToString() + " " + ParseNet.dmascmessages.getmessagebyid(ParseNet.TASCMessageType.PERR_GEN_COMPLETED);
+                else
+                    tmperrmsg = ParseNet.dmascmessages.GetErrorMsg(ret);
+
+                errmsg = "Error updating inventory for count " + countId + ": " + tmperrmsg + "\r\n" + errmsg;
                 retval = HttpStatusCode.BadRequest;
             }
             return (retval);
