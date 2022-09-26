@@ -331,7 +331,12 @@ namespace ASCTracInterfaceDll.Imports
                     else
                     {
                         if (fExist && currPOImportConfig.GWPurgePODetOnImport)
+                        {
                             errmsg = PurgePoDet(ponum, relnum, false);
+                            if (String.IsNullOrEmpty(errmsg))
+                                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+
+                        }
                         if (String.IsNullOrEmpty(errmsg))
                         {
                             errmsg = ImportPOHeaderRecord(aData, ponum, relnum, fExist);
