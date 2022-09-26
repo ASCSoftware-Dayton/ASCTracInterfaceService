@@ -1111,7 +1111,7 @@ namespace ASCTracInterfaceDll.Imports
             {
                 string sql = "DELETE FROM NOTES WHERE ORDERNUM='" + orderNum + "' " +
                     "AND (TYPE='B' OR TYPE='G' OR TYPE='P' OR TYPE='T' OR TYPE='L') ";  //added 04-12-16 (JXG) for Driscoll's
-                myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
+                myClass.myParse.Globals.myDBUtils.RunSqlCommand(sql);
             }
             int seq = 1;
             if (!String.IsNullOrEmpty(aData.DELIVERY_INSTRUCTIONS))
