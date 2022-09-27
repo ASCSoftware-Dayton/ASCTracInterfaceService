@@ -15,7 +15,7 @@ namespace ASCTracInterfaceService.Controllers.Export
         /// Return list of Receipts by Line
         /// </summary>
         [HttpGet]
-        public HttpResponseMessage GetPOLicenses(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
+        public HttpResponseMessage GetPOLines(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
         {
             List<ASCTracInterfaceModel.Model.PO.POExportLines> outdata = null;
             HttpStatusCode statusCode = HttpStatusCode.Accepted;
@@ -29,6 +29,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("GetPOLines", aData.OnlySendCompletedReceipts.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -58,6 +59,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("GetPOLines", aOnlySendCompletedReceipt.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -85,7 +87,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-
+                LoggingUtil.LogEventView("UpdatePOExport", aList.Count.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(errMsg);

@@ -910,12 +910,9 @@ namespace ASCTracInterfaceDll.Imports
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "MUST_ARRIVE_BY_TIME", aData.MUST_ARRIVE_BY_DATE.ToString());
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "MUST_ARRIVE_BY_DATE", aData.MUST_ARRIVE_BY_DATE.ToShortDateString());
                 }
-
-
             }
             else
             {
-
                 string ordertype = aData.ORDER_TYPE;
                 if (!string.IsNullOrEmpty(ordertype))
                 {
@@ -937,7 +934,6 @@ namespace ASCTracInterfaceDll.Imports
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "REQUIREDSHIPDATE", aData.LEAVES_DATE.ToShortDateString());
                     else
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "REQUIREDSHIPDATE", aData.LEAVES_DATE.ToString());
-
                 }
                 /////////////////////////////////
                 if (aData.ENTRY_DATE != DateTime.MinValue)
@@ -1062,7 +1058,6 @@ namespace ASCTracInterfaceDll.Imports
                 else if (!fExist)
                     fillToCapacity = "F";
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "FILL_TO_CAPACITY", fillToCapacity);
-
 
                 string residentialFlag = "";
                 if ((aData.RESIDENTIAL_FLAG == "T") || (aData.RESIDENTIAL_FLAG == "Y"))

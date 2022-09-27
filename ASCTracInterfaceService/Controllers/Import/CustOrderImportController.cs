@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -15,18 +16,18 @@ namespace ASCTracInterfaceService.Controllers.Import
         public HttpResponseMessage PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
         {
             HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            //var SessionID = System.Web.HttpContext.Current.Session.SessionID;
             string errMsg = string.Empty;
             try
             {
                 ReadMyAppSettings.ReadAppSettings();
                 statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrder(aData, ref errMsg);
-                //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
-
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("PostCustOrder", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);

@@ -526,12 +526,12 @@
             Update list of Parcel Records to Processed
             </summary>
         </member>
-        <member name="M:ASCTracInterfaceService.Controllers.Export.POLicensesExportController.GetPOLines(ASCTracInterfaceModel.Model.PO.POExportFilter)">
+        <member name="M:ASCTracInterfaceService.Controllers.Export.POLicensesExportController.GetPOLicense(ASCTracInterfaceModel.Model.PO.POExportFilter)">
             <summary>
             Return list of Receipts by Licenses
             </summary>
         </member>
-        <member name="M:ASCTracInterfaceService.Controllers.Export.POLicensesExportController.GetPOLines(System.Boolean)">
+        <member name="M:ASCTracInterfaceService.Controllers.Export.POLicensesExportController.GetPOLicense(System.Boolean)">
             <summary>
             Return list of Receipts by Licenses (for Completed Receipts, if parameter is set)
             </summary>
@@ -541,7 +541,7 @@
             Update list of Receipts by Licenses to Processed
             </summary>
         </member>
-        <member name="M:ASCTracInterfaceService.Controllers.Export.POLinesExportController.GetPOLicenses(ASCTracInterfaceModel.Model.PO.POExportFilter)">
+        <member name="M:ASCTracInterfaceService.Controllers.Export.POLinesExportController.GetPOLines(ASCTracInterfaceModel.Model.PO.POExportFilter)">
             <summary>
             Return list of Receipts by Line
             </summary>
@@ -576,7 +576,7 @@
             Import a ASN Order (Header and Details)
             </summary>
         </member>
-        <member name="M:ASCTracInterfaceService.Controllers.Import.ControlledCountController.PostASN(ASCTracInterfaceModel.Model.Count.ModelCountHeader)">
+        <member name="M:ASCTracInterfaceService.Controllers.Import.ControlledCountController.PostCount(ASCTracInterfaceModel.Model.Count.ModelCountHeader)">
             <summary>
             Import a Controlled Count(Header and Details)
             </summary>

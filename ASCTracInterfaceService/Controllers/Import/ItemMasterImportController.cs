@@ -27,6 +27,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("PostItemMaster", aData.PRODUCT_CODE, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);

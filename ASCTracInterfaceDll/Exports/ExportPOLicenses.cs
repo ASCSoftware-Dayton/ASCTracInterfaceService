@@ -106,7 +106,7 @@ namespace ASCTracInterfaceDll.Exports
 
         private static HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aData, ref string errmsg)
         {
-            HttpStatusCode retval = HttpStatusCode.NotFound;
+            HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
             conn.Open();

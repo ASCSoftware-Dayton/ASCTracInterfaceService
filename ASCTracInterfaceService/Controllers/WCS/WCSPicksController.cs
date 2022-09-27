@@ -55,9 +55,9 @@ namespace ASCTracInterfaceService.Controllers.WCS
             }
             catch (Exception ex)
             {
-                
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = "(PostWCSPick) " +  ex.Message;
+                LoggingUtil.LogEventView("PostPick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);

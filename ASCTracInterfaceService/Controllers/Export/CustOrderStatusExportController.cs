@@ -29,6 +29,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("GetCustOrderStatus",aData.CustID, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -58,6 +59,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("GetCustOrderStatus", aCustID, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -85,6 +87,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("UpdateCustOrderExport", aList.Count.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);

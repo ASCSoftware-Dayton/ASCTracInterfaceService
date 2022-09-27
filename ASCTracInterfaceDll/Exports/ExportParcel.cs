@@ -34,7 +34,7 @@ namespace ASCTracInterfaceDll.Exports
                             retval = BuildExportList(sqlstr, ref aData, ref errmsg);
                             BuildShipmentList(ref aData, ref errmsg);
                             if (aData.Count == 0)
-                                retval = HttpStatusCode.NotFound;
+                                retval = HttpStatusCode.NoContent;
                             else
                                 retval = HttpStatusCode.OK;
                         }
@@ -72,7 +72,7 @@ namespace ASCTracInterfaceDll.Exports
         {
             bool fExportByLot = true; // fExportByLot
 
-            HttpStatusCode retval = HttpStatusCode.NotFound;
+            HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
             conn.Open();

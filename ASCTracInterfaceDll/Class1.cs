@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using ASCTracWCSProcess.Exports;
 
 namespace ASCTracInterfaceDll
@@ -76,7 +77,8 @@ namespace ASCTracInterfaceDll
                     myParse.InitParse(myConnStr, ref errmsg);
                 }
                 if (!String.IsNullOrEmpty(errmsg))
-                    ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
+                    throw new Exception("Init Parse for " + aFuncType + " Error " + errmsg);
+                //ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
                 else
                 {
                     myParse.Globals.initASCLog("INTERFACE", "ASCTracInterface", "1", "ASCTrac Interface API");
@@ -103,6 +105,7 @@ namespace ASCTracInterfaceDll
             {
                 errmsg = ex.Message;
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
+                throw ex;
             }
             if (!String.IsNullOrEmpty(errmsg))
             {
@@ -138,14 +141,14 @@ namespace ASCTracInterfaceDll
 
         public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aSQLData)
         {
-            if (parseList.Count > 0 )
+            if (parseList.Count > 0)
             {
                 ParseNet.ParseNetMain myParse = null;
                 foreach (var rec in parseList)
                     myParse = rec.Value.myParse;
                 if (myParse != null)
                 {
-                    myParse.Globals.WriteAppLog( "", aFunc, "", aData, ErrorStr);
+                    myParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr);
                     /*
                     var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
                     try
@@ -175,7 +178,10 @@ namespace ASCTracInterfaceDll
                 }
             }
             else
+            {
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", aFunc + ": " + aData + "\r\n" + ErrorStr, true);
+                //EventLog.WriteEntry( aFunc + ": " + aData, ErrorStr, EventLogEntryType.Error);
+            }
         }
 
         internal string GetZone(string siteId)

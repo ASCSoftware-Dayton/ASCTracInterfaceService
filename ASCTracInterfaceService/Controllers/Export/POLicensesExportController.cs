@@ -16,7 +16,7 @@ namespace ASCTracInterfaceService.Controllers.Export
         /// </summary>
 
         [HttpGet]
-        public HttpResponseMessage GetPOLines(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
+        public HttpResponseMessage GetPOLicense(ASCTracInterfaceModel.Model.PO.POExportFilter aData)
         {
             List<ASCTracInterfaceModel.Model.PO.POExportLicenses> outdata = null;
             HttpStatusCode statusCode = HttpStatusCode.Accepted;
@@ -30,6 +30,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("GetPOLicense", aData.OnlySendCompletedReceipts.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -44,7 +45,7 @@ namespace ASCTracInterfaceService.Controllers.Export
         /// Return list of Receipts by Licenses (for Completed Receipts, if parameter is set)
         /// </summary>
         [HttpGet]
-        public HttpResponseMessage GetPOLines(bool aOnlySendCompletedReceipt)
+        public HttpResponseMessage GetPOLicense(bool aOnlySendCompletedReceipt)
         {
             ASCTracInterfaceModel.Model.PO.POExportFilter aData = new ASCTracInterfaceModel.Model.PO.POExportFilter(aOnlySendCompletedReceipt);
             List<ASCTracInterfaceModel.Model.PO.POExportLicenses> outdata = null;
@@ -59,6 +60,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("GetPOLicense", aOnlySendCompletedReceipt.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -86,6 +88,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
+                LoggingUtil.LogEventView("UpdatePOExport", aList.Count.ToString(), ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             retval.Content = new StringContent(errMsg);
