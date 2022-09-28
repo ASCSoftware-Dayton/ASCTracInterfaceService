@@ -42,8 +42,10 @@ namespace ASCTracInterfaceDll.WCS
                         string userid = Utils.ASCUtils.GetTrimString(aData.USERID, string.Empty);
 
                         DateTime dtPicked = myClass.myParse.Globals.GetSiteCurrDateTime();
-                        if ((aData.DATETIME_PICKED != null) || ( aData.DATETIME_PICKED != DateTime.MinValue))
+                        if ((aData.DATETIME_PICKED != null) && ( aData.DATETIME_PICKED != DateTime.MinValue))
                             dtPicked = aData.DATETIME_PICKED;
+                        if (dtPicked == DateTime.MinValue)
+                            dtPicked = DateTime.Now;
 
                         switch (aImportType)
                         {
