@@ -17,8 +17,9 @@ namespace ASCTracInterfaceDll
     {
         public static string fDefaultConnectionStr = string.Empty;
         internal ASCTracWCSProcess.Imports.dmPickImport myWCSPickImport ;
-        private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
+        //private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
+        private static ParseNet.ParseNetMain myStaticParse;
         private string fFuncType;
 
         //public static ascLibrary.ascDBUtils myInterface
@@ -27,16 +28,16 @@ namespace ASCTracInterfaceDll
         public static Class1 InitParse(string aFuncType, ref string errmsg)
         {
             Class1 retval;
-            if (parseList.ContainsKey(aFuncType))
-                retval = parseList[aFuncType];
-            else
-            {
+            //if (parseList.ContainsKey(aFuncType))
+            //    retval = parseList[aFuncType];
+            //else
+            //{
                 retval = new Class1();
                 if (!retval.Init(aFuncType, ref errmsg))
                     retval = null;
-                else
-                    parseList.Add(aFuncType, retval);
-            }
+                //else
+                //    parseList.Add(aFuncType, retval);
+            //}
             return (retval);
         }
 
@@ -112,6 +113,8 @@ namespace ASCTracInterfaceDll
                 retval = false;
                 errmsg += "(" + Status + ")";
             }
+            else
+                myStaticParse = myParse;
 
             return (retval);
         }
@@ -141,14 +144,14 @@ namespace ASCTracInterfaceDll
 
         public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aSQLData)
         {
-            if (parseList.Count > 0)
-            {
-                ParseNet.ParseNetMain myParse = null;
-                foreach (var rec in parseList)
-                    myParse = rec.Value.myParse;
-                if (myParse != null)
+            //if (parseList.Count > 0)
+            //{
+            //    ParseNet.ParseNetMain myParse = null;
+            //    foreach (var rec in parseList)
+            //        myParse = rec.Value.myParse;
+                if (myStaticParse != null)
                 {
-                    myParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr);
+                myStaticParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr);
                     /*
                     var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
                     try
@@ -175,7 +178,7 @@ namespace ASCTracInterfaceDll
                         con.Close();
                     }
                     */
-                }
+                //}
             }
             else
             {
