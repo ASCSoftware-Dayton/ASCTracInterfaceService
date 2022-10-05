@@ -59,9 +59,11 @@ namespace ASCTracInterfaceDll.Exports
                 " WHERE TRANFILE.TRANTYPE IN ( 'LC', 'LO', 'CS', 'CU', 'LU')" +
                // "WHERE (TRANFILE.TRANTYPE='LC' " +  //re-schedule Cust Order
                // "    OR TRANFILE.TRANTYPE='LO') " +  //Cust Order Pick Status change
-                " AND (TRANFILE." + postedFlagField + "='F' OR TRANFILE." + postedFlagField + " IS NULL) " +
+                " AND isnull(TRANFILE." + postedFlagField + ", 'F') IN (" + currExportConfig.FilterPostedValues + ") " +
                 " AND (SITES.HOST_SITE_ID<>'') " +
                 " AND ORDRHDR.ORDERTYPE<>'C' ";  //"AND ORDRHDR.ORDERTYPE<>'T' AND ORDRHDR.PICKSTATUS<>'C' AND ORDRHDR.PICKSTATUS<>'X'"
+            if (!String.IsNullOrEmpty(aExportFilter.CustID))
+                sql += " AND ORDRHDR.SOLDTOCUSTID='" + aExportFilter.CustID + "'";
             Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ORDRHDR|CUST");
             /*
             sql += " UNION " +
@@ -83,9 +85,11 @@ namespace ASCTracInterfaceDll.Exports
                 "LEFT JOIN POHDR (NOLOCK) ON POHDR.PONUMBER=TRANFILE.ORDERNUM AND POHDR.RELEASENUM=TRANFILE.RELEASENUM " +
                 "LEFT JOIN SITES (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
                 "WHERE TRANFILE.TRANTYPE='LR' " +  //re-schedule PO
-                "AND (TRANFILE." + postedFlagField + "='F' OR TRANFILE." + postedFlagField + " IS NULL) " +
+                " AND isnull(TRANFILE." + postedFlagField + ", 'F') IN (" + currExportConfig.FilterPostedValues + ") " +
                 "AND (SITES.HOST_SITE_ID<>'') " +
                 "AND (POHDR.ORDERTYPE='S' OR POHDR.ORDERTYPE='T') ";  //"AND ORDRHDR.RECEIVED<>'C' AND ORDRHDR.RECEIVED<>'X'"
+            if (!String.IsNullOrEmpty(aExportFilter.CustID))
+                sql += " AND POHDR.VENDORID='" + aExportFilter.CustID + "'";
             Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|POHDR|CUST");
 
             sql += "ORDER BY TRANFILE.ORDERNUM, TRANFILE.ID ";  //TRANFILE.TRANTYPE, TRANFILE.ID ";  //changed 07-18-16 (JXG)
@@ -192,7 +196,7 @@ namespace ASCTracInterfaceDll.Exports
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE " + wherestr;
             if (aPostedflag.Equals("S"))
-                sqlStr += " AND ISNULL(" + currExportConfig.StatusPostedFlagField + ",'F') = 'F'";
+                sqlStr += " AND ISNULL(" + currExportConfig.StatusPostedFlagField + ",'F') IN(" + currExportConfig.FilterPostedValues + ") ";
             else
                 sqlStr += " AND ISNULL(" + currExportConfig.StatusPostedFlagField + ",'F') = 'S'";
             //+" AND ISNULL(" + currExportConfig.postedFlagField + "','F') NOT IN ( 'T', 'X', 'D', 'E', 'P', '" + aPostedflag + "')";

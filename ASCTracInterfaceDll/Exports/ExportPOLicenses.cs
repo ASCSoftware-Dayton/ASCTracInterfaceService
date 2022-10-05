@@ -60,14 +60,7 @@ namespace ASCTracInterfaceDll.Exports
         private static string BuildPOExportSQL(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter, ref string errmsg)
         {
             string postedFlagField = currPOExportConfig.postedFlagField;
-            /*
-            if (aPOExportfilter.PostedFieldNumber == 2)
-                postedFlagField = "POSTED2";
-            if (aPOExportfilter.PostedFieldNumber == 3)
-                postedFlagField = "POSTED3";
-            if (aPOExportfilter.PostedFieldNumber == 4)
-                postedFlagField = "POSTED_GL";
-            */
+            
             string retval = "SELECT SITE_ID, ORDERNUM, RELEASENUM, TRANTYPE, LINENUM, ASCITEMID, ITEMID, LOTID, VENDORID, RECEIVER_ID," +
                 "SKIDID, MAX(INV_CONTAINER_ID) AS INV_CONTAINER_ID, MAX(ID) AS ID, MAX(STANDARDCOST) AS STANDARDCOST, " +
                                     "MAX(REASON) AS REASON, MAX(ACCTNUM) AS ACCTNUM, MAX(COMMENTS) AS COMMENTS, " +
@@ -78,7 +71,7 @@ namespace ASCTracInterfaceDll.Exports
                         "SUM(QTY) AS QTY, SUM(QTY_DUAL_UNIT) AS QTYDUALUNIT, " +
                         "MAX(CUSTID) AS CUSTID " +  //added 10-12-16 (JXG) for Driscoll's
                         "FROM TRANFILE (NOLOCK) " +
-                        "WHERE TRANTYPE IN ('RX','RF','RA') AND ISNULL(" + postedFlagField + ",'F')='F' ";
+                        "WHERE TRANTYPE IN ('RX','RF','RA') AND ISNULL(" + postedFlagField + ",'F') IN (" + currPOExportConfig.FilterPostedValues + ") ";
             if (aPOExportfilter.OnlySendCompletedReceipts)
             {
                 retval += " AND (( RECEIVER_ID>'' AND RECEIVER_ID IN ( SELECT RECEIVER_ID FROM TRANFILE WHERE TRANTYPE='RV'))" +
@@ -389,7 +382,7 @@ namespace ASCTracInterfaceDll.Exports
 
             sqlStr += " WHERE ORDERNUM='" + aPONUMBER + "' AND TRANTYPE IN ('RX', 'RF', 'RA') ";
             if (aPostedflag.Equals("S"))
-                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + ",'F') = 'F'";
+                sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + ",'F') IN (" + currPOExportConfig.FilterPostedValues + ") ";
             else
                 sqlStr += " AND ISNULL(" + currPOExportConfig.postedFlagField + ",'F') = 'S'";
             //" AND ISNULL(" + currPOExportConfig.postedFlagField + "','F') NOT IN ( 'T', 'X', 'D', 'E', 'P', '" + aPostedflag + "')";

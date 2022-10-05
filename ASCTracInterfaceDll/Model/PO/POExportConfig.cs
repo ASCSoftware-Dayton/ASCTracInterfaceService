@@ -10,5 +10,7 @@ namespace ASCTracInterfaceDll.Model.PO
         public bool ExportUnreceivesAsInvAdj { get; set; }
         public string postedFlagField { get; set; }
         public string posteddateField { get; set; }
+        public bool APIIncludeProcessingStatus { get; set; }
+        public string FilterPostedValues { get; set; }
     }
 }

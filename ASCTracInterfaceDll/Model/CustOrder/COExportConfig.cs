@@ -13,5 +13,8 @@ namespace ASCTracInterfaceDll.Model.CustOrder
         public string StatusPosteddateField { get; set; }
 
         public bool GWCOUseCustItem { get; set; }
+        public bool APIIncludeProcessingStatus { get; set; }
+        public string FilterPostedValues { get; set; }
+
     }
 }

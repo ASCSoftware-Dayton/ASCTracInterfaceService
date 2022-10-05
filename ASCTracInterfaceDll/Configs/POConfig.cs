@@ -71,6 +71,13 @@ namespace ASCTracInterfaceDll.Configs
             retval.posteddateField = "POSTEDDATE";
             if (retval.postedFlagField == "POSTED2") retval.posteddateField = "POSTEDDATE2";
             else if (retval.postedFlagField == "POSTED3") retval.posteddateField = "POSTEDDATE3";
+            retval.APIIncludeProcessingStatus = ConfigUtils.ReadConfigSetting("GWAPIIncludeProcessingStatus", "F", Globals) == "T";
+
+            if (retval.APIIncludeProcessingStatus)
+                retval.FilterPostedValues = "'F','S'";
+            else
+                retval.FilterPostedValues = "'F'";
+
             return (retval);
         }
 

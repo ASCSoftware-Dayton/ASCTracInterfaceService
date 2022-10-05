@@ -62,7 +62,7 @@ namespace ASCTracInterfaceDll.Exports
                 " JOIN SITES (NOLOCK) ON SITES.SITE_ID=TRANFILE.SITE_ID " +
                 " JOIN ORDRHDR (NOLOCK) ON ORDRHDR.ORDERNUMBER=TRANFILE.ORDERNUM " +
                 " JOIN CUST (NOLOCK) ON CUST.CUSTID=ORDRHDR.SOLDTOCUSTID " +
-                " WHERE ISNULL(TRANFILE." + postedFlagField + ",'F')='F' AND SITES.HOST_SITE_ID<>'' ";
+                " WHERE ISNULL(TRANFILE." + postedFlagField + ",'F') IN (" + currExportConfig.FilterPostedValues + ") AND SITES.HOST_SITE_ID<>'' ";
             if (aExportFilter.ExportShipmentType == "P")
             {
                 sql += " AND TRANFILE.TRANTYPE = 'LO' AND TRANFILE.REASON IN('L','D','T') ";
@@ -258,7 +258,7 @@ namespace ASCTracInterfaceDll.Exports
                 "FROM TRANFILE T (NOLOCK) " +
                 "LEFT JOIN SITES S (NOLOCK) ON S.SITE_ID=T.SITE_ID " +
                 "WHERE T.ORDERNUM=@orderNum AND T.TRANTYPE='PK' " +
-                "AND ISNULL(T." + currExportConfig.postedFlagField + ",'F')='F' AND S.HOST_SITE_ID<>'' ";
+                "AND ISNULL(T." + currExportConfig.postedFlagField + ",'F') IN (" + currExportConfig.FilterPostedValues + ") AND S.HOST_SITE_ID<>'' ";
             if (!String.IsNullOrEmpty(shipmentId))
                 sql += "AND T.SHIPMENT_ID=@shipId ";
             sql += "GROUP BY S.HOST_SITE_ID, T.ASCITEMID, T.ITEMID, T.LINENUM, T.LOTID, T.HOST_ITEM_NUMBER " +
@@ -528,7 +528,7 @@ namespace ASCTracInterfaceDll.Exports
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE " + wherestr;
             if (aPostedflag.Equals("S"))
-                sqlStr += " AND ISNULL(" + currExportConfig.postedFlagField + ",'F') = 'F'";
+                sqlStr += " AND ISNULL(" + currExportConfig.postedFlagField + ",'F') IN (" + currExportConfig.FilterPostedValues + ")";
             else
                 sqlStr += " AND ISNULL(" + currExportConfig.postedFlagField + ",'F') = 'S'";
             //+" AND ISNULL(" + currExportConfig.postedFlagField + "','F') NOT IN ( 'T', 'X', 'D', 'E', 'P', '" + aPostedflag + "')";

@@ -35,7 +35,11 @@ namespace ASCTracInterfaceDll.Configs
             else if (retval.postedFlagField == "POSTED3") retval.posteddateField = "POSTEDDATE3";
 
             retval.exportUnreceivesAsInvAdj = ConfigUtils.ReadConfigSetting("GWExportUnreceiveAsInvAdjustment", "F", Globals) == "T";
-
+            retval.APIIncludeProcessingStatus = ConfigUtils.ReadConfigSetting("GWAPIIncludeProcessingStatus", "F", Globals) == "T";
+            if (retval.APIIncludeProcessingStatus)
+                retval.FilterPostedValues = "'F','S'";
+            else
+                retval.FilterPostedValues = "'F'";
             return (retval);
         }
 

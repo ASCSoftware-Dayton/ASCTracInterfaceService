@@ -64,7 +64,7 @@ namespace ASCTracInterfaceDll.Exports
             sqlStr += "OR (TRANFILE.TRANTYPE='RA' AND TRANFILE.SUBTRANTYPE='I') " +
                 "OR (TRANFILE.TRANTYPE='DR' AND (SELECT RMA_NUM FROM RMAHDR RH " +
                 "WHERE RH.RMA_NUM=TRANFILE.ORDERNUM AND RH.SITE_ID=TRANFILE.SITE_ID) IS NULL)) " +
-                "AND SITES.HOST_SITE_ID<>'' AND ISNULL(TRANFILE." + postedFlagField + ",'F')='F' ";
+                "AND SITES.HOST_SITE_ID<>'' AND ISNULL(TRANFILE." + postedFlagField + ",'F') IN (" + currExportConfig.FilterPostedValues + ") ";
 
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
                 sqlStr += "AND ITEMMSTR.VMI_CUSTID='" + aExportFilter.CustID + "' ";
@@ -402,7 +402,7 @@ namespace ASCTracInterfaceDll.Exports
                     "LONG_MESSAGE='" + aERROR_MESSAGE.Replace("'", "''") + "' ";
             sqlStr += " WHERE ID = " + recId;
             if (aPostedflag.Equals("S"))
-                sqlStr += " AND ISNULL(" + currExportConfig.postedFlagField + ",'F') = 'F'";
+                sqlStr += " AND ISNULL(" + currExportConfig.postedFlagField + ",'F') IN (" + currExportConfig.FilterPostedValues + ") ";
             else
                 sqlStr += " AND ISNULL(" + currExportConfig.postedFlagField + ",'F') = 'S'";
             //+" AND ISNULL(" + currExportConfig.postedFlagField + "','F') NOT IN ( 'T', 'X', 'D', 'E', 'P', '" + aPostedflag + "')";
