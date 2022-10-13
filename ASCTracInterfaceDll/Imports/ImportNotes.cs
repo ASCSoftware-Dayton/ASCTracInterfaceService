@@ -9,7 +9,7 @@ namespace ASCTracInterfaceDll.Imports
         internal static string SaveNotes( string aType, string aOrderNum, string aNote,  bool aBaseOrder, int aLineNum, int aSeq, ParseNet.GlobalClass Globals)
 		{
 			string errmsg = string.Empty;
-			if (aNote.Trim() != "")
+			if ( !String.IsNullOrEmpty( aNote) &&			( aNote.Trim() != ""))
 			{
 				string sqlStr, newNote = aNote.Replace("'", "''");
 				bool notesRecExists;

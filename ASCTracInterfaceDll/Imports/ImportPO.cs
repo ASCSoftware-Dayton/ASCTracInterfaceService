@@ -34,7 +34,10 @@ namespace ASCTracInterfaceDll.Imports
                         }
                         else
                         {
-                            if (aData.ORDER_TYPE.Equals("R"))
+
+                            if( String.IsNullOrEmpty( aData.ORDER_TYPE))
+                                retval = ImportPORecord(aData, ref errmsg);
+                            else if (aData.ORDER_TYPE.Equals("R"))
                                 retval = ImportRMARecord(aData, ref errmsg);
                             else if (aData.ORDER_TYPE.Equals("A"))
                                 retval = ImportASNRecord(aData, ref errmsg);
@@ -163,9 +166,13 @@ namespace ASCTracInterfaceDll.Imports
             string rmaNum = aData.PONUMBER;
             foreach (var rec in aData.PODetList)
             {
-
                 var lineNum = rec.LINE_NUMBER;
                 string itemId = rec.PRODUCT_CODE;
+                if (String.IsNullOrEmpty(itemId))
+                {
+                    errmsg = "Item ID is required.  Line:  " + lineNum;
+                    break;
+                }
 
                 AddItem(siteid, itemId, aData.VMI_CUSTID);  //added 01-23-17 (JXG)
                 string ascItemId = myClass.myParse.Globals.dmMiscItem.GetASCItem(siteid, itemId, aData.VMI_CUSTID);
@@ -481,9 +488,13 @@ namespace ASCTracInterfaceDll.Imports
 
             foreach (var rec in aData.PODetList)
             {
-
                 var lineNum = rec.LINE_NUMBER.ToString();
                 var itemId = rec.PRODUCT_CODE;
+                if (String.IsNullOrEmpty(itemId))
+                {
+                    retval= "Item ID is required.  Line:  " + lineNum;
+                    break;
+                }
                 var upcCode = rec.UPC_CODE;
                 var itemDesc = rec.ITEM_DESCRIPTION;
                 var qty = rec.QUANTITY;

@@ -779,18 +779,18 @@ namespace ASCTracInterfaceTest
 
                     rec.COMMENT = dr["COMMENT"].ToString();
                     rec.COSTEACH = ascLibrary.ascUtils.ascStrToDouble(dr["COSTEACH"].ToString(), 0);
-                    rec.CW_NOT_BASE_UOM = ascLibrary.ascUtils.ascStrToDouble(dr["CW_NOT_BASE_UOM"].ToString(), 0);
-                    rec.CW_UOM = dr["CW_UOM"].ToString();
+                    //rec.CW_NOT_BASE_UOM = ascLibrary.ascUtils.ascStrToDouble(dr["CW_NOT_BASE_UOM"].ToString(), 0);
+                    //rec.CW_UOM = dr["CW_UOM"].ToString();
                     rec.STATUS_FLAG = dr["STATUS_FLAG"].ToString();
-                    rec.LIST_PRICE = ascLibrary.ascUtils.ascStrToDouble(dr["LIST_PRICE"].ToString(), 0);
-                    rec.ORDER_STATUS = dr["ORDER_STATUS"].ToString();
+                    //rec.LIST_PRICE = ascLibrary.ascUtils.ascStrToDouble(dr["LIST_PRICE"].ToString(), 0);
+                    //rec.ORDER_STATUS = dr["ORDER_STATUS"].ToString();
                     rec.HOST_UOM = dr["HOST_UOM"].ToString();
                     rec.REQUESTED_LOT = dr["REQUESTED_LOT"].ToString();
                     rec.CLIENTDEPT = dr["CLIENTDEPT"].ToString();
                     rec.CLIENTDIVISION = dr["CLIENTDIVISION"].ToString();
                     rec.CLIENTGLACCT = dr["CLIENTGLACCT"].ToString();
                     rec.CLIENTPROFIT = dr["CLIENTPROFIT"].ToString();
-                    rec.NOTES = dr["NOTES"].ToString();
+                    //rec.NOTES = dr["NOTES"].ToString();
                     rec.SHIPDESC = dr["SHIPDESC"].ToString();
 
                     rec.SOLD_PRICE = ascLibrary.ascUtils.ascStrToDouble(dr["SOLD_PRICE"].ToString(), 0);

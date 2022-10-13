@@ -1509,6 +1509,8 @@ namespace ASCTracInterfaceDll.Imports
 
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERNUMBER", orderNum);
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LINENUMBER", lineNum.ToString()); ;
+                        if (rec.HOST_LINE_NUMBER > 0)
+                            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "HOST_LINENUMBER", rec.HOST_LINE_NUMBER.ToString());
                         //if (itemType == "K")
                         //    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr, "ORDERFILLED", "T";
                         //else 

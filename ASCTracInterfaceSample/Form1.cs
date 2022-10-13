@@ -554,18 +554,18 @@ namespace ASCTracInterfaceSample
 
             rec.COMMENT = "COMMENT";
             rec.COSTEACH = 1.75;
-            rec.CW_NOT_BASE_UOM = 0;
-            rec.CW_UOM = "CW_UOM";
+            //rec.CW_NOT_BASE_UOM = 0;
+            //rec.CW_UOM = "CW_UOM";
             rec.STATUS_FLAG = "A";
-            rec.LIST_PRICE = 0;
-            rec.ORDER_STATUS = "O";
+            //rec.LIST_PRICE = 0;
+            //rec.ORDER_STATUS = "O";
             rec.HOST_UOM = "";
             rec.REQUESTED_LOT = "REQUESTED_LOT";
             rec.CLIENTDEPT = "CLIENTDEPT";
             rec.CLIENTDIVISION = "CLIENTDIVISION";
             rec.CLIENTGLACCT = "CLIENTGLACCT";
             rec.CLIENTPROFIT = "CLIENTPROFIT";
-            rec.NOTES = "NOTES";
+            //rec.NOTES = "NOTES";
             rec.SHIPDESC = "SHIPDESC";
 
             rec.SOLD_PRICE = 0;

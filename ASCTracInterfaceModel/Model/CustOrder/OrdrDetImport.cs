@@ -15,6 +15,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
         public DateTime CREATE_DATETIME { get; set; }
 
         public long LINE_NUMBER { get; set; }
+        public long HOST_LINE_NUMBER { get; set; }
 
         public string PRODUCT_CODE { get; set; }
 
@@ -24,15 +25,15 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         public double COSTEACH { get; set; }
 
-        public double CW_NOT_BASE_UOM { get; set; }
+        //public double CW_NOT_BASE_UOM { get; set; }
 
-        public string CW_UOM { get; set; }
+        //public string CW_UOM { get; set; }
 
         public string STATUS_FLAG { get; set; }
 
-        public double LIST_PRICE { get; set; }
+        //public double LIST_PRICE { get; set; }
 
-        public string ORDER_STATUS { get; set; }
+        //public string ORDER_STATUS { get; set; }`
 
         public string HOST_UOM { get; set; }
 
@@ -46,7 +47,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         public string CLIENTPROFIT { get; set; }
 
-        public string NOTES { get; set; }
+        //public string NOTES { get; set; }
 
         public string SHIPDESC { get; set; }
 
