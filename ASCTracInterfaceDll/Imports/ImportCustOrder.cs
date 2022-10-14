@@ -375,8 +375,9 @@ namespace ASCTracInterfaceDll.Imports
             if (currCOImportConfig.GWPurgeCODetOnImport)
             {
                 string ordertype = string.Empty;
-                if (myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "ORDERTYPE", ref ordertype))
+                if (myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "PICKSTATUS,ORDERTYPE", ref ordertype))
                 {
+                    var pickStatus = ascLibrary.ascStrUtils.GetNextWord(ref ordertype);
                     bool okToPurge = false;
                     string sql = "SELECT PICKORDERNUM FROM LOCITEMS (NOLOCK) " +
                         "WHERE PICKORDERNUM='" + orderNum + "'";
@@ -392,8 +393,8 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype))
                         {
-                            bool statusScheduled = isOrderStatusScheduled(orderNum);
-                            bool statusRequired = isOrderStatusRequired(orderNum);
+                            bool statusScheduled = isOrderStatusScheduled(pickStatus);
+                            bool statusRequired = isOrderStatusRequired(pickStatus);
 
                             // Decrement item quantities
                             if (statusScheduled)
@@ -593,19 +594,21 @@ namespace ASCTracInterfaceDll.Imports
 
         private static void SaveCustomFields(ref string updStr, string aTblName, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
-            foreach (var rec in CustomList)
+            if (CustomList != null)
             {
-                if (TranslationList.ContainsKey(rec.FieldName))
+                foreach (var rec in CustomList)
                 {
-                    var asclist = TranslationList[rec.FieldName];
-                    foreach (var ascfield in asclist)
+                    if (TranslationList.ContainsKey(rec.FieldName))
                     {
-                        Utils.ASCUtils.CheckAndAppend( ref updStr, aTblName, ascfield, rec.Value);
+                        var asclist = TranslationList[rec.FieldName];
+                        foreach (var ascfield in asclist)
+                        {
+                            Utils.ASCUtils.CheckAndAppend(ref updStr, aTblName, ascfield, rec.Value);
+                        }
                     }
                 }
             }
         }
-
 
         private static bool ImportOrderHdr(string orderNum, string pickStatus, bool fExist, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
@@ -1303,8 +1306,8 @@ namespace ASCTracInterfaceDll.Imports
             if (pickStatus == "C")
                 return true;
 
-            bool statusScheduled = isOrderStatusScheduled(orderNum);
-            bool statusRequired = isOrderStatusRequired(orderNum);
+            bool statusScheduled = isOrderStatusScheduled(pickStatus);
+            bool statusRequired = isOrderStatusRequired(pickStatus);
 
             #region Delete Order Lines
             if (currCOImportConfig.GWDeleteCOLinesNotInInterface)
@@ -1351,7 +1354,7 @@ namespace ASCTracInterfaceDll.Imports
                                 }
                                 myClass.myParse.Globals.mydmupdate.DeleteRecord("ORDRDET", "ORDERNUMBER='" + orderNum + "' " +
                                     "AND LINENUMBER=" + lineNum);
-                                myClass.myParse.Globals.mydmupdate.DeleteRecord("PCEPICKING", "RECTYPE='C' AND PCEPICKING='" + orderNum + "' " +
+                                myClass.myParse.Globals.mydmupdate.DeleteRecord("PCEPICKING", "RECTYPE='C' AND RECID='" + orderNum + "' " +
                                     "AND SEQNUM=" + lineNum);
                             }
                             else
@@ -1365,7 +1368,7 @@ namespace ASCTracInterfaceDll.Imports
                                         myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", reader["ASCITEMID"].ToString(), qtyNotPicked, true);
                                 }
                                 myClass.myParse.Globals.mydmupdate.UpdateFields("ORDRDET", "ORDERFILLED='D'", "ORDERNUMBER='" + orderNum + "' AND LINENUMBER=" + lineNum);
-                                myClass.myParse.Globals.mydmupdate.UpdateFields("PCEPICKING", "ORDERFILLED='D'", "RECTYPE='C' AND PCEPICKING='" + orderNum + "' " +
+                                myClass.myParse.Globals.mydmupdate.UpdateFields("PCEPICKING", "ORDERFILLED='D'", "RECTYPE='C' AND RECID='" + orderNum + "' " +
                                                                         "AND SEQNUM=" + lineNum);
                             }
                         }
@@ -1472,7 +1475,7 @@ namespace ASCTracInterfaceDll.Imports
                             sqlStr = "DELETE FROM ORDRDET WHERE ORDERNUMBER='" + orderNum + "' AND LINENUMBER=" + lineNum;
 
                             myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
-                            myClass.myParse.Globals.mydmupdate.AddToUpdate("DELETE PCEPICKING WHERE RECTYPE='C' AND PCEPICKING='" + orderNum + "' " + "AND SEQNUM=" + lineNum);
+                            myClass.myParse.Globals.mydmupdate.AddToUpdate("DELETE PCEPICKING WHERE RECTYPE='C' AND RECID='" + orderNum + "' " + "AND SEQNUM=" + lineNum);
 
                         }
                         else
@@ -1497,7 +1500,7 @@ namespace ASCTracInterfaceDll.Imports
                             else if (statusRequired)
                             {
                                 myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", ascItemId, tmpQty, true);
-                                myClass.myParse.Globals.mydmupdate.DeleteRecord("PCEPICKING", "RECTYPE='C' AND PCEPICKING='" + orderNum + "' " +
+                                myClass.myParse.Globals.mydmupdate.DeleteRecord("PCEPICKING", "RECTYPE='C' AND RECID='" + orderNum + "' " +
                                         "AND SEQNUM=" + lineNum);
                             }
                         }
@@ -1605,6 +1608,10 @@ namespace ASCTracInterfaceDll.Imports
                     if (!recExists)
                     {
                         myClass.myParse.Globals.mydmupdate.InsertRecord("ORDRDET", updstr);
+                    }
+                    else
+                    {
+                        myClass.myParse.Globals.mydmupdate.UpdateFields("ORDRDET", updstr, "ORDERNUMBER='" + orderNum + "' AND LINENUMBER=" + lineNum.ToString());
                     }
 
                     string promoCode = aData.PROMO_CODE;
