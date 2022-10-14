@@ -56,13 +56,13 @@ namespace ASCTracInterfaceDll.Imports
         private static HttpStatusCode ImportCORecord(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            string pickstatus = string.Empty;
+            string pickstatus = ascLibrary.dbConst.ssNOTSCHED;
             bool fExist = false;
             string orderNum = aData.ORDERNUMBER;
             string batchNum = string.Empty;
-            if (myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "BATCH_NUM, PICKSTATUS", ref pickstatus))
+            if (myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "PICKSTATUS, BATCH_NUM", ref batchNum))
             {
-                batchNum = ascLibrary.ascStrUtils.GetNextWord(ref pickstatus);
+                pickstatus = ascLibrary.ascStrUtils.GetNextWord(ref batchNum);
                 fExist = true;
                 if (pickstatus.Equals(ascLibrary.dbConst.ssCONF_SHIP))
                     errmsg = "Order " + orderNum + " already Shipped.";
@@ -408,7 +408,8 @@ namespace ASCTracInterfaceDll.Imports
                         myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
 
                         sql = "DELETE FROM PCEPICKING WHERE RECID='" + orderNum + "' ";
-                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql); myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql); 
+                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                     }
 
                     else
@@ -1300,7 +1301,7 @@ namespace ASCTracInterfaceDll.Imports
             string itemId, ascItemId, oldItemId = "", reqLot, hostUom;
             string itemType = "", importAction;
             long lineNum;
-            double qty, qtyOrdered, qtyPicked, qtySub, qtyShipped, convFact;
+            double newQtyOrdered, qtyOrdered, qtyPicked, qtySub, qtyShipped, convFact;
             bool recExists, subUom = false;
 
             if (pickStatus == "C")
@@ -1391,7 +1392,7 @@ namespace ASCTracInterfaceDll.Imports
                 importAction = rec.STATUS_FLAG;
                 itemId = rec.PRODUCT_CODE;
                 lineNum = rec.LINE_NUMBER;
-                qty = rec.QUANTITY;
+                newQtyOrdered = rec.QUANTITY;
 
                 reqLot = rec.REQUESTED_LOT;
 
@@ -1406,7 +1407,7 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         custItemID = itemId;
                         custConvFact = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref ascItemId), 1);
-                        qty = qty * custConvFact;
+                        newQtyOrdered = newQtyOrdered * custConvFact;
                         itemId = ascLibrary.ascStrUtils.GetNextWord(ref ascItemId);
                     }
                 }
@@ -1439,16 +1440,21 @@ namespace ASCTracInterfaceDll.Imports
 
                 hostUom = rec.HOST_UOM;
                 if (!String.IsNullOrEmpty(hostUom))
-                    GetConvQty(ascItemId, hostUom, true, ref subUom, ref qty, ref convFact);
+                    GetConvQty(ascItemId, hostUom, true, ref subUom, ref newQtyOrdered, ref convFact);
 
-                string orderfilled = string.Empty;
+                string orderfilled = ascLibrary.dbConst.osOPEN;
+                if (importAction.Equals("H") || importAction.Equals("S") || importAction.Equals("T") || importAction.Equals("X"))
+                    orderfilled  = importAction;
+
                 string linkedWONum = string.Empty;
-                recExists = myClass.myParse.Globals.myGetInfo.GetOrderDetInfo(orderNum, "LINKED_WO_NUM,ORDERFILLED,ITEMID, QTYPICKED, QTY_SUBSTITUTED, QTYSHIPPED, QTYORDERED", lineNum.ToString(), ref tmpStr);
+                string oldASCItemid = string.Empty;
+                recExists = myClass.myParse.Globals.myGetInfo.GetOrderDetInfo(orderNum, "LINKED_WO_NUM,ORDERFILLED,ITEMID, ASCITEMID,QTYPICKED, QTY_SUBSTITUTED, QTYSHIPPED, QTYORDERED", lineNum.ToString(), ref tmpStr);
                 if (recExists)
                 {
                     linkedWONum = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
                     orderfilled = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
                     oldItemId = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
+                    oldASCItemid = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
                     qtyPicked = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
                     qtySub = ascLibrary.ascUtils.ascStrToDouble(ascLibrary.ascStrUtils.GetNextWord(ref tmpStr), 0);
                     qtyPicked += qtySub;
@@ -1466,9 +1472,9 @@ namespace ASCTracInterfaceDll.Imports
                             if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype) && orderfilled.Equals(ascLibrary.dbConst.osOPEN))
                             {
                                 if (statusScheduled)
-                                    myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYSCHEDULED", ascItemId, (double)qtyOrdered, true);
+                                    myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYSCHEDULED", oldASCItemid, (double)qtyOrdered, true);
                                 else if (statusRequired)
-                                    myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", ascItemId, (double)qtyOrdered, true);
+                                    myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", oldASCItemid, (double)qtyOrdered, true);
                                 myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                             }
                             Utils.AllocUtil.BackoutPreAllocationForOrderDet(orderNum, lineNum, myClass.myParse.Globals);
@@ -1496,10 +1502,10 @@ namespace ASCTracInterfaceDll.Imports
                         if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype) && orderfilled.Equals(ascLibrary.dbConst.osOPEN))
                         {
                             if (statusScheduled)
-                                myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYSCHEDULED", ascItemId, tmpQty, true);
+                                myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYSCHEDULED", oldASCItemid, tmpQty, true);
                             else if (statusRequired)
                             {
-                                myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", ascItemId, tmpQty, true);
+                                myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", oldASCItemid, tmpQty, true);
                                 myClass.myParse.Globals.mydmupdate.DeleteRecord("PCEPICKING", "RECTYPE='C' AND RECID='" + orderNum + "' " +
                                         "AND SEQNUM=" + lineNum);
                             }
@@ -1550,9 +1556,9 @@ namespace ASCTracInterfaceDll.Imports
 
                     if (lineNum == holdLineNum && !String.IsNullOrEmpty(reqLot))
                     {
-                        if (qtyPicked <= (qtyOrdered + qty))
+                        if (qtyPicked <= (qtyOrdered + newQtyOrdered))
                         {
-                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYORDERED", qty.ToString());
+                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYORDERED", newQtyOrdered.ToString());
                         }
                         else
                         {
@@ -1563,9 +1569,9 @@ namespace ASCTracInterfaceDll.Imports
                     }
                     else
                     {
-                        if (qtyPicked <= qty)
+                        if (qtyPicked <= newQtyOrdered)
                         {
-                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYORDERED", qty.ToString());
+                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYORDERED", newQtyOrdered.ToString());
                         }
                         else
                         {
@@ -1614,7 +1620,16 @@ namespace ASCTracInterfaceDll.Imports
                         myClass.myParse.Globals.mydmupdate.UpdateFields("ORDRDET", updstr, "ORDERNUMBER='" + orderNum + "' AND LINENUMBER=" + lineNum.ToString());
                     }
 
-                    string promoCode = aData.PROMO_CODE;
+                    if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype) && orderfilled.Equals(ascLibrary.dbConst.osOPEN))
+                    {
+                        if (statusScheduled)
+                            myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYSCHEDULED", ascItemId, newQtyOrdered, false);
+                        else if (statusRequired)
+                        {
+                            myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", ascItemId, newQtyOrdered, false);
+                        }
+                    }
+                            string promoCode = aData.PROMO_CODE;
                     if (!String.IsNullOrEmpty(promoCode) && myClass.myParse.Globals.myConfig.iniCPAllowPromoAlloc.boolValue)
                     {
                         sqlStr = "SELECT MASTER_CLIENT FROM PROMOS (NOLOCK) WHERE PROMO_CODE='" + promoCode + "'";
@@ -1630,7 +1645,7 @@ namespace ASCTracInterfaceDll.Imports
 
                         Utils.PromoUtil.AddPromoItem(promoCode, siteid, ascItemId, myClass.myParse.Globals);
 
-                        Utils.PromoUtil.UpdatePromoOrder(promoCode, siteid, ascItemId, orderNum, lineNum, qty, "C", myClass.myParse.Globals);
+                        Utils.PromoUtil.UpdatePromoOrder(promoCode, siteid, ascItemId, orderNum, lineNum, newQtyOrdered, "C", myClass.myParse.Globals);
                     }
 
                     int seq = 1;
@@ -1646,7 +1661,7 @@ namespace ASCTracInterfaceDll.Imports
                     }
                     if (!String.IsNullOrEmpty(reqLot))
                     {
-                        Utils.AllocUtil.AddLotAllocForOrderDet(orderNum, lineNum, ascItemId, reqLot, qty, myClass.myParse.Globals);
+                        Utils.AllocUtil.AddLotAllocForOrderDet(orderNum, lineNum, ascItemId, reqLot, newQtyOrdered, myClass.myParse.Globals);
 
                     }
 
@@ -1682,7 +1697,7 @@ namespace ASCTracInterfaceDll.Imports
                                 nLeadTime = ascLibrary.ascUtils.ascStrToInt(mrpLeadTime, 0);
                             nLeadTime += ascLibrary.ascUtils.ascStrToInt(inHouseTime, 0);
 
-                            if (itemType != "K" && itemHasBom == "T" && qty > qtyMaking)
+                            if (itemType != "K" && itemHasBom == "T" && newQtyOrdered > qtyMaking)
                             {
                                 string reqShipDate = string.Empty;
                                 DateTime dtReqShipDate;
@@ -1696,9 +1711,9 @@ namespace ASCTracInterfaceDll.Imports
                                         reqShipDate = string.Empty;
                                 }
 
-                                double woQty = qty - qtyMaking;
-                                if (woQty > qty)
-                                    woQty = qty;
+                                double woQty = newQtyOrdered - qtyMaking;
+                                if (woQty > newQtyOrdered)
+                                    woQty = newQtyOrdered;
 
                                 string woNum = myClass.myParse.Globals.dmmiscprod.GetUniqueWONum(ascLibrary.dbConst.wtPRODUCTION); // .myConfig.woMask.GetOrderNum();
 
@@ -1764,14 +1779,16 @@ namespace ASCTracInterfaceDll.Imports
             }
 
             // Increment item quantities
+            /*
             if (!ascLibrary.dbConst.otNOT_FOR_SCHEDING.Contains(ordertype))
             {
                 if (statusScheduled)
                     myClass.myParse.Globals.mydmupdate.SetItemMasterQtyScheduledForCustOrder(orderNum, false);
                 else if (statusRequired)
                     myClass.myParse.Globals.mydmupdate.SetItemMasterQtyRequiredForCustOrder(orderNum, false);
-                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             }
+            */
+            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             CalcEstShipWeight(orderNum);
 
             return true;
