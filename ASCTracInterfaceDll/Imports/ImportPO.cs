@@ -32,6 +32,17 @@ namespace ASCTracInterfaceDll.Imports
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
+                        else if (string.IsNullOrEmpty(OrderNum))
+                        {
+                            errmsg = "PO Number value is required.";
+                            retval = HttpStatusCode.BadRequest;
+                        }
+                        else if (string.IsNullOrEmpty( aData.STATUS_FLAG))
+                        {
+                            errmsg = "STATUS_FLAG value is required.";
+                            retval = HttpStatusCode.BadRequest;
+                        }
+
                         else
                         {
 
@@ -107,7 +118,8 @@ namespace ASCTracInterfaceDll.Imports
             string errmsg = string.Empty;
 
             string custName = string.Empty;
-            myClass.myParse.Globals.myGetInfo.GetCustInfo(aData.VENDOR_CODE, "SHIPTONAME", ref custName);
+            if( !String.IsNullOrEmpty( aData.VENDOR_CODE))
+                myClass.myParse.Globals.myGetInfo.GetCustInfo(aData.VENDOR_CODE, "SHIPTONAME", ref custName);
 
             string rmaType = aData.RMA_TYPE;
             if (String.IsNullOrEmpty(rmaType))
@@ -189,7 +201,9 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 else
                 {
-                    string importAction = rec.STATUS_FLAG;
+                    string importAction = "O";
+                    if (!String.IsNullOrEmpty(rec.STATUS_FLAG))
+                        importAction = rec.STATUS_FLAG;
                     if (importAction == "D")
                     {
                         myClass.myParse.Globals.mydmupdate.DeleteRecord("RMADET", whereStr);
@@ -326,7 +340,9 @@ namespace ASCTracInterfaceDll.Imports
             {
                 myClass.myParse.Globals.mydmupdate.InitUpdate();
                 myClass.myParse.Globals.mydmupdate.SetItemMasterQtyExpected(ponum, relnum, true);  //"00"  //changed 08-18-20 (JXG)
-                if (aData.STATUS_FLAG.Equals("D") || aData.STATUS_FLAG.Equals("V"))
+                if (String.IsNullOrEmpty(aData.STATUS_FLAG))
+                    errmsg = "Invalid Status flag";
+                else if (aData.STATUS_FLAG.Equals("D") || aData.STATUS_FLAG.Equals("V"))
                 {
                     if (fExist)
                         errmsg = PurgePoDet(ponum, relnum, true);
@@ -614,7 +630,9 @@ namespace ASCTracInterfaceDll.Imports
             */
                 string sqlStr;
                 string whereStr = "PONUMBER='" + ponum + "' AND RELEASENUM='" + relnum + "' AND LINENUMBER=" + lineNum;
-                string importAction = rec.STATUS_FLAG;
+                string importAction = "O";
+                if (!String.IsNullOrEmpty(rec.STATUS_FLAG))
+                    importAction = rec.STATUS_FLAG;
                 if (importAction == "D")
                 {
                     if (qtyRcvd == 0)

@@ -80,7 +80,9 @@ namespace ASCTracInterfaceDll.Imports
                 //    PurgePODet
                 myClass.myParse.Globals.mydmupdate.InitUpdate();
 
-                if (importAction == "D" || importAction == "V")
+                if (String.IsNullOrEmpty(importAction))
+                    errmsg = "Invalid Status Flag";
+                else if (importAction == "D" || importAction == "V")
                 {
                     DeleteOrder(orderNum, ref errmsg);
                 }
@@ -1510,6 +1512,8 @@ namespace ASCTracInterfaceDll.Imports
                                         "AND SEQNUM=" + lineNum);
                             }
                         }
+                        if( !oldASCItemid.Equals( ascItemId, StringComparison.InvariantCultureIgnoreCase))
+                            Utils.AllocUtil.BackoutPreAllocationForOrderDet(orderNum, lineNum, myClass.myParse.Globals); 
                     }
 
                     string updstr = string.Empty;

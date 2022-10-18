@@ -145,7 +145,7 @@ namespace ASCTracInterfaceDll
         public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aSQLData)
         {
             //if (parseList.Count > 0)
-            //{
+            //{ 
             //    ParseNet.ParseNetMain myParse = null;
             //    foreach (var rec in parseList)
             //        myParse = rec.Value.myParse;

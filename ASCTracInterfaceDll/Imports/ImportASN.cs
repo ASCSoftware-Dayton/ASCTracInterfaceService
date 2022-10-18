@@ -37,8 +37,13 @@ namespace ASCTracInterfaceDll.Imports
                         else
                         {
                             Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
-
-                            retval = ImportASNRecord(aData, ref errmsg);
+                            if (string.IsNullOrEmpty(OrderNum))
+                            {
+                                errmsg = "ASN value is required.";
+                                retval = HttpStatusCode.BadRequest;
+                            }
+                            else
+                                retval = ImportASNRecord(aData, ref errmsg);
                             if (retval == HttpStatusCode.OK)
                                 myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                         }
@@ -151,24 +156,24 @@ namespace ASCTracInterfaceDll.Imports
                 }
             }
 
-            string updStr = string.Empty;
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ASN", aData.ASN);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ASN_TYPE", asnType);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "STATUS", "I");  //"N"  //changed 11-21-13 (JXG)
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "SITE_ID", siteid);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "TRANSFER_SITE_ID", fromSiteId);
+            string updstr = string.Empty;
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "ASN", aData.ASN);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "ASN_TYPE", asnType);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "STATUS", "I");  //"N"  //changed 11-21-13 (JXG)
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "SITE_ID", siteid);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "TRANSFER_SITE_ID", fromSiteId);
             if (aData.CREATE_DATETIME == DateTime.MinValue)
-                ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "CREATE_DATE", "GetDate()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATE", "GetDate()");
             else
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CREATE_DATE", aData.CREATE_DATETIME.ToString());
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "VENDORID", aData.VENDORID);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "PONUMBER", aData.PONUMBER);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "TRUCKNUM", aData.TRUCKNUM);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "REF_ORDERNUMBER", aData.REF_ORDERNUMBER);
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "PACKINGSLIP", aData.PACKINGSLIP);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "CREATE_DATE", aData.CREATE_DATETIME.ToString());
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "VENDORID", aData.VENDORID);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "PONUMBER", aData.PONUMBER);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "TRUCKNUM", aData.TRUCKNUM);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "REF_ORDERNUMBER", aData.REF_ORDERNUMBER);
+            Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "PACKINGSLIP", aData.PACKINGSLIP);
             if (aData.EXPECTED_RECEIPT_DATE != DateTime.MinValue)
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "EXPECTEDRECEIPTDATE", aData.EXPECTED_RECEIPT_DATE.ToString());
-            myClass.myParse.Globals.mydmupdate.InsertRecord("ASN_HDR", updStr);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "EXPECTEDRECEIPTDATE", aData.EXPECTED_RECEIPT_DATE.ToString());
+            myClass.myParse.Globals.mydmupdate.InsertRecord("ASN_HDR", updstr);
 
             return true;
         }
@@ -197,8 +202,17 @@ namespace ASCTracInterfaceDll.Imports
             foreach (var rec in aData.DetailList)
             {
                 itemId = rec.ITEMID;
-                vmiCustId = rec.VMI_CUSTID;
+                vmiCustId = string.Empty;
+                if (!string.IsNullOrEmpty(rec.VMI_CUSTID))
+                    vmiCustId = rec.VMI_CUSTID;
 
+                if( String.IsNullOrEmpty( itemId))
+                {
+                    string errMsg = "ItemID does not have a value";
+                    Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
+                    return false;
+
+                }
                 if (myClass.myParse.Globals.myConfig.iniGNVMI.boolValue)
                 {
                     ascItemId = myClass.myParse.Globals.dmMiscItem.GetASCItem(siteid, itemId, vmiCustId);
@@ -224,32 +238,32 @@ namespace ASCTracInterfaceDll.Imports
                 if (myClass.myParse.Globals.myDBUtils.ifRecExists(sqlStr))
                     throw new Exception(String.Format("License {0} already exists.", skidId));
 
-                string updStr = string.Empty;
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ASN", aData.ASN);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "STATUS", "N");
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ITEMID", itemId);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ASCITEMID", ascItemId);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "VENDORID", aData.VENDORID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTY", rec.QUANTITY.ToString());
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "SKIDID", skidId);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "CNTRTYPE_ID", rec.PALLET_TYPE);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "INV_CONTAINER_ID", rec.CONTAINER_ID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LOTID", rec.LOTID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "QTY_DUAL_UNIT", rec.CW_QTY.ToString());
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "PONUMBER", rec.PONUMBER);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "RELEASENUM", rec.RELEASENUM);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "LINENUMBER", rec.LINENUMBER.ToString());
+                string updstr = string.Empty;
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ASN", aData.ASN);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "STATUS", "N");
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ITEMID", itemId);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ASCITEMID", ascItemId);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "VENDORID", aData.VENDORID);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "QTY", rec.QUANTITY.ToString());
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "SKIDID", skidId);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "CNTRTYPE_ID", rec.PALLET_TYPE);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "INV_CONTAINER_ID", rec.CONTAINER_ID);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "LOTID", rec.LOTID);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "QTY_DUAL_UNIT", rec.CW_QTY.ToString());
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "PONUMBER", rec.PONUMBER);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "RELEASENUM", rec.RELEASENUM);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "LINENUMBER", rec.LINENUMBER.ToString());
                 if (rec.EXPIRE_DATE != DateTime.MinValue)
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "EXPDATE", rec.EXPIRE_DATE.ToString());
+                    Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "EXPDATE", rec.EXPIRE_DATE.ToString());
                 if (rec.DATETIMEPROD != DateTime.MinValue)
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "DATETIMEPROD", rec.DATETIMEPROD.ToString());
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ACTUAL_WEIGHT", rec.ACTUAL_WEIGHT.ToString());
+                    Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "DATETIMEPROD", rec.DATETIMEPROD.ToString());
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ACTUAL_WEIGHT", rec.ACTUAL_WEIGHT.ToString());
 
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ALT_SKIDID", rec.ALT_SKIDID);
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ALT_LOTID", rec.ALT_LOTID);
-                SaveCustomFields(ref updStr, rec.CustomList, GWTranslation);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ALT_SKIDID", rec.ALT_SKIDID);
+                Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ALT_LOTID", rec.ALT_LOTID);
+                SaveCustomFields(ref updstr, rec.CustomList, GWTranslation);
 
-                myClass.myParse.Globals.mydmupdate.InsertRecord("ASN_DET", updStr);
+                myClass.myParse.Globals.mydmupdate.InsertRecord("ASN_DET", updstr);
 
                 sqlStr = "UPDATE ITEMQTY SET QTY_ASN_IN_TRANSIT = ISNULL( QTY_ASN_IN_TRANSIT, 0) + " + rec.QUANTITY.ToString() +
                         " WHERE ASCITEMID='" + ascItemId + "'";

@@ -34,7 +34,13 @@ namespace ASCTracInterfaceDll.Imports
                         }
                         myClass.myParse.Globals.mydmupdate.InitUpdate();
 
-                        retval = ImportItemRecord(aData, ref errmsg);
+                        if( string.IsNullOrEmpty( ItemID))
+                        {
+                            errmsg = "Itemid (PRODUCT_CODE) value is required.";
+                            retval = HttpStatusCode.BadRequest;
+                        }
+                        else
+                            retval = ImportItemRecord(aData, ref errmsg);
                         if( retval == HttpStatusCode.OK)
                             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
 
@@ -108,6 +114,12 @@ namespace ASCTracInterfaceDll.Imports
             abcZone = Utils.ASCUtils.GetTrimString(aData.ABC_ZONE, "B");
 
             string updstr = string.Empty;
+
+            if( string.IsNullOrEmpty( aData.STATUS_FLAG))
+            {
+                errmsg = "Invalid status flag";
+                return (HttpStatusCode.BadRequest);
+            }
 
             string status = aData.STATUS_FLAG.Trim();
             if (status == "D" || status == "O")
