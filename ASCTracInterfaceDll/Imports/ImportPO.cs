@@ -16,7 +16,6 @@ namespace ASCTracInterfaceDll.Imports
             myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.PONUMBER;
-            string updStr = string.Empty;
             try
             {
                 if (myClass != null)
@@ -65,7 +64,7 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updStr);
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 

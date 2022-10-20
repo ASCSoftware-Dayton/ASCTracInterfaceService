@@ -42,7 +42,9 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), sqlstr);
+                myClass.myParse.Globals.myASCLog.updateSQL(sqlstr);
+
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
@@ -223,7 +225,7 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), "");
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

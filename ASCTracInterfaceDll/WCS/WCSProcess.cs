@@ -15,7 +15,6 @@ namespace ASCTracInterfaceDll.WCS
             HttpStatusCode retval = HttpStatusCode.OK;
             var myClass = Class1.InitParse(funcType, ref errMsg);
             string OrderNum = aData.ORDERNUMBER;
-            string updstr = string.Empty;
             try
             {
                 if (myClass != null)
@@ -109,7 +108,7 @@ namespace ASCTracInterfaceDll.WCS
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errMsg = "(DoWCSPickImport) " + ex.Message;
             }
@@ -146,7 +145,7 @@ namespace ASCTracInterfaceDll.WCS
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), string.Empty);
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

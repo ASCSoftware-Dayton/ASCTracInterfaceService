@@ -19,7 +19,6 @@ namespace ASCTracInterfaceDll.Imports
             myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.ORDERNUMBER;
-            string updstr = string.Empty;
             try
             {
                 if (myClass != null)
@@ -44,8 +43,8 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), updstr);
-                
+                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 
@@ -2149,7 +2148,7 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 catch (Exception e1)
                 {
-                    Class1.WriteException("ImportOrder", "AfterOrderImport", orderNum, e1.ToString(), string.Empty);
+                    Class1.WriteException("ImportOrder", "AfterOrderImport", orderNum, e1.Message, e1.StackTrace);
                 }
 
                 sql = "UPDATE ORDRDET SET ORDERFILLED='T' WHERE ORDERNUMBER='" + orderNum + "' AND ASCITEMID IN ( SELECT ASCITEMID FROM ITEMMSTR WHERE PURORMFG='K')";
@@ -2213,7 +2212,7 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 catch (Exception ex)
                 {
-                    Class1.WriteException(funcType, aOrderNum, aOrderNum, ex.ToString(), "");
+                    Class1.WriteException(funcType, aOrderNum, aOrderNum, ex.Message, ex.StackTrace);
                     retval = HttpStatusCode.BadRequest;
                     aErrMsg = ex.Message;
                 }

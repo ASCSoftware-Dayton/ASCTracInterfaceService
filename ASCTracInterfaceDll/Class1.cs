@@ -142,7 +142,7 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
-        public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aSQLData)
+        public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aStackTrace)
         {
             //if (parseList.Count > 0)
             //{ 
@@ -151,7 +151,7 @@ namespace ASCTracInterfaceDll
             //        myParse = rec.Value.myParse;
                 if (myStaticParse != null)
                 {
-                myStaticParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr);
+                myStaticParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr, aStackTrace);
                     /*
                     var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
                     try
