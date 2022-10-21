@@ -30,12 +30,14 @@ namespace ASCTracInterfaceService.Controllers.Export
                 errMsg = ex.Message;
                 LoggingUtil.LogEventView("GetCustOrderPicks", aData.CustID, ex.ToString(), ref errMsg);
             }
-            var retval = new HttpResponseMessage(statusCode);
-            if (statusCode == HttpStatusCode.OK)
+            HttpResponseMessage retval;
+            if (statusCode == HttpStatusCode.Accepted)
+            {
+                retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
+            }
             else
-                retval.Content = new StringContent(errMsg);
-            //var retval = new Models.ModelReturnType(errMsg);
+                retval = Request.CreateErrorResponse(statusCode, errMsg);
             return (retval);
         }
 
@@ -60,12 +62,16 @@ namespace ASCTracInterfaceService.Controllers.Export
                 errMsg = ex.Message;
                 LoggingUtil.LogEventView("GetCustOrderPicks", aCustID, ex.ToString(), ref errMsg);
             }
-            var retval = new HttpResponseMessage(statusCode);
-            if (statusCode == HttpStatusCode.OK)
+
+            HttpResponseMessage retval;
+            if (statusCode == HttpStatusCode.Accepted)
+            {
+                retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
+            }
             else
-                retval.Content = new StringContent(errMsg);
-            //var retval = new Models.ModelReturnType(errMsg);
+                retval = Request.CreateErrorResponse(statusCode, errMsg);
+
             return (retval);
         }
 
@@ -89,9 +95,12 @@ namespace ASCTracInterfaceService.Controllers.Export
                 errMsg = ex.Message;
                 LoggingUtil.LogEventView("UpdateCustOrderExport", aList.Count.ToString(), ex.ToString(), ref errMsg);
             }
-            var retval = new HttpResponseMessage(statusCode);
-            retval.Content = new StringContent(errMsg);
-            //var retval = new Models.ModelReturnType(errMsg);
+            HttpResponseMessage retval;
+            if (statusCode == HttpStatusCode.Accepted)
+                retval = Request.CreateResponse(statusCode, errMsg);
+            else
+                retval = Request.CreateErrorResponse(statusCode, errMsg);
+
             return (retval);
 
         }

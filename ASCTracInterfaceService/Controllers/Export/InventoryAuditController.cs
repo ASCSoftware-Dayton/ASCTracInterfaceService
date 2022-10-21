@@ -28,12 +28,14 @@ namespace ASCTracInterfaceService.Controllers.Export
                 errMsg = ex.Message;
                 LoggingUtil.LogEventView("GetInventoryAuditRecords", aVMICustID + "," + aSiteID + "," + aItemID, ex.ToString(), ref errMsg);
             }
-            var retval = new HttpResponseMessage(statusCode);
-            if (statusCode == HttpStatusCode.OK)
+            HttpResponseMessage retval;
+            if (statusCode == HttpStatusCode.Accepted)
+            {
+                retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
+            }
             else
-                retval.Content = new StringContent(errMsg);
-            //var retval = new Models.ModelReturnType(errMsg);
+                retval = Request.CreateErrorResponse(statusCode, errMsg);
             return (retval);
         }
 
