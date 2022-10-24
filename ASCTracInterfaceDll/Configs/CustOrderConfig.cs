@@ -72,6 +72,7 @@ namespace ASCTracInterfaceDll.Configs
             retval.GWLogChangedOrderTranfile = ConfigUtils.ReadConfigSetting("GWLogChangedOrderTranfile", "F", Globals) == "T";
             retval.CPSetORDRDETPickLocOnImport = ConfigUtils.ReadConfigSetting("CPSetORDRDETPickLocOnImport", "F", Globals) == "T";
             retval.GWUseStandardKitExplosion = ConfigUtils.ReadConfigSetting("GWUseStandardKitExplosion", "F", Globals) == "T";
+            retval.GWCOUseHostLineToCalcLineNum = ConfigUtils.ReadConfigSetting("GWCOUseHostLineToCalcLineNum", "F",  Globals) == "T" ;
 
             ConfigUtils.ReadTransationFields(retval.GWCOHdrTranslation, "ORDRHDR", Globals);
             ConfigUtils.ReadTransationFields(retval.GWCODetTranslation, "ORDRDET", Globals);

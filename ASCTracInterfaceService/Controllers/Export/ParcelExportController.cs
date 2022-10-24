@@ -33,7 +33,7 @@ namespace ASCTracInterfaceService.Controllers.Export
 
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
@@ -66,7 +66,7 @@ namespace ASCTracInterfaceService.Controllers.Export
                 LoggingUtil.LogEventView("GetParcelTransactions", aData.CustID, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
@@ -96,7 +96,7 @@ namespace ASCTracInterfaceService.Controllers.Export
                 LoggingUtil.LogEventView("UpdateParcelExport", aList.Count.ToString(), ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
                 retval = Request.CreateResponse(statusCode, errMsg);
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);

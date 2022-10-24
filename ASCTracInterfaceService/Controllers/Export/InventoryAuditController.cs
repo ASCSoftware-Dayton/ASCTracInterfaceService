@@ -15,7 +15,7 @@ namespace ASCTracInterfaceService.Controllers.Export
         public HttpResponseMessage GetInventoryAuditRecords(string aVMICustID, string aSiteID, string aItemID)
         {
             List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> outdata = null;
-            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            HttpStatusCode statusCode = HttpStatusCode.OK;
             string errMsg = string.Empty;
             try
             {
@@ -29,7 +29,7 @@ namespace ASCTracInterfaceService.Controllers.Export
                 LoggingUtil.LogEventView("GetInventoryAuditRecords", aVMICustID + "," + aSiteID + "," + aItemID, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));

@@ -37,6 +37,7 @@ namespace ASCTracInterfaceDll.Model.CustOrder
         public bool GWLogChangedOrderTranfile { get; set; }
         public bool CPSetORDRDETPickLocOnImport { get; set; }
         public bool GWUseStandardKitExplosion { get; set; }
+        public bool GWCOUseHostLineToCalcLineNum { get; set; }
 
 
         // from FILEXFER

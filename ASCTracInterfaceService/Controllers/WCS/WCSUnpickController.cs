@@ -32,7 +32,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             }
             HttpResponseMessage retval;
 
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
                 retval = Request.CreateResponse(statusCode, errMsg);
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);

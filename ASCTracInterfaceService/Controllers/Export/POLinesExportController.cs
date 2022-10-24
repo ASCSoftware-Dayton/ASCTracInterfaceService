@@ -32,7 +32,7 @@ namespace ASCTracInterfaceService.Controllers.Export
                 LoggingUtil.LogEventView("GetPOLines", aData.OnlySendCompletedReceipts.ToString(), ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
@@ -64,7 +64,7 @@ namespace ASCTracInterfaceService.Controllers.Export
                 LoggingUtil.LogEventView("GetPOLines", aOnlySendCompletedReceipt.ToString(), ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
@@ -94,7 +94,7 @@ namespace ASCTracInterfaceService.Controllers.Export
                 LoggingUtil.LogEventView("UpdatePOExport", aList.Count.ToString(), ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
-            if (statusCode == HttpStatusCode.Accepted)
+            if (statusCode == HttpStatusCode.OK)
                 retval = Request.CreateResponse(statusCode, errMsg);
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);

@@ -1395,6 +1395,23 @@ namespace ASCTracInterfaceDll.Imports
                 lineNum = rec.LINE_NUMBER;
                 newQtyOrdered = rec.QUANTITY;
 
+                if( lineNum <= 0) 
+                {
+                    if (currCOImportConfig.GWCOUseHostLineToCalcLineNum)
+                    {
+                        if (myClass.myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT LINENUMBER FROM ORDRDET WHERE ORDERNUMBER='" + orderNum + "' AND HOST_LINENUMBER='" + rec.HOST_LINE_NUMBER.ToString() + "'", "", ref tmpStr))
+                            lineNum = ascLibrary.ascUtils.ascStrToInt(tmpStr, 0);
+                    }
+                    else
+                    {
+                        if (myClass.myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT LINENUMBER FROM ORDRDET WHERE ORDERNUMBER='" + orderNum + "' AND ITEMID='" + itemId + "'", "", ref tmpStr))
+                            lineNum = ascLibrary.ascUtils.ascStrToInt(tmpStr, 0);
+                    }
+
+                    if (lineNum <= 0)
+                        lineNum = myClass.myParse.Globals.dmMiscFunc.getnextinorder("ORDRDET", "ORDERNUMBER='" + orderNum + "'", "LINENUMBER");
+                }
+
                 reqLot = rec.REQUESTED_LOT;
 
                 string custItemID = rec.CUST_ITEMID;
