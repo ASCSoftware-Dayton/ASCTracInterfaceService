@@ -600,9 +600,9 @@ namespace ASCTracInterfaceDll.Imports
             {
                 foreach (var rec in CustomList)
                 {
-                    if (TranslationList.ContainsKey(rec.FieldName))
+                    if (TranslationList.ContainsKey(rec.FieldName.ToUpper()))
                     {
-                        var asclist = TranslationList[rec.FieldName];
+                        var asclist = TranslationList[rec.FieldName.ToUpper()];
                         foreach (var ascfield in asclist)
                         {
                             Utils.ASCUtils.CheckAndAppend(ref updStr, aTblName, ascfield, rec.Value);
@@ -668,6 +668,28 @@ namespace ASCTracInterfaceDll.Imports
 
             string stName = aData.SHIP_TO_NAME;
             string custName = aData.BILL_TO_NAME;
+
+            string ordertype = aData.ORDER_TYPE;
+            if (!string.IsNullOrEmpty(ordertype))
+            {
+                ordertype = ordertype.Substring(0, 1);
+            }
+            else if (!fExist)  //added 11-10-15 (JXG)
+            {
+                ordertype = "S";
+            }
+            string toSiteID = string.Empty;
+            if (ordertype.Equals("T"))
+            {
+                var ToFacility = aData.TO_FACILITY;
+                toSiteID = myClass.GetSiteIdFromHostId(aData.TO_FACILITY);
+                if (!String.IsNullOrEmpty(toSiteID))
+                {
+                    if ( myClass.myParse.Globals.myGetInfo.GetSiteInfo(toSiteID, "CUSTID", ref tmpStr))
+                        stCustId = toSiteID;
+                }
+            }
+
             string promoCode = aData.PROMO_CODE;
 
             DateTime createDate = aData.ORDER_CREATE_DATE;
@@ -675,7 +697,7 @@ namespace ASCTracInterfaceDll.Imports
             if (createDate == DateTime.MinValue)
                 createDate = DateTime.Now;
             string updstr = string.Empty;
-            if (!currCOImportConfig.useB2BLogic)
+            if (!currCOImportConfig.useB2BLogic && !ordertype.Equals( "T"))
             {
                 // SHIP TO
                 if (!String.IsNullOrEmpty(stCustId) && !myClass.myParse.Globals.myGetInfo.GetCustInfo(stCustId, "CUSTID", ref tmpStr))
@@ -918,15 +940,16 @@ namespace ASCTracInterfaceDll.Imports
             }
             else
             {
-                string ordertype = aData.ORDER_TYPE;
                 if (!string.IsNullOrEmpty(ordertype))
                 {
-                    ordertype = ordertype.Substring(0, 1);
+                    if (ordertype.Equals("T"))
+                    {
+                        ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "TRANSFER_SITE_ID", toSiteID);
+                    }
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERTYPE", ordertype);
                 }
                 else if (!fExist)  //added 11-10-15 (JXG)
                 {
-                    ordertype = "S";
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERTYPE", ordertype);
                 }
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "SITE_ID", siteid);
@@ -1298,6 +1321,7 @@ namespace ASCTracInterfaceDll.Imports
 
         private static bool ImportOrderDet(string orderNum, string pickStatus, string ordertype, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
+            bool retval = true;
             string sqlStr, tmpStr = "";
             string itemId, ascItemId, oldItemId = "", reqLot, hostUom;
             string itemType = "", importAction;
@@ -1382,6 +1406,8 @@ namespace ASCTracInterfaceDll.Imports
 
             #endregion
             long holdLineNum = 0;
+            long nextlineNum = myClass.myParse.Globals.dmMiscFunc.getnextinorder("ORDRDET", "ORDERNUMBER='" + orderNum + "'", "LINENUMBER");
+
             foreach (var rec in aData.DetailList)
             {
                 qtyPicked = 0;
@@ -1395,7 +1421,7 @@ namespace ASCTracInterfaceDll.Imports
                 lineNum = rec.LINE_NUMBER;
                 newQtyOrdered = rec.QUANTITY;
 
-                if( lineNum <= 0) 
+                if (lineNum <= 0)
                 {
                     if (currCOImportConfig.GWCOUseHostLineToCalcLineNum)
                     {
@@ -1409,7 +1435,10 @@ namespace ASCTracInterfaceDll.Imports
                     }
 
                     if (lineNum <= 0)
-                        lineNum = myClass.myParse.Globals.dmMiscFunc.getnextinorder("ORDRDET", "ORDERNUMBER='" + orderNum + "'", "LINENUMBER");
+                    {
+                        lineNum = nextlineNum;
+                        nextlineNum++;
+                    }
                 }
 
                 reqLot = rec.REQUESTED_LOT;
@@ -1451,9 +1480,12 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "PURORMFG", ref itemType))
                 {
-                    errmsg = "Item " + itemId + " not found in Item Master";
+                    //errmsg = "Item " + itemId + " not found in Item Master";
+                    Class1.WriteException(funcType, "Item: " + itemId, orderNum, "Item Not found in item Master", "");
                     //ascItemId = string.Empty;
-                    return (false);
+                    //return (false);
+                    retval = false;
+                    continue;
                 }
 
                 hostUom = rec.HOST_UOM;
@@ -1811,7 +1843,7 @@ namespace ASCTracInterfaceDll.Imports
             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             CalcEstShipWeight(orderNum);
 
-            return true;
+            return retval;
         }
 
         private static void SetupOrderBatch(string orderNum, string batchNum)

@@ -29,14 +29,21 @@ namespace ASCTracInterfaceService.Controllers.Import
                 errMsg = ex.Message;
                 LoggingUtil.LogEventView("PostItemMaster", aData.PRODUCT_CODE, ex.ToString(), ref errMsg);
             }
-            HttpResponseMessage retval;
+            HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
 
             if (statusCode == HttpStatusCode.OK)
-                retval = Request.CreateResponse(statusCode, errMsg);
+            {
+                var resp = ASCResponse.BuildResponse(statusCode, null);
+                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+                //retval = Request.CreateResponse(statusCode, errMsg);
+            }
             else
-                retval = Request.CreateErrorResponse(statusCode, errMsg);
-            
-            return(retval);
+            {
+                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ItemMasterImport", "Post");
+                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+            }
+
+            return (retval);
         }
     }
 }

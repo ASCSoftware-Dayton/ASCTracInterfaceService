@@ -59,12 +59,19 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 errMsg = "(PostWCSPick) " +  ex.Message;
                 LoggingUtil.LogEventView("PostPick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
-            HttpResponseMessage retval;
+            HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
 
             if (statusCode == HttpStatusCode.OK)
-                retval = Request.CreateResponse(statusCode, errMsg);
+            {
+                var resp = ASCResponse.BuildResponse(statusCode, null);
+                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+                //retval = Request.CreateResponse(statusCode, errMsg);
+            }
             else
-                retval = Request.CreateErrorResponse(statusCode, errMsg);
+            {
+                var resp = ASCResponse.BuildResponse(statusCode, errMsg);
+                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+            }
             return (retval);
         }
 

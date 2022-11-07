@@ -19,7 +19,7 @@ namespace ASCTracInterfaceModel
 		public string PONUMBER{ get; set; }
 		public string VENDOR_CODE{ get; set; }
 		public string TO_FACILITY { get; set; }
-		public DateTime LEAVES_DATE { get; set; }
+		//public DateTime LEAVES_DATE { get; set; }
 		public DateTime ARRIVAL_DATE { get; set; }
 		public DateTime ENTRY_DATE { get; set; }
 		public string CARRIER{ get; set; }
@@ -32,7 +32,7 @@ namespace ASCTracInterfaceModel
 		public string COUNTRY { get; set; }
 		public string CONTACT_NAME { get; set; }
 		public string CONTACT_TEL{ get; set; }
-		public string CONTACT_FAX{ get; set; }
+		//public string CONTACT_FAX{ get; set; }
 		public string STATUS_FLAG { get; set; }
 		public string RMA_TYPE { get; set; }
 		public string LINKED_ORDERNUMBER{ get; set; }
@@ -51,13 +51,13 @@ namespace ASCTracInterfaceModel
 		public string BILL_COUNTRY { get; set; }
 		public string BILL_CONTACT_NAME { get; set; }
 		public string BILL_CONTACT_TEL{ get; set; }
-		public string BILL_CONTACT_FAX{ get; set; }
+		//public string BILL_CONTACT_FAX{ get; set; }
 		public string DIRECT_SHIP_ORDERNUMBER{ get; set; }
 		public string SHIP_TO_NAME { get; set; }
 		public string BILL_TO_NAME { get; set; }
 		public string SEAL_NUM{ get; set; }
 		public string VMI_CUSTID{ get; set; }
-		public string ASN{ get; set; }
+		//public string ASN{ get; set; }
 		public string PROMO_CODE{ get; set; }
 
 		public List<PODetImport> PODetList { get; set; }

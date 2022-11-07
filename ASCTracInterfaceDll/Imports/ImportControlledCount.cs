@@ -35,6 +35,7 @@ namespace ASCTracInterfaceDll.Imports
                         }
                         else
                         {
+                            myClass.myParse.Globals.initsite(siteid);
                             retval = ImportControlledCountRecord(aData, ref errmsg);
                             if (retval == HttpStatusCode.OK)
                                 myClass.myParse.Globals.mydmupdate.ProcessUpdates();
@@ -88,7 +89,8 @@ namespace ASCTracInterfaceDll.Imports
             InportControlledCountDetails(aData, countId);
 
             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
-            ascLibrary.TDBReturnType ret = myClass.myParse.Globals.dmCount.AddToCount(countId.ToString(), "", ref errmsg);
+            string aAddedLocsCount = string.Empty;
+            ascLibrary.TDBReturnType ret = myClass.myParse.Globals.dmCount.AddToCount(countId.ToString(), "", ref aAddedLocsCount);
             if (ret == ascLibrary.TDBReturnType.dbrtOK)
             {
                 myClass.myParse.Globals.mydmupdate.ProcessUpdates();
@@ -101,7 +103,7 @@ namespace ASCTracInterfaceDll.Imports
                 else
                     tmperrmsg = ParseNet.dmascmessages.GetErrorMsg(ret);
 
-                errmsg = "Error updating inventory for count " + countId + ": " + tmperrmsg + "\r\n" + errmsg;
+                errmsg = "Error updating inventory for count " + countId + ": " + tmperrmsg;
                 retval = HttpStatusCode.BadRequest;
             }
             return (retval);

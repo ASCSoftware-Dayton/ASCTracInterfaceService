@@ -22,7 +22,7 @@ namespace ASCTracInterfaceDll.Model.PO
         public bool GWPurgeRMADetOnImport { get; set; }
         public string RMA_TYPE { get; set; }
         public bool GWDeleteRMALinesNotInInterface { get; set; }
-
-
+        public bool GWPOUseHostLineToCalcLineNum { get; set; }
+        public long GWPOMissingItemAction { get; set; } // 0=Abort Import, 1=Import Existing Items, 2=Add missing items
     }
 }

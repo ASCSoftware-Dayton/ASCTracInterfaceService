@@ -44,17 +44,19 @@ namespace ASCTracInterfaceDll.Imports
 
                         else
                         {
-
-                            if( String.IsNullOrEmpty( aData.ORDER_TYPE))
-                                retval = ImportPORecord(aData, ref errmsg);
+                            string WarningMsg = string.Empty;
+                            if ( String.IsNullOrEmpty( aData.ORDER_TYPE))
+                                retval = ImportPORecord(aData, ref errmsg, ref WarningMsg);
                             else if (aData.ORDER_TYPE.Equals("R"))
-                                retval = ImportRMARecord(aData, ref errmsg);
+                                retval = ImportRMARecord(aData, ref errmsg, ref WarningMsg);
                             else if (aData.ORDER_TYPE.Equals("A"))
-                                retval = ImportASNRecord(aData, ref errmsg);
+                                retval = ImportASNRecord(aData, ref errmsg, ref WarningMsg);
                             else
-                                retval = ImportPORecord(aData, ref errmsg);
-                            if( !String.IsNullOrEmpty( errmsg))
+                                retval = ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                            if (!String.IsNullOrEmpty(errmsg))
                                 retval = HttpStatusCode.BadRequest;
+                            else
+                                errmsg = WarningMsg;
                         }
 
                     }
@@ -73,7 +75,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
         #region RMA_REGION
-        private static HttpStatusCode ImportRMARecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
+        private static HttpStatusCode ImportRMARecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string tmp = string.Empty;
@@ -103,7 +105,7 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         errmsg = ImportRMAHeaderRecord(aData, fExist);
                         if (string.IsNullOrEmpty(errmsg))
-                            errmsg = ImportRMADetailRecords(aData);
+                            errmsg = ImportRMADetailRecords(aData, ref aWarningMsg);
                     }
                 }
                 if (string.IsNullOrEmpty(errmsg))
@@ -168,7 +170,7 @@ namespace ASCTracInterfaceDll.Imports
             return (errmsg);
         }
 
-        private static string ImportRMADetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
+        private static string ImportRMADetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string aWarningMsg)
         {
             string errmsg = string.Empty;
             if (currPOImportConfig.GWDeleteRMALinesNotInInterface)
@@ -185,9 +187,24 @@ namespace ASCTracInterfaceDll.Imports
                     break;
                 }
 
-                AddItem(siteid, itemId, aData.VMI_CUSTID);  //added 01-23-17 (JXG)
+                string uom = string.Empty;
                 string ascItemId = myClass.myParse.Globals.dmMiscItem.GetASCItem(siteid, itemId, aData.VMI_CUSTID);
-                string uom = rec.UOM;
+                if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "STOCK_UOM", ref uom))
+                {
+                    if (currPOImportConfig.GWPOMissingItemAction == 2)
+                        AddItem(siteid, itemId, aData.VMI_CUSTID);  //added 01-23-17 (JXG)
+                    else if (currPOImportConfig.GWPOMissingItemAction == 0)
+                    {
+                        return "Item " + itemId + " does not exist)";
+                    }
+                    else
+                    {
+                        aWarningMsg += itemId + ascLibrary.dbConst.HHDELIM;
+                        continue;
+                    }
+                }
+                if( !String.IsNullOrEmpty( rec.UOM))
+                    uom = rec.UOM;
                 double qty = rec.QUANTITY;
 
                 string whereStr = "RMA_NUM='" + rmaNum + "' AND LINENUM=" + lineNum.ToString();
@@ -215,8 +232,8 @@ namespace ASCTracInterfaceDll.Imports
                     else
                     {
                         double convFact = 1;
-                        if (String.IsNullOrEmpty(uom))
-                            myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "STOCK_UOM", ref uom);
+                        //if (String.IsNullOrEmpty(uom))
+                        //    myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "STOCK_UOM", ref uom);
                         myClass.GetConvQty(ascItemId, uom, false, ref qty, ref convFact);
 
                         string updStr = string.Empty;
@@ -312,7 +329,7 @@ namespace ASCTracInterfaceDll.Imports
 
         #endregion
         #region ASN_REGION
-        private static HttpStatusCode ImportASNRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
+        private static HttpStatusCode ImportASNRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.BadRequest;
             errmsg = "ASNs no longer supported through the Receipts Import. Please use the ASN Import.";
@@ -320,7 +337,7 @@ namespace ASCTracInterfaceDll.Imports
         }
         #endregion
         #region PO_REGION
-        private static HttpStatusCode ImportPORecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
+        private static HttpStatusCode ImportPORecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string ponum = aData.PONUMBER;
@@ -363,7 +380,7 @@ namespace ASCTracInterfaceDll.Imports
                         {
                             errmsg = ImportPOHeaderRecord(aData, ponum, relnum, fExist);
                             if (string.IsNullOrEmpty(errmsg))
-                                errmsg = ImportPODetailRecords(aData, ponum, relnum);
+                                errmsg = ImportPODetailRecords(aData, ponum, relnum, ref aWarningMsg);
                             if (string.IsNullOrEmpty(errmsg))
                                 ImportOrderNotes(aData.NotesList, ponum, relnum, string.Empty);
                         }
@@ -492,7 +509,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        private static string ImportPODetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum)
+        private static string ImportPODetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, ref string aWarningMsg)
         {
             string retval = String.Empty;
 
@@ -501,10 +518,32 @@ namespace ASCTracInterfaceDll.Imports
                 DeleteMissingPOLines(aData, ponum, relnum);
             }
 
+            long nextLinenum = myClass.myParse.Globals.dmMiscFunc.getnextinorder("PODET", "PONUMBER = '" + ponum + "' AND RELEASENUM = '" + relnum + "'", "LINENUMBER");
             foreach (var rec in aData.PODetList)
             {
-                var lineNum = rec.LINE_NUMBER.ToString();
+                string tmpStr = string.Empty;
+                long llineNum = rec.LINE_NUMBER;
                 var itemId = rec.PRODUCT_CODE;
+                if (llineNum<= 0)
+                {
+                    if (currPOImportConfig.GWPOUseHostLineToCalcLineNum)
+                    {
+                        if (myClass.myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT LINENUMBER FROM PODET WHERE PONUMBER = '" + ponum + "' AND RELEASENUM = '" + relnum + "' AND HOST_LINENUMBER = '" + rec.HOST_LINENUMBER.ToString() + "'", "", ref tmpStr))
+                            llineNum = ascLibrary.ascUtils.ascStrToInt(tmpStr, 0);
+                    }
+                    else
+                    {
+                        if (myClass.myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT LINENUMBER FROM PODET WHERE PONUMBER = '" + ponum + "' AND RELEASENUM = '" + relnum + "' AND ITEMID='" + itemId + "'", "", ref tmpStr))
+                            llineNum = ascLibrary.ascUtils.ascStrToInt(tmpStr, 0);
+                    }
+
+                    if (llineNum <= 0)
+                    {
+                        llineNum = nextLinenum;
+                        nextLinenum++;
+                    }
+                }
+                var lineNum = llineNum.ToString();
                 if (String.IsNullOrEmpty(itemId))
                 {
                     retval= "Item ID is required.  Line:  " + lineNum;
@@ -515,15 +554,27 @@ namespace ASCTracInterfaceDll.Imports
                 var qty = rec.QUANTITY;
                 var uom = rec.UOM;
 
-                AddItem(siteid, itemId, aData.VMI_CUSTID);  //added 01-23-17 (JXG)
                 string ascItemId = myClass.myParse.Globals.dmMiscItem.GetASCItem(siteid, itemId, aData.VMI_CUSTID);
 
-                string tmpStr = string.Empty;
                 if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "BUY_UOM, STOCK_UOM, UNIT_MEAS1, UNIT_MEAS2, UNIT_MEAS3, UNIT_MEAS4", ref tmpStr))
                 {
-                    retval = "Item " + itemId + " does not exist in ITEMMSTR";
-                    break;
+                    if (currPOImportConfig.GWPOMissingItemAction == 2)
+                    {
+                        AddItem(siteid, itemId, aData.VMI_CUSTID);  //added 01-23-17 (JXG)
+                        myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "BUY_UOM, STOCK_UOM, UNIT_MEAS1, UNIT_MEAS2, UNIT_MEAS3, UNIT_MEAS4", ref tmpStr);
+                    }
+                    else if (currPOImportConfig.GWPOMissingItemAction == 0)
+                    {
+                        retval = "Item " + itemId + " does not exist in ITEMMSTR";
+                        break;
+                    }
+                    else
+                    {
+                        aWarningMsg += itemId + ascLibrary.dbConst.HHDELIM;
+                        continue;
+                    }
                 }
+
                 string stockUom = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
                 string buyUom = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
                 if (string.IsNullOrEmpty(uom))
@@ -832,7 +883,7 @@ namespace ASCTracInterfaceDll.Imports
         #region MISC_REGION
         private static void AddItem(string siteId, string itemId, string VmiCustId)  //added 01-23-17 (JXG)
         {
-            if (currPOImportConfig.createSkeletonItems)
+            //if (currPOImportConfig.createSkeletonItems)
             {
                 string ascItemId = siteId + "&" + itemId + "&" + VmiCustId;  //added 08-17-17 (JXG)
                 string tmpStr = "";
@@ -882,9 +933,9 @@ namespace ASCTracInterfaceDll.Imports
         {
             foreach (var rec in CustomList)
             {
-                if (TranslationList.ContainsKey(rec.FieldName))
+                if (TranslationList.ContainsKey(rec.FieldName.ToUpper()))
                 {
-                    var asclist = TranslationList[rec.FieldName];
+                    var asclist = TranslationList[rec.FieldName.ToUpper()];
                     foreach (var ascfield in asclist)
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, ascfield, rec.Value);
                 }

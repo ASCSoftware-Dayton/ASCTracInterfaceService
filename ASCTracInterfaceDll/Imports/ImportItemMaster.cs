@@ -466,9 +466,9 @@ namespace ASCTracInterfaceDll.Imports
         {
             foreach (var rec in CustomList)
             {
-                if (TranslationList.ContainsKey(rec.FieldName))
+                if (TranslationList.ContainsKey(rec.FieldName.ToUpper()))
                 {
-                    var asclist = TranslationList[rec.FieldName];
+                    var asclist = TranslationList[rec.FieldName.ToUpper()];
                     foreach (var ascfield in asclist)
                     {
 

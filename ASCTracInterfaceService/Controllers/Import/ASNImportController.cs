@@ -31,12 +31,19 @@ namespace ASCTracInterfaceService.Controllers.Import
                 errMsg = ex.Message;
                 LoggingUtil.LogEventView("PostASN", aData.ASN, ex.ToString(), ref errMsg);
             }
-            HttpResponseMessage retval;
+            HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
 
-            if (statusCode == HttpStatusCode.Accepted)
-                retval = Request.CreateResponse(statusCode, errMsg);
+            if (statusCode == HttpStatusCode.OK)
+            {
+                var resp = ASCResponse.BuildResponse(statusCode, null);
+                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+                //retval = Request.CreateResponse(statusCode, errMsg);
+            }
             else
-                retval = Request.CreateErrorResponse(statusCode, errMsg);
+            {
+                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ASNImport", "Post");
+                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+            }
             return (retval);
         }
     }

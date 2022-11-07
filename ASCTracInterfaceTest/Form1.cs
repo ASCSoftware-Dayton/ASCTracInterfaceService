@@ -357,7 +357,7 @@ namespace ASCTracInterfaceTest
                     data.PONUMBER = dr["PONUMBER"].ToString();
                     data.VENDOR_CODE = dr["VENDOR_CODE"].ToString();
                     data.TO_FACILITY = dr["TO_FACILITY"].ToString();
-                    data.LEAVES_DATE = ascLibrary.ascUtils.ascStrToDate(dr["LEAVES_DATE"].ToString(), DateTime.MinValue);
+                    //data.LEAVES_DATE = ascLibrary.ascUtils.ascStrToDate(dr["LEAVES_DATE"].ToString(), DateTime.MinValue);
                     data.ARRIVAL_DATE = ascLibrary.ascUtils.ascStrToDate(dr["ARRIVAL_DATE"].ToString(), DateTime.MinValue);
                     data.ENTRY_DATE = ascLibrary.ascUtils.ascStrToDate(dr["ENTRY_DATE"].ToString(), DateTime.MinValue);
                     data.CARRIER = dr["CARRIER"].ToString();
@@ -370,7 +370,7 @@ namespace ASCTracInterfaceTest
                     data.COUNTRY = dr["COUNTRY"].ToString();
                     data.CONTACT_NAME = dr["CONTACT_NAME"].ToString();
                     data.CONTACT_TEL = dr["CONTACT_TEL"].ToString();
-                    data.CONTACT_FAX = dr["CONTACT_FAX"].ToString();
+                    //data.CONTACT_FAX = dr["CONTACT_FAX"].ToString();
                     data.STATUS_FLAG = dr["STATUS_FLAG"].ToString();
                     for (int i = 1; i <= 10; i++)
                     {
@@ -396,13 +396,13 @@ namespace ASCTracInterfaceTest
                     data.BILL_COUNTRY = dr["BILL_COUNTRY"].ToString();
                     data.BILL_CONTACT_NAME = dr["BILL_CONTACT_NAME"].ToString();
                     data.BILL_CONTACT_TEL = dr["BILL_CONTACT_TEL"].ToString();
-                    data.BILL_CONTACT_FAX = dr["BILL_CONTACT_FAX"].ToString();
+                    //data.BILL_CONTACT_FAX = dr["BILL_CONTACT_FAX"].ToString();
                     data.DIRECT_SHIP_ORDERNUMBER = dr["DIRECT_SHIP_ORDERNUMBER"].ToString();
                     data.SHIP_TO_NAME = dr["SHIP_TO_NAME"].ToString();
                     data.BILL_TO_NAME = dr["BILL_TO_NAME"].ToString();
                     data.SEAL_NUM = dr["SEAL_NUM"].ToString();
                     data.VMI_CUSTID = dr["VMI_CUSTID"].ToString();
-                    data.ASN = dr["ASN"].ToString();
+                    //data.ASN = dr["ASN"].ToString();
                     data.PROMO_CODE = dr["PROMO_CODE"].ToString();
 
                     AddPODet(data);
@@ -639,7 +639,7 @@ namespace ASCTracInterfaceTest
                     data.ORDER_CREATE_DATE = ascLibrary.ascUtils.ascStrToDate(dr["ORDER_CREATE_DATE"].ToString(), DateTime.MinValue);
 
                     //data.CUST_ID = dr["CUST_ID"].ToString();
-                    data.FROM_FACILITY = dr["FROM_FACILITY"].ToString();
+                    //data.FROM_FACILITY = dr["FROM_FACILITY"].ToString();
                     data.LEAVES_DATE = ascLibrary.ascUtils.ascStrToDate(dr["LEAVES_DATE"].ToString(), DateTime.MinValue);
                     data.ENTRY_DATE = ascLibrary.ascUtils.ascStrToDate(dr["ENTRY_DATE"].ToString(), DateTime.MinValue);
                     data.CARRIER = dr["CARRIER"].ToString();

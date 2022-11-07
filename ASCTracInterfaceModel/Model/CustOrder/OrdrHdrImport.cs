@@ -22,7 +22,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
 
         //public string CUST_ID { get; set; }
 
-        public string FROM_FACILITY { get; set; }
+        public string TO_FACILITY { get; set; }
 
         public DateTime LEAVES_DATE { get; set; }
 

@@ -221,7 +221,7 @@ namespace ASCTracInterfaceSample
             data.PONUMBER = "PONUMBER";
             data.VENDOR_CODE = "VENDOR_CODE";
             data.TO_FACILITY = "Tohostsiteid";
-            data.LEAVES_DATE = DateTime.MinValue;
+            //data.LEAVES_DATE = DateTime.MinValue;
             data.ARRIVAL_DATE = DateTime.MinValue;
             data.ENTRY_DATE = DateTime.MinValue;
             data.CARRIER = "CARRIER";
@@ -235,7 +235,7 @@ namespace ASCTracInterfaceSample
             data.COUNTRY = "COUNTRY";
             data.CONTACT_NAME = "CONTACT_NAME";
             data.CONTACT_TEL = "1-800-555-5555";
-            data.CONTACT_FAX = "1-800-555-5555";
+            //data.CONTACT_FAX = "1-800-555-5555";
             data.STATUS_FLAG = "O";
             data.CustomList.Add(new ASCTracInterfaceModel.Model.ModelCustomData("CUSTOM_DATA1", "Data 1"));
             data.CustomList.Add(new ASCTracInterfaceModel.Model.ModelCustomData("CUSTOM_DATA2", "Data 2"));
@@ -255,13 +255,13 @@ namespace ASCTracInterfaceSample
             data.BILL_COUNTRY = "US";
             data.BILL_CONTACT_NAME = "BILL_CONTACT_NAME";
             data.BILL_CONTACT_TEL = "1-800-555-5555";
-            data.BILL_CONTACT_FAX = "1-800-555-5555";
+            //data.BILL_CONTACT_FAX = "1-800-555-5555";
             data.DIRECT_SHIP_ORDERNUMBER = "DSORDERNUMBER";
             data.SHIP_TO_NAME = "SHIP_TO_NAME";
             data.BILL_TO_NAME = "BILL_TO_NAME";
             data.SEAL_NUM = "SEAL_NUM";
             data.VMI_CUSTID = "CUSTID";
-            data.ASN = "ASN";
+            //data.ASN = "ASN";
             data.PROMO_CODE = "PROMO_CODE";
 
             AddPODet(data);
@@ -429,7 +429,7 @@ namespace ASCTracInterfaceSample
             data.ORDER_CREATE_DATE = DateTime.Now;
 
             //data.CUST_ID = "CUST_ID";
-            data.FROM_FACILITY = "hostSite2";
+            //data.FROM_FACILITY = "hostSite2";
             data.LEAVES_DATE = DateTime.MinValue;
             data.ENTRY_DATE = DateTime.Now;
             data.CARRIER = "CARRIER";

@@ -54,8 +54,10 @@ namespace ASCTracInterfaceDll.Configs
             retval.GWPurgeRMADetOnImport = ConfigUtils.ReadConfigSetting("GWPurgeRMADetOnImport", false, Globals);
             retval.RMA_TYPE = ConfigUtils.ReadConfigSetting("RMA_TYPE", "C", Globals);
             retval.GWDeleteRMALinesNotInInterface = ConfigUtils.ReadConfigSetting("GWDeleteRMALinesNotInInterface", "N", Globals) == "Y";
+            retval.GWPOUseHostLineToCalcLineNum = ConfigUtils.ReadConfigSetting("GWPOUseHostLineToCalcLineNum", false, Globals);
+            retval.GWPOMissingItemAction = ascLibrary.ascUtils.ascStrToInt(ConfigUtils.ReadConfigSetting("GWPOMissingItemAction", "2", Globals), 2); // 0=Abort Import, 1=Import Existing Items, 2=Add missing items
 
-            ConfigUtils.ReadTransationFields(retval.GWPOHdrTranslation, "POHDR", Globals);
+        ConfigUtils.ReadTransationFields(retval.GWPOHdrTranslation, "POHDR", Globals);
             ConfigUtils.ReadTransationFields(retval.GWPODetTranslation, "PODET", Globals);
 
             return (retval);
