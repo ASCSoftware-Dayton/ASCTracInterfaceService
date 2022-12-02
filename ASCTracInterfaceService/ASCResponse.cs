@@ -15,7 +15,11 @@ namespace ASCTracInterfaceService
             resp.ReturnCode = statusCode;
             resp.ReturnCodeDescription = statusCode.ToString();
             resp.Message = errmsg;
-            if (statusCode != HttpStatusCode.OK)
+            if (statusCode == HttpStatusCode.Accepted)
+            {
+                resp.Status = "PARTIAL";
+            }
+            else if (statusCode != HttpStatusCode.OK)
             {
                 resp.Status = "ERROR";
             }

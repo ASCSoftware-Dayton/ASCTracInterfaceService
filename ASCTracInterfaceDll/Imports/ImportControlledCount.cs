@@ -62,8 +62,8 @@ namespace ASCTracInterfaceDll.Imports
                 throw new Exception(String.Format("No period exists for scheduled start date  {0}", aData.SCHED_START_DATE));
 
             long countId = aData.COUNTID;
-            if ( countId <= 0 )
-                countId = myClass.myParse.Globals.dmMiscFunc.getnextinorder("COUNT_HDR", "COUNT_NUM IS NOT NULL", "COUNT_NUM");
+            if (countId <= 0)
+                countId = myClass.myParse.Globals.dmMiscFunc.GetEnterpriseFromStoredProc( "COUNT_NUM"); //.getnextinorder("COUNT_HDR", "COUNT_NUM IS NOT NULL", "COUNT_NUM");
 
             myClass.myParse.Globals.mydmupdate.InitUpdate();
             if (!myClass.myParse.Globals.myDBUtils.ifRecExists("SELECT STATUS FROM COUNT_HDR WHERE COUNT_NUM='" + countId.ToString() + "'"))
@@ -109,9 +109,64 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
+        /*
+        private static long GetNextCountNum()
+        {
+            int retries = 0;
+            while 
+
+            string sql = "SELECT NEXT_COUNT_NUM FROM CONFIG";
+            string tmp = string.Empty;
+            myClass.myParse.Globals.myDBUtils.ReadFieldFromDB(sql, "", ref tmp);
+
+            long retval = ascLibrary.ascUtils.ascStrToInt(tmp, 0) + 1;
+
+            sql = "UPDATE CONFIG SET NEXT_COUNT_NUM = " + retval;
+            if (String.IsNullOrEmpty(tmp))
+                sql += " WHERE NEXT_COUNT_NUM IS NULL";
+            else
+                sql += " WHERE NEXT_COUNT_NUM = " + tmp;
+            if ( myClass.myParse.Globals.myDBUtils.RunSqlCommand( sql) <= 0)
+
+
+
+            string sql = " DECLARE @TMP_COUNT_NUM VARCHAR(30)" +
+                " declare @NEW_VALUE varchar(30)" +
+                " declare @IntErrorCode varchar(30)" +
+                " DECLARE @NumRowsChanged INT" +
+                " SELECT @NumRowsChanged = 0" +
+                " SELECT @IntErrorCode = 0" +
+                " RESTART:" +
+                "             BEGIN TRAN" +
+                "       SET NOCOUNT OFF" +
+                "       SELECT @NEW_VALUE = NEXT_COUNT_NUM FROM CONFIG" +
+                "       SELECT @intErrorCode = @@ERROR" +
+                "       IF(@intErrorCode <> 0) GOTO PROBLEM" +
+                "       SET @TMP_COUNT_NUM = STR(@NEW_VALUE)" +
+                "       UPDATE CONFIG set NEXT_COUNT_NUM = STR(@NEW_VALUE) + 1" +
+                "       WHERE NEXT_COUNT_NUM = @NEW_VALUE" +
+                "       SELECT @NumRowsChanged = @@ROWCOUNT, @intErrorCode = @@ERROR" +
+                "       IF @NumRowsChanged <> 1 begin" +
+                "         ROLLBACK" +
+                "         GOTO RESTART" +
+                "       END" +
+                "       IF(@intErrorCode <> 0) GOTO PROBLEM" +
+                " COMMIT TRAN" +
+                " PROBLEM:" +
+                "             IF(@intErrorCode <> 0) BEGIN" +
+                "                ROLLBACK TRAN" +
+                "            END" +
+                " SELECT @NEW_VALUE, @intErrorCode";
+
+            string tmp = string.Empty;
+            myClass.myParse.Globals.myDBUtils.ReadFieldFromDB(sql, "", ref tmp);
+
+            return (ascLibrary.ascUtils.ascStrToInt(ascLibrary.ascStrUtils.GetNextWord(ref tmp), 1));
+        }
+        */
         private static void InportControlledCountDetails(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, long countId)
         {
-            long seqNum = 1;
+            long seqNum = myClass.myParse.Globals.dmMiscFunc.getnextinorder("COUNT_DET", "COUNT_NUM = " + countId.ToString(), "SEQ_NUM");
             foreach (var rec in aData.DetailList)
             {
                 string fieldName = rec.FIELDNAME;
