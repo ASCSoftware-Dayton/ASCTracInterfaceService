@@ -44,8 +44,8 @@ namespace ASCTracInterfaceService.Controllers.Import
                 else
                 {
                     //var resp = ASCResponse.BuildMissingItemsResponse(statusCode, errMsg);
-                    var resp = ASCResponse.BuildResponse(HttpStatusCode.PreconditionFailed, "Missing Items:" + errMsg.Replace("|", ", "));
-                    retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.PreconditionFailed, resp);
+                    var resp = ASCResponse.BuildResponse( HttpStatusCode.PreconditionFailed, "Missing Items:" + errMsg.Replace("|", ", ").Trim());
+                    retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
                 }
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
