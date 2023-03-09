@@ -35,7 +35,12 @@ namespace ASCTracInterfaceDll.Imports
                             retval = HttpStatusCode.BadRequest;
                         }
                         else
-                            retval = ImportCORecord(aData, ref errmsg);
+                        {
+                            string warningmsg = string.Empty;
+                            retval = ImportCORecord(aData, ref errmsg, ref warningmsg);
+                            if (retval == HttpStatusCode.OK)
+                                errmsg = warningmsg;
+                        }
                     }
                 }
                 else
@@ -52,7 +57,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static HttpStatusCode ImportCORecord(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
+        private static HttpStatusCode ImportCORecord(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string warningmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string pickstatus = ascLibrary.dbConst.ssNOTSCHED;
@@ -101,7 +106,7 @@ namespace ASCTracInterfaceDll.Imports
                         if (ImportOrderHdr(orderNum, pickstatus, fExist, aData, ref errmsg))
                         {
                             bool fPostit = false;
-                            if (ImportOrderDet(orderNum, pickstatus, aData.ORDER_TYPE, aData, ref errmsg))
+                            if (ImportOrderDet(orderNum, pickstatus, aData.ORDER_TYPE, aData, ref errmsg, ref warningmsg))
                             {
                                 myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                                 fPostit = true;
@@ -1319,7 +1324,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        private static bool ImportOrderDet(string orderNum, string pickStatus, string ordertype, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
+        private static bool ImportOrderDet(string orderNum, string pickStatus, string ordertype, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             bool retval = true;
             string sqlStr, tmpStr = "";
@@ -1480,10 +1485,8 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "PURORMFG", ref itemType))
                 {
-                    //errmsg = "Item " + itemId + " not found in Item Master";
-                    Class1.WriteException(funcType, "Item: " + itemId, orderNum, "Item Not found in item Master", "");
-                    //ascItemId = string.Empty;
-                    //return (false);
+                    //Class1.WriteException(funcType, "Item: " + itemId, orderNum, "Item Not found in item Master", "");
+                    aWarningMsg += itemId + ascLibrary.dbConst.HHDELIM;
                     retval = false;
                     continue;
                 }
@@ -1578,7 +1581,7 @@ namespace ASCTracInterfaceDll.Imports
                         if (importAction.Equals("H") || importAction.Equals("S") || importAction.Equals("T") || importAction.Equals("X"))
                             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", importAction);
                         else
-                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", "O");
+                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", ascLibrary.dbConst.osOPEN);
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "PARTIALSKID", "F");
                         //ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYBACKORDERED", "0");
                         ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "QTYPICKED", "0");
@@ -1589,7 +1592,7 @@ namespace ASCTracInterfaceDll.Imports
                         if (importAction.Equals("H") || importAction.Equals("S") || importAction.Equals("T") || importAction.Equals("X"))
                             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", importAction);
                         else
-                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", "O");
+                            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", ascLibrary.dbConst.osOPEN);
                     }
 
                     if (!recExists || (qtyPicked == 0 && qtyShipped == 0))
