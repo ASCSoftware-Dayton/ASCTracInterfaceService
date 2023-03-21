@@ -10,10 +10,11 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class POImportController : ApiController
     {
+        private static string FuncID = "POImport";
         /// <summary>
         /// Import a Purchase Order (Header and Details)
         /// </summary>
-        
+
         [HttpPost]
         public HttpResponseMessage PostPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
         {
@@ -21,10 +22,8 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
-                //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
-
             }
             catch (Exception ex)
             {
@@ -33,27 +32,30 @@ namespace ASCTracInterfaceService.Controllers.Import
                 LoggingUtil.LogEventView("PostPO", aData.PONUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-
+            bool fError = false;
+            Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
                 if (String.IsNullOrEmpty(errMsg))
                 {
-                    var resp = ASCResponse.BuildResponse(statusCode, null);
+                    resp = ASCResponse.BuildResponse(statusCode, null);
                     retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 }
                 else
                 {
-                    //var resp = ASCResponse.BuildMissingItemsResponse(statusCode, errMsg);
-                    var resp = ASCResponse.BuildResponse( HttpStatusCode.PreconditionFailed, "Missing Items:" + errMsg.Replace("|", ", ").Trim());
+                    fError = true;
+                    resp = ASCResponse.BuildResponse( HttpStatusCode.PreconditionFailed, "Missing Items:" + errMsg.Replace("|", ", ").Trim());
                     retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
                 }
-                //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/POImport", "Post");
+                fError = true;
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/POImport", "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.PONUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), fError);
+
             return (retval);
         }
         /*

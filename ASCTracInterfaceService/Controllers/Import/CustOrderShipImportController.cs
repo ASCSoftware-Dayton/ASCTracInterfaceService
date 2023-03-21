@@ -9,6 +9,7 @@ namespace ASCTracInterfaceService.Controllers.Import
 {
     public class CustOrderShipImportController : ApiController
     {
+        private static string FuncID = "CustOrderShipImport";
         /// <summary>
         /// Import and Process confirm ship of a Customer Order record.
         /// </summary>
@@ -19,7 +20,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrderConfirmShip(aOrderNumber, ref errMsg);
             }
             catch (Exception ex)
@@ -29,18 +30,20 @@ namespace ASCTracInterfaceService.Controllers.Import
                 LoggingUtil.LogEventView("PostCustOrderShip", aOrderNumber, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-
+            Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
-                var resp = ASCResponse.BuildResponse(statusCode, null);
+                resp = ASCResponse.BuildResponse(statusCode, null);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/CustOrderShipImport", "Post");
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/CustOrderShipImport", "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aOrderNumber, aOrderNumber, Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
     }

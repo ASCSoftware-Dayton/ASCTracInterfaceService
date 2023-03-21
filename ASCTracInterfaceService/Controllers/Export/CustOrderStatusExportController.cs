@@ -10,10 +10,11 @@ namespace ASCTracInterfaceService.Controllers.Export
     [Filters.ApiAuthenticationFilter]
     public class CustOrderStatusExportController : ApiController
     {
+        private static string FuncID = "CustOrderStatusExport";
         /// <summary>
         /// Return list of Customer Orders Status Changes
         /// </summary>
-            
+
         [HttpGet]
         public HttpResponseMessage GetCustOrderStatus(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aData)
         {
@@ -22,7 +23,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);      
                 statusCode = ASCTracInterfaceDll.Exports.ExportCustOrderStatus.doExportCustOrderStatus(aData, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -39,6 +40,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             }
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
 
@@ -53,7 +56,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aData = new ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter("C", aCustID, string.Empty);
                 statusCode = ASCTracInterfaceDll.Exports.ExportCustOrderStatus.doExportCustOrderStatus(aData, ref outdata, ref errMsg);
             }
@@ -71,6 +74,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             }
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", aCustID, Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
 
@@ -84,7 +89,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Exports.ExportCustOrderStatus.updateExportCustOrderStatus(aList, ref errMsg);
             }
             catch (Exception ex)
@@ -98,6 +103,8 @@ namespace ASCTracInterfaceService.Controllers.Export
                 retval = Request.CreateResponse(statusCode, errMsg);
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", Newtonsoft.Json.JsonConvert.SerializeObject(aList), Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+
             return (retval);
 
         }

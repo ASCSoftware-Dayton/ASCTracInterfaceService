@@ -11,6 +11,7 @@ namespace ASCTracInterfaceService.Controllers.Export
 
     public class InventoryAuditController : ApiController
     {
+        private static string FuncID = "InventoryAudit";
         [HttpGet]
         public HttpResponseMessage GetInventoryAuditRecords(string aVMICustID, string aSiteID, string aItemID)
         {
@@ -19,7 +20,7 @@ namespace ASCTracInterfaceService.Controllers.Export
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Exports.ExportInventoryAudits.DoExportInventoryAudits(aVMICustID, aSiteID, aItemID, ref outdata, ref errMsg);
             }
             catch (Exception ex)
@@ -36,6 +37,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             }
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", aVMICustID + "," + aSiteID + "," + aItemID, Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
 

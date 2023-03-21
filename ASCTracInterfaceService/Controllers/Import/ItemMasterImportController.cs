@@ -10,6 +10,7 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class ItemMasterImportController : ApiController
     {
+        private static string FuncID = "ItemMasterImport";
         /// <summary>
         /// Import an Item Record
         /// </summary>
@@ -20,7 +21,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Imports.ImportItemMaster.doImportItem(aData, ref errMsg);
             }
             catch (Exception ex)
@@ -31,17 +32,18 @@ namespace ASCTracInterfaceService.Controllers.Import
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
 
-            if (statusCode == HttpStatusCode.OK)
+            Models.ModelResponse resp; if (statusCode == HttpStatusCode.OK)
             {
-                var resp = ASCResponse.BuildResponse(statusCode, null);
+                resp = ASCResponse.BuildResponse(statusCode, null);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ItemMasterImport", "Post");
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ItemMasterImport", "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.PRODUCT_CODE, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
 
             return (retval);
         }

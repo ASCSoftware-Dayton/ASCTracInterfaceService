@@ -10,6 +10,7 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class ASNImportController : ApiController
     {
+        private static string FuncID = "ASNImport";
         /// <summary>
         /// Import a ASN Order (Header and Details)
         /// </summary>
@@ -20,7 +21,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Imports.ImportASN.doImportASN(aData, ref errMsg);
                 //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
 
@@ -33,17 +34,20 @@ namespace ASCTracInterfaceService.Controllers.Import
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
 
+            Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
-                var resp = ASCResponse.BuildResponse(statusCode, null);
+                resp = ASCResponse.BuildResponse(statusCode, null);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ASNImport", "Post");
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ASNImport", "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ASN, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
     }

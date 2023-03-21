@@ -10,6 +10,8 @@ namespace ASCTracInterfaceService.Controllers.WCS
     [Filters.ApiAuthenticationFilter]
     public class WCSPicksController : ApiController
     {
+        private static string FuncID = "WCSPicks";
+
         /// <summary>
         /// Get List of WCS Picks for Order Type.  Content contains list of WCSPicks.
         /// </summary>
@@ -21,7 +23,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             string errmsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(aOrderType, ref aData, ref errmsg);
             }
             catch (Exception ex)
@@ -34,6 +36,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(aData));
             else
                 retval.Content = new StringContent(errmsg);
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", aOrderType, Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
 
             return (retval);
         }
@@ -50,7 +53,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport( "C", aData, ref errMsg);
             }
             catch (Exception ex)
@@ -60,18 +63,20 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 LoggingUtil.LogEventView("PostPick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-
+            Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
-                var resp = ASCResponse.BuildResponse(statusCode, null);
+                resp = ASCResponse.BuildResponse(statusCode, null);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg);
+                resp = ASCResponse.BuildResponse(statusCode, errMsg);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
 

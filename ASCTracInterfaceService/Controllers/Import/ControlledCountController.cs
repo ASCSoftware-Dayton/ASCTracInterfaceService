@@ -10,6 +10,7 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class ControlledCountController : ApiController
     {
+        private static string FuncID = "ControlledCount";
         /// <summary>
         /// Import a Controlled Count(Header and Details)
         /// </summary>
@@ -20,7 +21,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.Imports.ImportControlledCount.doImportControlledCount(aData, ref errMsg);
                 //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
 
@@ -32,18 +33,20 @@ namespace ASCTracInterfaceService.Controllers.Import
                 LoggingUtil.LogEventView("PostCount", aData.COUNTID.ToString(), ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-
+            Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
-                var resp = ASCResponse.BuildResponse(statusCode, null);
+                resp = ASCResponse.BuildResponse(statusCode, null);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ControlledCount", "Post");
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/ControlledCount", "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.COUNTID.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
     }

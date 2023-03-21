@@ -10,6 +10,8 @@ namespace ASCTracInterfaceService.Controllers.WCS
     [Filters.ApiAuthenticationFilter]
     public class WCSRepickController : ApiController
     {
+        private static string FuncID = "WCSRepick";
+
         /// <summary>
         /// Process a RePick of a Customer Order Line
         /// </summary>
@@ -21,7 +23,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             string errMsg = string.Empty;
             try
             {
-                ReadMyAppSettings.ReadAppSettings();
+                ReadMyAppSettings.ReadAppSettings(FuncID);
                 statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport("R", aData, ref errMsg);
             }
             catch (Exception ex)
@@ -31,18 +33,20 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 LoggingUtil.LogEventView("PostRePick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-
+            Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
-                var resp = ASCResponse.BuildResponse(statusCode, null);
+                resp = ASCResponse.BuildResponse(statusCode, null);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 //retval = Request.CreateResponse(statusCode, errMsg);
             }
             else
             {
-                var resp = ASCResponse.BuildResponse(statusCode, errMsg);
+                resp = ASCResponse.BuildResponse(statusCode, errMsg);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
+            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+
             return (retval);
         }
 

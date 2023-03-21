@@ -15,12 +15,15 @@ namespace ASCTracInterfaceDll
      */
     public class Class1
     {
+        public static string fLogging = "X"; // Exceptions, Error, All (Default exceptions)
+        public static bool fLogged = false;
         public static string fDefaultConnectionStr = string.Empty;
         internal ASCTracWCSProcess.Imports.dmPickImport myWCSPickImport ;
         //private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
         private static ParseNet.ParseNetMain myStaticParse;
         private string fFuncType;
+
 
         //public static ascLibrary.ascDBUtils myInterface
         //public static bool fInitParse = false;
@@ -44,6 +47,7 @@ namespace ASCTracInterfaceDll
         internal bool Init(string aFuncType, ref string errmsg)
         {
             fFuncType = aFuncType;
+            fLogged = false;
             bool retval = true;
             string Status = "Status: 004";
             try
@@ -144,46 +148,80 @@ namespace ASCTracInterfaceDll
 
         public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aStackTrace)
         {
+            fLogged = true;
             //if (parseList.Count > 0)
             //{ 
             //    ParseNet.ParseNetMain myParse = null;
             //    foreach (var rec in parseList)
             //        myParse = rec.Value.myParse;
-                if (myStaticParse != null)
+            if (myStaticParse != null)
+            {
+                myStaticParse.Globals.WriteAppLog("", aFunc, aOrderNum, aData, ErrorStr, aStackTrace, aData, aOrderNum );
+                /*
+                var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
+                try
                 {
-                myStaticParse.Globals.WriteAppLog("", aFunc, "", aData, ErrorStr, aStackTrace);
-                    /*
-                    var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
-                    try
-                    {
-                        con.Open();
-                        SqlCommand cmd = new SqlCommand("ASC_INSERT_APP_LOG", con);
-                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("AppName", "ASCTracInterfaceService");
-                        cmd.Parameters.AddWithValue("TranID", -1); // tranId);
-                        cmd.Parameters.AddWithValue("TranType", aFunc);
-                        cmd.Parameters.AddWithValue("OrderNum", aOrderNum);
-                        cmd.Parameters.AddWithValue("ErrorType", "Data"); // errorType);
-                        cmd.Parameters.AddWithValue("ErrorID", "0"); // errorCode);
-                        cmd.Parameters.AddWithValue("Version", myParse.Globals.VER_STR);
-                        cmd.Parameters.AddWithValue("StackTrace", aData);
-                        cmd.Parameters.AddWithValue("SQLData", aSQLData);
-                        cmd.Parameters.AddWithValue("ErrorMsg", ErrorStr);
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand("ASC_INSERT_APP_LOG", con);
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("AppName", "ASCTracInterfaceService");
+                    cmd.Parameters.AddWithValue("TranID", -1); // tranId);
+                    cmd.Parameters.AddWithValue("TranType", aFunc);
+                    cmd.Parameters.AddWithValue("OrderNum", aOrderNum);
+                    cmd.Parameters.AddWithValue("ErrorType", "Data"); // errorType);
+                    cmd.Parameters.AddWithValue("ErrorID", "0"); // errorCode);
+                    cmd.Parameters.AddWithValue("Version", myParse.Globals.VER_STR);
+                    cmd.Parameters.AddWithValue("StackTrace", aData);
+                    cmd.Parameters.AddWithValue("SQLData", aSQLData);
+                    cmd.Parameters.AddWithValue("ErrorMsg", ErrorStr);
 
-                        cmd.ExecuteNonQuery();
-                        //ascLibrary.ascUtils.ascWriteLog("errorlog", "Complete use of Stored Proc ASC_INSERT_APP_LOG", true);
-                    }
-                    finally
-                    {
-                        con.Close();
-                    }
-                    */
+                    cmd.ExecuteNonQuery();
+                    //ascLibrary.ascUtils.ascWriteLog("errorlog", "Complete use of Stored Proc ASC_INSERT_APP_LOG", true);
+                }
+                finally
+                {
+                    con.Close();
+                }
+                */
                 //}
             }
             else
             {
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", aFunc + ": " + aData + "\r\n" + ErrorStr, true);
                 //EventLog.WriteEntry( aFunc + ": " + aData, ErrorStr, EventLogEntryType.Error);
+            }
+        }
+
+
+        public static void LogTransaction(string FuncID, string aOrdernum, string inData, string outData, bool isError)
+        {
+            try
+            {
+                if (!fLogged)
+                {
+                    bool fDoit = false;
+                    if (fLogging.Equals("A"))
+                        fDoit = true;
+                    else if (fLogging.Equals("E"))
+                        fDoit = isError;
+
+                    if (fDoit)
+                    {
+                        if (inData.Length > 250)
+                        {
+                            if (myStaticParse != null)
+                            {
+                                myStaticParse.Globals.WriteAppLog( "", FuncID, "", "", outData, "", inData, aOrdernum);
+                            }                       
+                        }
+                        else
+                            WriteException(FuncID, inData, aOrdernum, outData, inData);
+                    }
+                }
+            }
+            catch( Exception ex)
+            {
+                ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Log Transactin: " + inData+ "\r\n" + ex.ToString(), true);
             }
         }
 
