@@ -9,36 +9,36 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportControlledCount
     {
-        private static string funcType = "IM_COUNT";
-        private static string siteid = string.Empty;
-        private static Class1 myClass;
-        //private static Dictionary<string, List<string>> GWTranslation = new Dictionary<string, List<string>>();
-        public static HttpStatusCode doImportControlledCount(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, ref string errmsg)
+        //private string funcType = "IM_COUNT";
+        private string siteid = string.Empty;
+        private Class1 myClass;
+        //private Dictionary<string, List<string>> GWTranslation = new Dictionary<string, List<string>>();
+        public static HttpStatusCode doImportControlledCount(Class1 myClass, ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
+            //myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             try
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        myClass.myParse.Globals.mydmupdate.InitUpdate();
-                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
                         //Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
                         if (String.IsNullOrEmpty(siteid))
                         {
-                            errmsg = "No Facility or Site defined for record.";
+                            myClass.myLogRecord.LogType = "E";
+                            myClass.myLogRecord.OutData = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
                         else
                         {
                             myClass.myParse.Globals.initsite(siteid);
-                            retval = ImportControlledCountRecord(aData, ref errmsg);
-                            if (retval == HttpStatusCode.OK)
-                                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                            var myimport = new ImportControlledCount(myClass, siteid);
+                            retval = myimport.ImportControlledCountRecord(aData, ref errmsg);
+                        
                         }
                     }
                 }
@@ -47,15 +47,30 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), "", ex.Message, ex.StackTrace);
+                myClass.myLogRecord.LogType = "X";
+                myClass.myLogRecord.StackTrace = ex.StackTrace;
+                myClass.myLogRecord.OutData = ex.Message;
+
+                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), "", ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
-        private static HttpStatusCode ImportControlledCountRecord(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, ref string errmsg)
+
+        public ImportControlledCount(Class1 aClass, string aSiteID)
+        {
+            myClass = aClass;
+            siteid = aSiteID;
+            //currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
+            //Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
+        }
+
+
+        private HttpStatusCode ImportControlledCountRecord(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
+            myClass.myParse.Globals.mydmupdate.InitUpdate();
 
             int periodNum = GetPeriodNum(aData.SCHED_START_DATE);
             if (periodNum < 0)
@@ -106,11 +121,15 @@ namespace ASCTracInterfaceDll.Imports
                 errmsg = "Error updating inventory for count " + countId + ": " + tmperrmsg;
                 retval = HttpStatusCode.BadRequest;
             }
+
+            if (retval == HttpStatusCode.OK)
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+
             return (retval);
         }
 
         /*
-        private static long GetNextCountNum()
+        private long GetNextCountNum()
         {
             int retries = 0;
             while 
@@ -164,7 +183,7 @@ namespace ASCTracInterfaceDll.Imports
             return (ascLibrary.ascUtils.ascStrToInt(ascLibrary.ascStrUtils.GetNextWord(ref tmp), 1));
         }
         */
-        private static void InportControlledCountDetails(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, long countId)
+        private void InportControlledCountDetails(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, long countId)
         {
             long seqNum = myClass.myParse.Globals.dmMiscFunc.getnextinorder("COUNT_DET", "COUNT_NUM = " + countId.ToString(), "SEQ_NUM");
             foreach (var rec in aData.DetailList)
@@ -192,7 +211,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static string TranslateFilterType(string interfaceFilterType)
+        private string TranslateFilterType(string interfaceFilterType)
         {
             switch (interfaceFilterType)
             {
@@ -217,7 +236,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static bool IsValidFieldName(string fieldName)
+        private bool IsValidFieldName(string fieldName)
         {
             if (fieldName.Equals("ITEMID", StringComparison.OrdinalIgnoreCase) ||
                 fieldName.Equals("ZONEID", StringComparison.OrdinalIgnoreCase) ||
@@ -229,7 +248,7 @@ namespace ASCTracInterfaceDll.Imports
                 return true;
             return false;
         }
-        private static int GetPeriodNum(DateTime schedStartDate)
+        private int GetPeriodNum(DateTime schedStartDate)
         {
             string sqlStr = "SELECT PERIOD_NUM FROM COUNT_PERIOD (NOLOCK) " +
                 "WHERE START_DATE <= @date AND END_DATE >= @date";

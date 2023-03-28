@@ -8,12 +8,11 @@ namespace ASCTracInterfaceDll.WCS
 {
     public class WCSProcess
     {
-        //private static string funcType = "IM_VENDOR";
-        public static HttpStatusCode doWCSPickImport(string aImportType, ASCTracInterfaceModel.Model.WCS.WCSPick aData, ref string errMsg)
+        public static HttpStatusCode doWCSPickImport( Class1 myClass, string aImportType, ASCTracInterfaceModel.Model.WCS.WCSPick aData, ref string errMsg)
         {
             string funcType = "WCS";
             HttpStatusCode retval = HttpStatusCode.OK;
-            var myClass = Class1.InitParse(funcType, ref errMsg);
+            //var myClass = Class1.InitParse(funcType, ref errMsg);
             string OrderNum = aData.ORDERNUMBER;
             try
             {
@@ -108,21 +107,22 @@ namespace ASCTracInterfaceDll.WCS
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
+                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errMsg = "(DoWCSPickImport) " + ex.Message;
             }
             return (retval);
         }
 
-        public static HttpStatusCode doWCSPickExport(string aOrderType, ref List<ASCTracInterfaceModel.Model.WCS.WCSPick> aData, ref string errmsg)
+        public static HttpStatusCode doWCSPickExport(Class1 myClass, string aOrderType, ref List<ASCTracInterfaceModel.Model.WCS.WCSPick> aData, ref string errmsg)
         {
             string funcType = "WCS";
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             try
             {
-                var myClass = Class1.InitParse(funcType, ref errmsg);
+                //var myClass = Class1.InitParse(funcType, ref errmsg);
                 if (myClass != null)
                 {
                     if (!myClass.FunctionAuthorized(funcType))
@@ -145,7 +145,8 @@ namespace ASCTracInterfaceDll.WCS
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
+                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
@@ -237,7 +238,8 @@ namespace ASCTracInterfaceDll.WCS
                     catch (Exception ex)
                     {
                         errmsg = ex.Message;
-                        Class1.WriteException("WCS_Import", "", ordernum, errmsg.ToString(), "");
+                        myClass.LogException(ex);
+                        //Class1.WriteException("WCS_Import", "", ordernum, errmsg.ToString(), "");
                         //WriteFilelog(StatusID + ":" + ex.Message, ex.StackTrace);
                     }
 

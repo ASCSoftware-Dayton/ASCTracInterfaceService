@@ -9,25 +9,23 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportASN
     {
-        private static string funcType = "IM_ASN";
-        private static string siteid = string.Empty;
-        private static Class1 myClass;
-        private static Dictionary<string, List<string>> GWTranslation = new Dictionary<string, List<string>>();
-        public static HttpStatusCode doImportASN(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
+        //private string funcType = "IM_ASN";
+        private string siteid = string.Empty;
+        private Class1 myClass;
+        private Dictionary<string, List<string>> GWTranslation = new Dictionary<string, List<string>>();
+        public static HttpStatusCode doImportASN(Class1 aClass, ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.ASN;
             try
             {
-                if (myClass != null)
+                if (aClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!aClass.FunctionAuthorized(aClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        myClass.myParse.Globals.mydmupdate.InitUpdate();
-                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                        var siteid = aClass.GetSiteIdFromHostId(aData.FACILITY);
                         if (String.IsNullOrEmpty(siteid))
                         {
                             errmsg = "No Facility or Site defined for record.";
@@ -35,16 +33,16 @@ namespace ASCTracInterfaceDll.Imports
                         }
                         else
                         {
-                            Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
                             if (string.IsNullOrEmpty(OrderNum))
                             {
                                 errmsg = "ASN value is required.";
                                 retval = HttpStatusCode.BadRequest;
                             }
                             else
-                                retval = ImportASNRecord(aData, ref errmsg);
-                            if (retval == HttpStatusCode.OK)
-                                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                            {
+                                var myImport = new ImportASN(aClass, siteid);
+                                retval = myImport.ImportASNRecord(aData, ref errmsg);
+                            }
                         }
                     }
                 }
@@ -53,7 +51,9 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                aClass.LogException(ex);
+
+                //Class1.WriteException(acl, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 
@@ -61,9 +61,19 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static HttpStatusCode ImportASNRecord(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
+        public ImportASN(Class1 aClass, string aSiteID)
+        {
+            myClass = aClass;
+            siteid = aSiteID;
+            //currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
+            Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
+
+        }
+
+        private HttpStatusCode ImportASNRecord(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
+            myClass.myParse.Globals.mydmupdate.InitUpdate();
 
             string asn = aData.ASN;
 
@@ -75,20 +85,25 @@ namespace ASCTracInterfaceDll.Imports
                     string sqlStr = "UPDATE ASN_HDR SET STATUS='N' WHERE ASN='" + asn + "'";
                     myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
                     //////////////////////
+                    myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                 }
                 else
+                {
                     retval = HttpStatusCode.BadRequest;
+                    myClass.myLogRecord.LogType = "E";
+                }
             }
             else
             {
+                myClass.myLogRecord.LogType = "E";
                 retval = HttpStatusCode.BadRequest;
                 errmsg = "ASN status has changed, cannot update.";
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), asn, errmsg, "");
+                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), asn, errmsg, "");
             }
             return (retval);
         }
 
-        private static bool CanImportAsn(string asn)
+        private bool CanImportAsn(string asn)
         {
             string tmpStr = string.Empty;
             string sqlStr = "SELECT STATUS FROM ASN_HDR (NOLOCK) WHERE ASN='" + asn + "' AND ISNULL(STATUS,'N')<>'N'";
@@ -97,7 +112,7 @@ namespace ASCTracInterfaceDll.Imports
             return true;
         }
 
-        private static void DeleteAsnIfExists(string asn)
+        private void DeleteAsnIfExists(string asn)
         {
             string tmpStr = string.Empty;
             string sqlStr = "SELECT NULL FROM ASN_HDR (NOLOCK) WHERE ASN='" + asn + "'";
@@ -113,7 +128,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static void UpdateQtyAsnInTransit(string asnNum, bool decrement)
+        private void UpdateQtyAsnInTransit(string asnNum, bool decrement)
         {
             string qtySign = decrement ? "-" : "+";
             string sqlStr = "SELECT ASCITEMID, QTY FROM ASN_DET (NOLOCK) WHERE ASN=@asn";
@@ -134,7 +149,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static bool ImportAsnHdr(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
+        private bool ImportAsnHdr(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData, ref string errmsg)
         {
 
             string tmpStr = string.Empty;
@@ -150,7 +165,9 @@ namespace ASCTracInterfaceDll.Imports
                 if (String.IsNullOrEmpty(fromSiteId))
                 {
                     errmsg = "No site exists in ASCTrac with Host Site ID '" + aData.FROM_FACILITY + "'.";
-                    Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errmsg, "");
+                    myClass.myLogRecord.LogType = "E";
+
+                    //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errmsg, "");
                     return false;
                 }
             }
@@ -177,7 +194,7 @@ namespace ASCTracInterfaceDll.Imports
             return true;
         }
 
-        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
+        private void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
             foreach (var rec in CustomList)
             {
@@ -192,7 +209,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static bool ImportAsnDet(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData)
+        private bool ImportAsnDet(ASCTracInterfaceModel.Model.ASN.ASNHdrImport aData)
         {
             string tmpStr = string.Empty;
             string vmiCustId, itemId, ascItemId = string.Empty, skidId;
@@ -206,8 +223,9 @@ namespace ASCTracInterfaceDll.Imports
 
                 if( String.IsNullOrEmpty( itemId))
                 {
-                    string errMsg = "ItemID does not have a value";
-                    Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
+                    myClass.myLogRecord.OutData= "ItemID does not have a value";
+                    myClass.myLogRecord.LogType = "E";
+                    //Class1.WriteException(myClass.myLogRecord.FunctionID, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
                     return false;
 
                 }
@@ -225,8 +243,10 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 if (string.IsNullOrEmpty(ascItemId))
                 {
-                    string errMsg = "Item " + itemId + " not found in Item Master.";
-                    Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
+                    //string errMsg = "Item " + itemId + " not found in Item Master.";
+                    myClass.myLogRecord.OutData = "Item " + itemId + " not found in Item Master.";
+                    myClass.myLogRecord.LogType = "E";
+                    //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
                     return false;
                 }
 
@@ -234,7 +254,15 @@ namespace ASCTracInterfaceDll.Imports
 
                 string sqlStr = "SELECT NULL FROM LOCITEMS (NOLOCK) WHERE SKIDID='" + skidId + "'";
                 if (myClass.myParse.Globals.myDBUtils.ifRecExists(sqlStr))
-                    throw new Exception(String.Format("License {0} already exists.", skidId));
+                {
+                    //string errMsg = "Item " + itemId + " not found in Item Master.";
+                    myClass.myLogRecord.OutData = String.Format("License {0} already exists.", skidId);
+                    myClass.myLogRecord.LogType = "E";
+                    //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), aData.ASN, errMsg, "");
+                    return false;
+                    //throw new Exception(String.Format("License {0} already exists.", skidId));
+                }
+
 
                 string updstr = string.Empty;
                 Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_DET",  "ASN", aData.ASN);

@@ -7,52 +7,55 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportPO
     {
-        private static string funcType = "IM_RECV";
-        private static string siteid = string.Empty;
-        private static Class1 myClass;
-        private static Model.PO.POImportConfig currPOImportConfig;
-        public static HttpStatusCode doImportPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
+        //private string funcType = "IM_RECV";
+        private string siteid = string.Empty;
+        private Class1 myClass;
+        private Model.PO.POImportConfig currPOImportConfig;
+        public static HttpStatusCode doImportPO(Class1 myClass, ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
+            //myClass = Class1.InitParse funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.PONUMBER;
             try
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
+                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                        //currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
                         if (String.IsNullOrEmpty(siteid))
                         {
+                            myClass.myLogRecord.LogType = "E";
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
                         else if (string.IsNullOrEmpty(OrderNum))
                         {
+                            myClass.myLogRecord.LogType = "E";
                             errmsg = "PO Number value is required.";
                             retval = HttpStatusCode.BadRequest;
                         }
                         else if (string.IsNullOrEmpty( aData.STATUS_FLAG))
                         {
+                            myClass.myLogRecord.LogType = "E";
                             errmsg = "STATUS_FLAG value is required.";
                             retval = HttpStatusCode.BadRequest;
                         }
-
                         else
                         {
+                            var myimport = new ImportPO(myClass, siteid);
                             string WarningMsg = string.Empty;
                             if ( String.IsNullOrEmpty( aData.ORDER_TYPE))
-                                retval = ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                                retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
                             else if (aData.ORDER_TYPE.Equals("R"))
-                                retval = ImportRMARecord(aData, ref errmsg, ref WarningMsg);
+                                retval = myimport.ImportRMARecord(aData, ref errmsg, ref WarningMsg);
                             else if (aData.ORDER_TYPE.Equals("A"))
-                                retval = ImportASNRecord(aData, ref errmsg, ref WarningMsg);
+                                retval = myimport.ImportASNRecord(aData, ref errmsg, ref WarningMsg);
                             else
-                                retval = ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                                retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
                             if (!String.IsNullOrEmpty(errmsg))
                                 retval = HttpStatusCode.BadRequest;
                             else
@@ -66,16 +69,28 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.myLogRecord.LogType = "X";
+                myClass.myLogRecord.StackTrace = ex.StackTrace;
+                myClass.myLogRecord.OutData = ex.Message;
+
+                //Class1.WriteException(myClass.myLogRecord.FunctionID, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 
             }
             return (retval);
         }
+        public ImportPO(Class1 aClass, string aSiteID)
+        {
+            myClass = aClass;
+            siteid = aSiteID;
+            currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
+        }
+
+
 
         #region RMA_REGION
-        private static HttpStatusCode ImportRMARecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
+        private HttpStatusCode ImportRMARecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string tmp = string.Empty;
@@ -114,7 +129,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static string ImportRMAHeaderRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, bool recExists)
+        private string ImportRMAHeaderRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, bool recExists)
         {
             string errmsg = string.Empty;
 
@@ -170,7 +185,7 @@ namespace ASCTracInterfaceDll.Imports
             return (errmsg);
         }
 
-        private static string ImportRMADetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string aWarningMsg)
+        private string ImportRMADetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string aWarningMsg)
         {
             string errmsg = string.Empty;
             if (currPOImportConfig.GWDeleteRMALinesNotInInterface)
@@ -272,7 +287,7 @@ namespace ASCTracInterfaceDll.Imports
             return (errmsg);
         }
 
-        private static string DeleteRma(string rmaNum)
+        private string DeleteRma(string rmaNum)
         {
             string errMsg = string.Empty;
 
@@ -283,7 +298,7 @@ namespace ASCTracInterfaceDll.Imports
             return (errMsg);
         }
 
-        private static string PurgeRMADet(string rmaNum)
+        private string PurgeRMADet(string rmaNum)
         {
             string errMsg = string.Empty;
             string tmpStr = string.Empty;
@@ -312,7 +327,7 @@ namespace ASCTracInterfaceDll.Imports
             return (errMsg);
         }
 
-        private static void DeleteMissingRMALines(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
+        private void DeleteMissingRMALines(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
         {
 
             string wherestr = string.Empty;
@@ -329,7 +344,7 @@ namespace ASCTracInterfaceDll.Imports
 
         #endregion
         #region ASN_REGION
-        private static HttpStatusCode ImportASNRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
+        private HttpStatusCode ImportASNRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.BadRequest;
             errmsg = "ASNs no longer supported through the Receipts Import. Please use the ASN Import.";
@@ -337,7 +352,7 @@ namespace ASCTracInterfaceDll.Imports
         }
         #endregion
         #region PO_REGION
-        private static HttpStatusCode ImportPORecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
+        private HttpStatusCode ImportPORecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string ponum = aData.PONUMBER;
@@ -402,7 +417,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static string PurgePoDet(string aponum, string arelnum, bool aDelHeader)
+        private string PurgePoDet(string aponum, string arelnum, bool aDelHeader)
         {
             string retval = String.Empty;
             {
@@ -426,7 +441,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static string ImportPOHeaderRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, bool recExists)
+        private string ImportPOHeaderRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, bool recExists)
         {
             string retval = String.Empty;
 
@@ -509,7 +524,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        private static string ImportPODetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, ref string aWarningMsg)
+        private string ImportPODetailRecords(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, ref string aWarningMsg)
         {
             string retval = String.Empty;
 
@@ -848,7 +863,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static void ImportOrderNotes(List<ASCTracInterfaceModel.Model.NotesImport> NotesList, string ponum, string relnum, string alinenum)
+        private void ImportOrderNotes(List<ASCTracInterfaceModel.Model.NotesImport> NotesList, string ponum, string relnum, string alinenum)
         {
             foreach( var rec in NotesList)
             {
@@ -862,7 +877,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static void DeleteMissingPOLines(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum)
+        private void DeleteMissingPOLines(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum)
         {
 
             string wherestr = string.Empty;
@@ -881,7 +896,7 @@ namespace ASCTracInterfaceDll.Imports
         #endregion
 
         #region MISC_REGION
-        private static void AddItem(string siteId, string itemId, string VmiCustId)  //added 01-23-17 (JXG)
+        private void AddItem(string siteId, string itemId, string VmiCustId)  //added 01-23-17 (JXG)
         {
             //if (currPOImportConfig.createSkeletonItems)
             {
@@ -929,7 +944,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
+        private void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
             foreach (var rec in CustomList)
             {

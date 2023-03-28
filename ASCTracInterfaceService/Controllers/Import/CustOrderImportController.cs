@@ -9,30 +9,45 @@ namespace ASCTracInterfaceService.Controllers.Import
     [Filters.ApiAuthenticationFilter]
     public class CustOrderImportController : ApiController
     {
+
         private static string FuncID = "CustOrderImport";
+        private static string funcType = "IM_ORDER";
         /// <summary>
         /// Import a Customer Order (Header and Details)
         /// </summary>
         [System.Web.Http.HttpPost]
         public HttpResponseMessage PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
         {
-            HttpStatusCode statusCode = HttpStatusCode.Accepted;
-            //var SessionID = System.Web.HttpContext.Current.Session.SessionID;
             string errMsg = string.Empty;
+            var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/CustOrderImport";
+            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            ASCTracInterfaceDll.Class1 myClass = null;
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrder(aData, ref errMsg);
+                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, funcType, ref errMsg);
+                myClass.myLogRecord.HttpFunctionID = "Post";
+                myClass.myLogRecord.OrderNum = aData.ORDERNUMBER;
+                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+                try
+                {
+                    statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrder( myClass, aData, ref errMsg);
+                }
+                catch (Exception ex)
+                {
+                    myClass.LogException(ex);
+                    statusCode = HttpStatusCode.BadRequest;
+                    errMsg = ex.Message;
+                    //LoggingUtil.LogEventView("PostCustOrder", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView("PostCustOrder", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                LoggingUtil.LogEventView(funcType, aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-            bool fError = false;
-
             Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
             {
@@ -43,20 +58,21 @@ namespace ASCTracInterfaceService.Controllers.Import
                 }
                 else
                 {
-                    fError = true;
                     resp = ASCResponse.BuildResponse(HttpStatusCode.PreconditionFailed, "Missing Items:" + errMsg.Replace("|", ", ").Trim());
                     retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
                 }
             }
             else
             {
-                fError = true;
-                var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority);
-
-                resp = ASCResponse.BuildResponse(statusCode, errMsg, baseUrl + "/Import/CustOrderImport", "Post");
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, baseUrl, "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
-            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), fError);
+            if (myClass != null)
+            {
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
+                myClass.PostLog(statusCode, errMsg);
+            }
+            //ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, , , fError);
             return (retval);
         }
     }

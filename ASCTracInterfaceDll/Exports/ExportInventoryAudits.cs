@@ -8,13 +8,12 @@ namespace ASCTracInterfaceDll.Exports
 {
     public class ExportInventoryAudits
     {
-        private static string funcType = "EX_INAUD";
-        private static Class1 myClass;
-        private static Model.Item.ItemImportConfig currExportConfig;
+        private string funcType = "EX_INAUD";
+        private Class1 myClass;
+        private Model.Item.ItemImportConfig currExportConfig;
 
-        public static HttpStatusCode DoExportInventoryAudits(string aVMICustID, string aSiteID, string aItemID, ref List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> aData, ref string errmsg)
+        public static HttpStatusCode DoExportInventoryAudits(Class1 myClass, string aVMICustID, string aSiteID, string aItemID, ref List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport>();
             string OrderNum = string.Empty;
@@ -23,15 +22,16 @@ namespace ASCTracInterfaceDll.Exports
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        currExportConfig = Configs.ItemConfig.getImportSite( "1", myClass.myParse.Globals);
-                        sqlstr = BuildExportSQL(aVMICustID,aSiteID, aItemID, ref errmsg);
+                        var myExport = new ExportInventoryAudits(myClass);
+                        sqlstr = myExport.BuildExportSQL(aVMICustID,aSiteID, aItemID, ref errmsg);
                         if (!String.IsNullOrEmpty(sqlstr))
                         {
-                            retval = BuildExportList(sqlstr, ref aData, ref errmsg);
+                            myClass.myLogRecord.SQLData = sqlstr;
+                            retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
                         }
                         else
                             retval = HttpStatusCode.BadRequest;
@@ -42,16 +42,20 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                myClass.myParse.Globals.myASCLog.updateSQL(sqlstr);
-
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
 
-        private static string BuildExportSQL(string aVMICustID, string aSiteID, string aItemID, ref string errmsg)
+        public ExportInventoryAudits( Class1 aClass)
+        {
+            myClass = aClass;
+            currExportConfig = Configs.ItemConfig.getImportSite("1", myClass.myParse.Globals);
+        }
+
+        private string BuildExportSQL(string aVMICustID, string aSiteID, string aItemID, ref string errmsg)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -104,7 +108,7 @@ namespace ASCTracInterfaceDll.Exports
             return (sql.ToString());
         }
 
-        private static string BuildWhereStr(ASCTracInterfaceModel.Model.ModelExportFilter rec)
+        private string BuildWhereStr(ASCTracInterfaceModel.Model.ModelExportFilter rec)
         {
             string retval = string.Empty;
             if (myClass.myParse.Globals.myDBUtils.IfFieldExists("TRANFILE", rec.Fieldname))
@@ -112,7 +116,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private static HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);

@@ -10,36 +10,41 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportCustOrder
     {
-        private static string funcType = "IM_ORDER";
-        private static string siteid = string.Empty;
-        private static Class1 myClass;
-        private static Model.CustOrder.COImportConfig currCOImportConfig;
-        public static HttpStatusCode doImportCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
+        private string siteid = string.Empty;
+        private Model.CustOrder.COImportConfig currCOImportConfig;
+        private Class1 myClass;
+
+        public static HttpStatusCode doImportCustOrder( Class1 myClass,  ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.ORDERNUMBER;
             try
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
+                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+
                         if (String.IsNullOrEmpty(siteid))
                         {
                             errmsg = "No Facility or Site defined for record.";
+                            myClass.LogError(errmsg);
                             retval = HttpStatusCode.BadRequest;
                         }
                         else
                         {
                             string warningmsg = string.Empty;
-                            retval = ImportCORecord(aData, ref errmsg, ref warningmsg);
+                            var myimport = new ImportCustOrder(myClass, siteid);
+                            retval = myimport.ImportCORecord(aData, ref errmsg, ref warningmsg);
                             if (retval == HttpStatusCode.OK)
+                            {
                                 errmsg = warningmsg;
+                            }
+                            else
+                                myClass.LogError(errmsg);
                         }
                     }
                 }
@@ -48,14 +53,23 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
+
+                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
 
-        private static HttpStatusCode ImportCORecord(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string warningmsg)
+        public ImportCustOrder(Class1 aClass, string aSiteID)
+        {
+            myClass = aClass;
+            siteid = aSiteID;
+            currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
+        }
+
+        private HttpStatusCode ImportCORecord( ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string warningmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string pickstatus = ascLibrary.dbConst.ssNOTSCHED;
@@ -166,20 +180,20 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static bool isOrderStatusScheduled(string pickStatus)
+        private bool isOrderStatusScheduled(string pickStatus)
         {
             return (pickStatus == "S" || pickStatus == "B" || pickStatus == "D" ||
                     pickStatus == "E" || pickStatus == "P" || pickStatus == "O" ||
                     pickStatus == "L" || pickStatus == "G");
         }
 
-        private static bool isOrderStatusRequired(string pickStatus)
+        private bool isOrderStatusRequired(string pickStatus)
         {
             return (pickStatus == "N" || pickStatus == "I" || pickStatus == "W" ||
                     pickStatus == "H" || pickStatus == "U");
         }
 
-        private static void RemoveOrderFromGroups(string orderNum)
+        private void RemoveOrderFromGroups( string orderNum)
         {
             string batchnum = string.Empty;
             if (myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "WAVE_NUM, BATCH_NUM", ref batchnum))
@@ -221,7 +235,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static bool CancelOrder(string orderNum, bool aUpdateHdr)
+        private bool CancelOrder(string orderNum, bool aUpdateHdr)
         {
             bool retval = false;
             string pickStatus = string.Empty;
@@ -372,7 +386,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static bool PurgeOrderDet(string orderNum, ref string errmsg)
+        private bool PurgeOrderDet(string orderNum, ref string errmsg)
         {
             string tmpStr = string.Empty;
 
@@ -427,7 +441,7 @@ namespace ASCTracInterfaceDll.Imports
             return true;
         }
 
-        private static bool CheckIfPicked( string orderNum)
+        private bool CheckIfPicked(string orderNum)
         {
             bool okToDelete = false;
             if (currCOImportConfig.GWAllowCancelOfPickedOrder)
@@ -451,12 +465,12 @@ namespace ASCTracInterfaceDll.Imports
             return (okToDelete);
         }
 
-        private static bool DeleteOrder(string orderNum, ref string errmsg)
+        private bool DeleteOrder( string orderNum, ref string errmsg)
         {
 
             try
             {
-                if (CancelOrder(orderNum, false))
+                if (CancelOrder( orderNum, false))
                 {
                     bool okToDelete = CheckIfPicked(orderNum);
 
@@ -483,7 +497,7 @@ namespace ASCTracInterfaceDll.Imports
             return true;
         }
 
-        private static void DeleteWorkOrder(string woNum)
+        private void DeleteWorkOrder(string woNum)
         {
             string woType = string.Empty;
 
@@ -532,7 +546,7 @@ namespace ASCTracInterfaceDll.Imports
 
 
 
-        private static void SetOrderTotalValues(string orderNum)
+        private void SetOrderTotalValues(string orderNum)
         {
             string sql = "SELECT COUNT(D.LINENUMBER), SUM( D.QTYORDERED) ";
             sql += ", (CASE WHEN MAX(I.UNITWIDTH) > MAX(I.UNITLENGTH) THEN";
@@ -560,7 +574,7 @@ namespace ASCTracInterfaceDll.Imports
             myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
         }
 
-        public static double GetOrderCubic(string orderNum)
+        private double GetOrderCubic(string orderNum)
         {
             double result = 0;
 
@@ -584,7 +598,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        public static double CalcEstShipWeight(string orderNum)
+        private double CalcEstShipWeight(string orderNum)
         {
             string sql = "UPDATE ORDRHDR " +
                 "SET EST_SHIPWEIGHT=ISNULL((SELECT SUM(D.QTYORDERED*ISNULL(I.BOL_UNITWEIGHT,I.UNITWEIGHT)) " +
@@ -597,7 +611,7 @@ namespace ASCTracInterfaceDll.Imports
             return ascLibrary.ascUtils.ascStrToDouble(tmp, 0);
         }
 
-        private static void SaveCustomFields(ref string updStr, string aTblName, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
+        private void SaveCustomFields(ref string updStr, string aTblName, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
             if (CustomList != null)
             {
@@ -615,7 +629,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static bool ImportOrderHdr(string orderNum, string pickStatus, bool fExist, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
+        private bool ImportOrderHdr(string orderNum, string pickStatus, bool fExist, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
             bool retval = true;
             if (fExist && currCOImportConfig.GWUpdateInProgressOrders)
@@ -1217,7 +1231,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        private static void GetConvQty(string aASCItemID, string aHostUOM, bool aRaiseErr, ref bool fPickSub, ref double aOrderQty, ref double aConvFact)
+        private void GetConvQty(string aASCItemID, string aHostUOM, bool aRaiseErr, ref bool fPickSub, ref double aOrderQty, ref double aConvFact)
         {
             string tmp = "", stockUOM;
             List<string> uom, cf;
@@ -1292,7 +1306,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static DateTime GetScheduleDate(DateTime dtReqShipDate, long nLeadTime)
+        private DateTime GetScheduleDate(DateTime dtReqShipDate, long nLeadTime)
         {
             long i = 0;
             DateTime dtShipDate = dtReqShipDate;
@@ -1322,7 +1336,7 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        private static bool ImportOrderDet(string orderNum, string pickStatus, string ordertype, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string aWarningMsg)
+        private bool ImportOrderDet(string orderNum, string pickStatus, string ordertype, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string aWarningMsg)
         {
             bool retval = true;
             string sqlStr, tmpStr = "";
@@ -1842,12 +1856,12 @@ namespace ASCTracInterfaceDll.Imports
             }
             */
             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
-            CalcEstShipWeight(orderNum);
+            CalcEstShipWeight( orderNum);
 
             return retval;
         }
 
-        private static void SetupOrderBatch(string orderNum, string batchNum)
+        private void SetupOrderBatch( string orderNum, string batchNum)
         {
             string updStr = string.Empty;
 
@@ -1911,7 +1925,7 @@ namespace ASCTracInterfaceDll.Imports
             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
         }
 
-        private static void CreateTransferPOFromCO(string orderNum, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
+        private void CreateTransferPOFromCO(string orderNum, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData)
         {
             string itemId, coASCItemId, ascItemId, uom = "";
             string vmiCustId;
@@ -2038,10 +2052,10 @@ namespace ASCTracInterfaceDll.Imports
         }
 
 
-        //private static void ImportOrderLotAlloc(string orderNum)
+        //private void ImportOrderLotAlloc(string orderNum)
         //{
         //}
-        private static void SetPickAssignments(string orderNum)
+        private void SetPickAssignments(string orderNum)
         {
             // I think this was old Celebrate express logic.  the logic in DeterminePickLoc is most up to date, and should be used instead
             /*
@@ -2158,7 +2172,7 @@ namespace ASCTracInterfaceDll.Imports
             */
         }
 
-        private static void AfterOrderImport(string orderNum, bool isNewOrder)
+        private void AfterOrderImport(string orderNum, bool isNewOrder)
         {
             string sql, tmpStr = "";
             string printerId = "";
@@ -2233,10 +2247,10 @@ namespace ASCTracInterfaceDll.Imports
 
         }
 
-        public static HttpStatusCode doImportCustOrderConfirmShip( string aOrderNum, ref string aErrMsg)
+        public static HttpStatusCode doImportCustOrderConfirmShip(Class1 myClass, string aOrderNum, ref string aErrMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            myClass = Class1.InitParse(funcType, ref aErrMsg);
+           // myClass = Class1.InitParse(funcType, ref aErrMsg);
 
             if (myClass == null)
                 retval = HttpStatusCode.InternalServerError;
@@ -2262,7 +2276,8 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 catch (Exception ex)
                 {
-                    Class1.WriteException(funcType, aOrderNum, aOrderNum, ex.Message, ex.StackTrace);
+                    myClass.LogException(ex);
+                    //Class1.WriteException(funcType, aOrderNum, aOrderNum, ex.Message, ex.StackTrace);
                     retval = HttpStatusCode.BadRequest;
                     aErrMsg = ex.Message;
                 }

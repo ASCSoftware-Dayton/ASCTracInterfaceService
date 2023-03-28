@@ -9,13 +9,13 @@ namespace ASCTracInterfaceDll.Exports
 {
     public class ExportCustOrder
     {
-        private static string funcType = "EX_ORDER";
-        private static Class1 myClass;
-        private static Model.CustOrder.COExportConfig currExportConfig;
+        //private string funcType = "EX_ORDER";
+        private Class1 myClass;
+        private Model.CustOrder.COExportConfig currExportConfig;
 
-        public static HttpStatusCode doExportCustOrders(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aCOExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
+        public static HttpStatusCode doExportCustOrders(Class1 myClass, ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aCOExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
+            //myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport>();
             string OrderNum = string.Empty;
@@ -24,15 +24,17 @@ namespace ASCTracInterfaceDll.Exports
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        currExportConfig = Configs.CustOrderConfig.getCOExportSite("1", myClass.myParse.Globals);
-                        sqlstr = BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
+                        var myExport = new ExportCustOrder(myClass);
+
+                        sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
                         if (!String.IsNullOrEmpty(sqlstr))
                         {
-                            retval = BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
+                            myClass.myLogRecord.SQLData = sqlstr;
+                            retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
                         }
                         else
                             retval = HttpStatusCode.BadRequest;
@@ -43,16 +45,21 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                myClass.myParse.Globals.myASCLog.updateSQL(sqlstr);
-
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
 
-        private static string BuildCustOrderExportSQL(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aExportFilter, ref string errmsg)
+        public ExportCustOrder( Class1 aClass)
+        {
+            myClass = aClass;
+            currExportConfig = Configs.CustOrderConfig.getCOExportSite("1", myClass.myParse.Globals);
+
+        }
+
+        private string BuildCustOrderExportSQL(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aExportFilter, ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
             string sql = "SELECT SITES.HOST_SITE_ID, TRANFILE.ORDERNUM, TRANFILE.SHIPMENT_ID, TRANFILE.ID, ORDRHDR.CARRIER, ORDRHDR.CARRIER_SERVICE_CODE" +
@@ -85,7 +92,7 @@ namespace ASCTracInterfaceDll.Exports
         }
 
 
-        private static string GetAltLotId(string orderNum, string lineNum, string ascItemId, string lotId)
+        private string GetAltLotId(string orderNum, string lineNum, string ascItemId, string lotId)
         {
             string altLotId = "", tmpStr = "";
 
@@ -113,7 +120,7 @@ namespace ASCTracInterfaceDll.Exports
             return altLotId;
         }
 
-        private static HttpStatusCode BuildExportList(string sqlstr, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
@@ -253,7 +260,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private static void WritePicks(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec, string shipmentId)
+        private void WritePicks(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec, string shipmentId)
         {
             string sql = "SELECT S.HOST_SITE_ID, T.LINENUM, T.ASCITEMID, T.ITEMID, T.LOTID, T.HOST_ITEM_NUMBER, max( T.TRANDATE) AS TRANDATE," +
                 "SUM(T.QTY) AS ITEMQTY, SUM(QTY_DUAL_UNIT) AS QTYDUALUNIT " +
@@ -382,7 +389,7 @@ namespace ASCTracInterfaceDll.Exports
             }
         }
 
-        private static void WriteUnpickedLines(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
+        private void WriteUnpickedLines(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
         {
 
             string sql = "SELECT D.ORDERNUMBER, D.ITEMID, D.ASCITEMID, D.LINENUMBER, D.QTYORDERED, D.QTYPICKED, D.QTY_SUBSTITUTED, D.HOST_LINENUMBER, " +
@@ -440,7 +447,7 @@ namespace ASCTracInterfaceDll.Exports
 
 
         }
-        private static void WriteContainers(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec, string shipmentId)
+        private void WriteContainers(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec, string shipmentId)
         {
             string sqlStr = "SELECT CONTAINER_ID, CNTRTYPE_ID, " +
                     "SUM (QTY * ISNULL(I.BOL_UNITWEIGHT,I.UNITWEIGHT)) AS CONTR_WEIGHT " +  //added 08-07-13 (JXG)
@@ -478,7 +485,7 @@ namespace ASCTracInterfaceDll.Exports
             }
         }
 
-        private static void WriteSerNums(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
+        private void WriteSerNums(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
         {
             string sqlStr = "SELECT * FROM SER_NUM (NOLOCK) WHERE CUST_ORDER_NUM=@orderNum " + 
                     "ORDER BY ORDLINENUM, SER_NUM";
@@ -508,13 +515,13 @@ namespace ASCTracInterfaceDll.Exports
             }
         }
 
-        //private static void WriteNotes(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
+        //private void WriteNotes(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
         //{
         //
         //}
 
 
-        private static void SetPosted(string wherestr, string aERROR_MESSAGE, string aPostedflag)
+        private void SetPosted(string wherestr, string aERROR_MESSAGE, string aPostedflag)
         {
             int msgLen = Convert.ToInt32(myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
             string shortErrorMessage = aERROR_MESSAGE;
@@ -538,10 +545,12 @@ namespace ASCTracInterfaceDll.Exports
             myClass.myParse.Globals.mydmupdate.AddToUpdate(sqlStr);
         }
 
-        public static HttpStatusCode DoUpdateExportCustOrder(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
+        private HttpStatusCode DoUpdateExportCustOrder(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            foreach( var rec in aData)
+            myClass.myParse.Globals.mydmupdate.InitUpdate();
+
+            foreach ( var rec in aData)
             {
                 string posted = "T";
                 if (!rec.SUCCESSFUL)
@@ -549,30 +558,32 @@ namespace ASCTracInterfaceDll.Exports
                          string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'PK', 'CS', 'LO')";
                 SetPosted(where, rec.ERROR_MESSAGE, posted);
             }
+
+            if (retval == HttpStatusCode.OK)
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+
             return (retval);
         }
 
-        public static HttpStatusCode updateExportCustOrder(List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
+        public static HttpStatusCode updateExportCustOrder(Class1 myClass, List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("UpdateExportCustOrder", ref errmsg);
+            //myClass = Class1.InitParse("UpdateExportCustOrder", ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             try
             {
                 if (myClass != null)
                 {
-                    myClass.myParse.Globals.mydmupdate.InitUpdate();
-                    currExportConfig = Configs.CustOrderConfig.getCOExportSite("1", myClass.myParse.Globals);
-                    retval = DoUpdateExportCustOrder(aData, ref errmsg);
-                    if (retval == HttpStatusCode.OK)
-                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                    var myExport = new ExportCustOrder(myClass);
+
+                    retval = myExport.DoUpdateExportCustOrder(aData, ref errmsg);
                 }
                 else
                     retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                Class1.WriteException("updateExportCustOrder", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex); 
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

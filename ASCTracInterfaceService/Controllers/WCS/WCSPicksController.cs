@@ -18,25 +18,48 @@ namespace ASCTracInterfaceService.Controllers.WCS
         [HttpGet]
         public HttpResponseMessage doExportWCSPicks(string aOrderType)
         {
-            HttpStatusCode statusCode = HttpStatusCode.OK;
             var aData = new List<ASCTracInterfaceModel.Model.WCS.WCSPick>();
-            string errmsg = string.Empty;
+            string errMsg = string.Empty;
+            var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/WCS/" + FuncID;
+            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            ASCTracInterfaceDll.Class1 myClass = null;
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(aOrderType, ref aData, ref errmsg);
+                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, FuncID, ref errMsg);
+                myClass.myLogRecord.HttpFunctionID = "Get";
+                myClass.myLogRecord.OrderNum = aOrderType;
+                myClass.myLogRecord.InData = "aOrderType=" + aOrderType;
+
+                try
+                {
+                    ReadMyAppSettings.ReadAppSettings(FuncID);
+                    statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(myClass, aOrderType, ref aData, ref errMsg);
+                }
+                catch (Exception ex)
+                {
+                    myClass.LogException(ex);
+                    statusCode = HttpStatusCode.BadRequest;
+                    errMsg = "(ExportWCSPick) " + ex.Message;
+                }
             }
-            catch (Exception ex)
+            catch( Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
-                errmsg = "(ExportWCSPick) " + ex.Message;
+                errMsg = ex.Message;
+                LoggingUtil.LogEventView(FuncID, aOrderType, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(aData));
             else
-                retval.Content = new StringContent(errmsg);
-            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", aOrderType, Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+                retval.Content = new StringContent(errMsg);
+            // ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", aOrderType, Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+            if (myClass != null)
+            {
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+                myClass.PostLog(statusCode, errMsg);
+            }
 
             return (retval);
         }
@@ -49,18 +72,37 @@ namespace ASCTracInterfaceService.Controllers.WCS
         [HttpPost]
         public HttpResponseMessage PostPick(ASCTracInterfaceModel.Model.WCS.WCSPick aData)
         {
-            HttpStatusCode statusCode = HttpStatusCode.OK;
             string errMsg = string.Empty;
+            var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/WCS/" + FuncID;
+            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            ASCTracInterfaceDll.Class1 myClass = null;
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport( "C", aData, ref errMsg);
+                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, FuncID, ref errMsg);
+                myClass.myLogRecord.HttpFunctionID = "Post";
+                myClass.myLogRecord.OrderNum = aData.ORDERNUMBER;
+                myClass.myLogRecord.ItemID = aData.ITEMID;
+                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+
+                try
+                {
+                    ReadMyAppSettings.ReadAppSettings(FuncID);
+                    statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport( myClass, "C", aData, ref errMsg);
+                }
+                catch (Exception ex)
+                {
+                    myClass.LogException(ex);
+                    statusCode = HttpStatusCode.BadRequest;
+                    errMsg = "(PostWCSPick) " + ex.Message;
+                    //LoggingUtil.LogEventView("PostPick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                }
             }
-            catch (Exception ex)
+            catch( Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
-                errMsg = "(PostWCSPick) " +  ex.Message;
-                LoggingUtil.LogEventView("PostPick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                errMsg = ex.Message;
+                LoggingUtil.LogEventView(FuncID, aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
             Models.ModelResponse resp;
@@ -75,7 +117,12 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 resp = ASCResponse.BuildResponse(statusCode, errMsg);
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
-            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+            //ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+            if (myClass != null)
+            {
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+                myClass.PostLog(statusCode, errMsg);
+            }
 
             return (retval);
         }

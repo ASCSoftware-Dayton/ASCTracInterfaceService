@@ -7,13 +7,13 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportItemMaster
     {
-        private static string funcType = "IM_ITEM";
-        private static string siteid = string.Empty;
-        private static Class1 myClass;
-        private static Model.Item.ItemImportConfig currImportConfig;
-        public static HttpStatusCode doImportItem(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData, ref string errmsg)
+        //private string funcType = "IM_ITEM";
+        private string siteid = string.Empty;
+        private Class1 myClass;
+        private Model.Item.ItemImportConfig currImportConfig;
+        public static HttpStatusCode doImportItem(Class1 myClass, ASCTracInterfaceModel.Model.Item.ItemMasterImport aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
+            //myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string ItemID = aData.PRODUCT_CODE;
             string updstr = string.Empty;
@@ -21,28 +21,30 @@ namespace ASCTracInterfaceDll.Imports
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        currImportConfig = Configs.ItemConfig.getImportSite(siteid, myClass.myParse.Globals);
+                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
                         if (String.IsNullOrEmpty(siteid))
                         {
+                            myClass.myLogRecord.LogType = "E";
                             errmsg = "No Facility or Site defined for record.";
                             retval = HttpStatusCode.BadRequest;
                         }
-                        myClass.myParse.Globals.mydmupdate.InitUpdate();
 
-                        if( string.IsNullOrEmpty( ItemID))
+
+                        if (string.IsNullOrEmpty(ItemID))
                         {
+                            myClass.myLogRecord.LogType = "E";
                             errmsg = "Itemid (PRODUCT_CODE) value is required.";
                             retval = HttpStatusCode.BadRequest;
                         }
                         else
-                            retval = ImportItemRecord(aData, ref errmsg);
-                        if( retval == HttpStatusCode.OK)
-                            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                        {
+                            var myImport = new ImportItemMaster(myClass, siteid);
+                            retval = myImport.ImportItemRecord(aData, ref errmsg);
+                        }
 
                     }
                 }
@@ -51,7 +53,9 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), ItemID, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
+
+                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), ItemID, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
 
@@ -59,7 +63,14 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private static HttpStatusCode ImportItemRecord(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData, ref string errmsg)
+        public ImportItemMaster(Class1 aClass, string aSiteID)
+        {
+            myClass = aClass;
+            siteid = aSiteID;
+            currImportConfig = Configs.ItemConfig.getImportSite(siteid, myClass.myParse.Globals);
+        }
+
+        private HttpStatusCode ImportItemRecord(ASCTracInterfaceModel.Model.Item.ItemMasterImport aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string sqlStr, tmpStr;
@@ -71,6 +82,7 @@ namespace ASCTracInterfaceDll.Imports
             bool recExists, dualUnitItem;
 
             myClass.myParse.Globals.initsite(siteid);
+            myClass.myParse.Globals.mydmupdate.InitUpdate();
 
             itemId = aData.PRODUCT_CODE.ToUpper().Trim();
             vmiCustId = Utils.ASCUtils.GetTrimString(aData.VMI_CUSTID, string.Empty).ToUpper();
@@ -118,6 +130,7 @@ namespace ASCTracInterfaceDll.Imports
             if( string.IsNullOrEmpty( aData.STATUS_FLAG))
             {
                 errmsg = "Invalid status flag";
+                myClass.myLogRecord.LogType = "E";
                 return (HttpStatusCode.BadRequest);
             }
 
@@ -429,7 +442,7 @@ namespace ASCTracInterfaceDll.Imports
                 myClass.myParse.Globals.mydmupdate.InsertRecord("ITEMMSTR", updstr);
             else
                 myClass.myParse.Globals.mydmupdate.UpdateFields("ITEMMSTR", updstr, "ASCITEMID='" + ascItemId + "'");
-            myClass.ImportCustomData(funcType, "ITEMMSTR", "ASCITEMID='" + ascItemId + "'", itemId);  //added 10-17-17 (JXG)
+            myClass.ImportCustomData(myClass.myLogRecord.FunctionID, "ITEMMSTR", "ASCITEMID='" + ascItemId + "'", itemId);  //added 10-17-17 (JXG)
             SaveExtData(ascItemId, aData.ExtDataList);
             myClass.myParse.Globals.dmMiscItem.CalcItemSubUOMConv(ascItemId);
             //if (!recExists)
@@ -459,10 +472,14 @@ namespace ASCTracInterfaceDll.Imports
             int seq = 1;
             foreach (var rec in aData.NotesList)
                 ImportNotes.SaveNotes("I", ascItemId, rec.NOTE, false, 0, seq++, myClass.myParse.Globals);
+
+            if (retval == HttpStatusCode.OK)
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+
             return (retval);
         }
 
-        private static void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
+        private void SaveCustomFields(ref string updStr, List<ASCTracInterfaceModel.Model.ModelCustomData> CustomList, Dictionary<string, List<string>> TranslationList)
         {
             foreach (var rec in CustomList)
             {
@@ -477,7 +494,7 @@ namespace ASCTracInterfaceDll.Imports
                 }
             }
         }
-        private static void SaveExtData(string ascitemid, Dictionary<string, string> ExtDataList)
+        private void SaveExtData(string ascitemid, Dictionary<string, string> ExtDataList)
         {
             if (ExtDataList.Count > 0)
             {
@@ -501,14 +518,14 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private static void UpdateMissingItemQtyRecords()
+        private void UpdateMissingItemQtyRecords()
         {
             string sql = "INSERT INTO ITEMQTY (ASCITEMID,QTYTOTAL,QTYALLOC,QTYONHOLD,QTYSUBITEMS,QTYREQUIRED,QTYSCHEDULED) " +
                 "(SELECT ASCITEMID,0,0,0,0,0,0 FROM ITEMMSTR WHERE ASCITEMID NOT IN (SELECT ASCITEMID FROM ITEMQTY))";
             myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
         }
 
-        private static bool SetItemReqFields(string aCustID, string aASCItemID)
+        private bool SetItemReqFields(string aCustID, string aASCItemID)
         {
             if ((!String.IsNullOrEmpty(aCustID)) && (!String.IsNullOrEmpty(aASCItemID)))
             {

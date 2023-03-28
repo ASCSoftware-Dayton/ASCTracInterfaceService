@@ -7,10 +7,8 @@ namespace ASCTracInterfaceDll.Imports
 {
     public class ImportVendor
     {
-        private static string funcType = "IM_VENDOR";
-        public static HttpStatusCode doImportVendor(ASCTracInterfaceModel.Model.Vendor.VendorImport aData, ref string errmsg)
+        public static HttpStatusCode doImportVendor(Class1 myClass, ASCTracInterfaceModel.Model.Vendor.VendorImport aData, ref string errmsg)
         {
-            var myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.VENDOR_CODE;
             string updstr = string.Empty;
@@ -18,7 +16,7 @@ namespace ASCTracInterfaceDll.Imports
             {
                 if (myClass != null )
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
@@ -99,7 +97,7 @@ namespace ASCTracInterfaceDll.Imports
             }
             catch( Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

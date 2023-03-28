@@ -8,13 +8,12 @@ namespace ASCTracInterfaceDll.Exports
 {
     public class ExportParcel
     {
-        private static string funcType = "EX_PARC";
-        private static Class1 myClass;
-        private static Model.CustOrder.ParcelExportConfig currExportConfig;
+        private string funcType = "EX_PARC";
+        private Class1 myClass;
+        private Model.CustOrder.ParcelExportConfig currExportConfig;
 
-        public static HttpStatusCode doExportParcel(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        public static HttpStatusCode doExportParcel(Class1 myClass, ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport>();
             string OrderNum = string.Empty;
@@ -23,16 +22,17 @@ namespace ASCTracInterfaceDll.Exports
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-                        currExportConfig = Configs.ParcelConfig.getExportSite("1", myClass.myParse.Globals);
-                        sqlstr = BuildExportSQL(aExportfilter, ref errmsg);
+                        var myexport = new ExportParcel(myClass);
+                        sqlstr = myexport.BuildExportSQL(aExportfilter, ref errmsg);
                         if (!String.IsNullOrEmpty(sqlstr))
                         {
-                            retval = BuildExportList(sqlstr, ref aData, ref errmsg);
-                            BuildShipmentList(ref aData, ref errmsg);
+                            myClass.myLogRecord.SQLData = sqlstr;
+                            retval = myexport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                            myexport.BuildShipmentList(ref aData, ref errmsg);
                             if (aData.Count == 0)
                                 retval = HttpStatusCode.NoContent;
                             else
@@ -47,14 +47,20 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.ToString(), sqlstr);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
 
-        private static string BuildExportSQL(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportFilter, ref string errmsg)
+        public ExportParcel(Class1 aClass)
+        {
+            myClass = aClass;
+            currExportConfig = Configs.ParcelConfig.getExportSite("1", myClass.myParse.Globals);
+        }
+
+        private string BuildExportSQL(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportFilter, ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
             string sqlStr = "SELECT P.*, OH.SALESORDERNUMBER FROM PARCEL P (NOLOCK) " +
@@ -68,7 +74,7 @@ namespace ASCTracInterfaceDll.Exports
             return (sqlStr);
         }
 
-        private static HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
             bool fExportByLot = true; // fExportByLot
 
@@ -246,7 +252,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private static void BuildShipmentList(ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        private void BuildShipmentList(ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
             string orderNum, proNum, shipmentId, trailerId, salesOrderNum = "";
             bool useTrailerShipments = (myClass.myParse.Globals.myConfig.iniCPInputTrailer.Value != "F");
@@ -346,7 +352,7 @@ namespace ASCTracInterfaceDll.Exports
             }
         }
 
-        private static string GetSealNums(string orderNum, string shipmentId)
+        private string GetSealNums(string orderNum, string shipmentId)
         {
             string sealNums = string.Empty;
             string sqlStr = "SELECT SEAL_NUM FROM ORDR_SEALS (NOLOCK) " +
@@ -371,14 +377,14 @@ namespace ASCTracInterfaceDll.Exports
 
 
 
-        private static void PostParcel(string orderNum, string packageId, string newStatus, string ErrorMsg)
+        private void PostParcel(string orderNum, string packageId, string newStatus, string ErrorMsg)
         {
             string sql = "UPDATE PARCEL SET EXPORT_TO_HOST='" + newStatus + "', EXPORT_TO_HOST_DATE=GetDate() " +
                 "WHERE ORDERNUMBER='" + orderNum + "' AND PACKAGE_ID='" + packageId + "'";
             myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
         }
 
-        private static void SetShipmentPosted(string orderNum, string trailerId, string newStatus, string ErrorMsg)
+        private void SetShipmentPosted(string orderNum, string trailerId, string newStatus, string ErrorMsg)
         {
             string sqlStr = "UPDATE SHIPMENT SET EXPORT='" + newStatus + "' " +
                 "WHERE ORDERNUM='" + orderNum + "' ";
@@ -392,35 +398,33 @@ namespace ASCTracInterfaceDll.Exports
         }
 
 
-        public static HttpStatusCode UpdateExport(List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        public static HttpStatusCode UpdateExport(Class1 myClass, List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("Update" + funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             try
             {
                 if (myClass != null)
                 {
-                    myClass.myParse.Globals.mydmupdate.InitUpdate();
-                    currExportConfig = Configs.ParcelConfig.getExportSite("1", myClass.myParse.Globals);
-                    retval = DoUpdateExport(aData, ref errmsg);
-                    if (retval == HttpStatusCode.OK)
-                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                    var myExport = new ExportParcel(myClass);
+                    retval = myExport.DoUpdateExport(aData, ref errmsg);
                 }
                 else
                     retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
 
-        public static HttpStatusCode DoUpdateExport(List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        private HttpStatusCode DoUpdateExport(List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
+            myClass.myParse.Globals.mydmupdate.InitUpdate();
+
             HttpStatusCode retval = HttpStatusCode.OK;
             foreach (var rec in aData)
             {
@@ -430,6 +434,8 @@ namespace ASCTracInterfaceDll.Exports
                 PostParcel(rec.ORDERNUMBER, rec.PARCEL_NUMBER, posted, "");
                 SetShipmentPosted(rec.ORDERNUMBER, "", posted, "");
             }
+            if (retval == HttpStatusCode.OK)
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             return (retval);
         }
 

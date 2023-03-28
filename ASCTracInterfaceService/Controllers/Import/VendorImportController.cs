@@ -11,6 +11,7 @@ namespace ASCTracInterfaceService.Controllers.Import
     public class VendorImportController : ApiController
     {
         private static string FuncID = "VendorImport";
+        private string funcType = "IM_VENDOR";
 
         /// <summary>
         /// Import a Vendor Record of structure ASCTracInterfaceModel.Model.Vendor.VendorImport 
@@ -19,19 +20,39 @@ namespace ASCTracInterfaceService.Controllers.Import
         [HttpPost]
         public HttpResponseMessage PostVendor(ASCTracInterfaceModel.Model.Vendor.VendorImport aData)
         {
-            HttpStatusCode statusCode = HttpStatusCode.OK;
             string errMsg = string.Empty;
+            var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/VendorImport";
+            HttpStatusCode statusCode = HttpStatusCode.Accepted;
+            ASCTracInterfaceDll.Class1 myClass = null;
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                statusCode = ASCTracInterfaceDll.Imports.ImportVendor.doImportVendor(aData, ref errMsg);
+                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, funcType, ref errMsg);
+                myClass.myLogRecord.HttpFunctionID = "Post";
+                myClass.myLogRecord.OrderNum = aData.VENDOR_CODE;
+                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+                try
+                {
+                    ReadMyAppSettings.ReadAppSettings(FuncID);
+
+                    statusCode = ASCTracInterfaceDll.Imports.ImportVendor.doImportVendor(myClass, aData, ref errMsg);
+                }
+                catch (Exception ex)
+                {
+                    myClass.LogException(ex);
+
+                    statusCode = HttpStatusCode.BadRequest;
+                    errMsg = ex.Message;
+                    //LoggingUtil.LogEventView("PostPO", aData.PONUMBER, ex.ToString(), ref errMsg);
+                }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView("PostVendor", aData.VENDOR_CODE, ex.ToString(), ref errMsg);
+                LoggingUtil.LogEventView(funcType, aData.VENDOR_CODE, ex.ToString(), ref errMsg);
             }
+
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
             Models.ModelResponse resp;
             if (statusCode == HttpStatusCode.OK)
@@ -42,10 +63,14 @@ namespace ASCTracInterfaceService.Controllers.Import
             }
             else
             {
-                resp = ASCResponse.BuildResponse(statusCode, errMsg, Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/VendorImport", "Post");
+                resp = ASCResponse.BuildResponse(statusCode, errMsg, baseUrl, "Post");
                 retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
             }
-            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.VENDOR_CODE, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
+            if (myClass != null)
+            {
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
+                myClass.PostLog(statusCode, errMsg);
+            }
 
             return (retval);
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Net;
 using ASCTracWCSProcess.Exports;
 
 namespace ASCTracInterfaceDll
@@ -22,13 +23,13 @@ namespace ASCTracInterfaceDll
         //private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
         private static ParseNet.ParseNetMain myStaticParse;
-        private string fFuncType;
 
+        public Model.ModelLog myLogRecord;
 
         //public static ascLibrary.ascDBUtils myInterface
         //public static bool fInitParse = false;
 
-        public static Class1 InitParse(string aFuncType, ref string errmsg)
+        public static Class1 InitParse(string aURL, string aFuncType, ref string errmsg)
         {
             Class1 retval;
             //if (parseList.ContainsKey(aFuncType))
@@ -36,7 +37,7 @@ namespace ASCTracInterfaceDll
             //else
             //{
                 retval = new Class1();
-                if (!retval.Init(aFuncType, ref errmsg))
+                if (!retval.Init(aURL, aFuncType, ref errmsg))
                     retval = null;
                 //else
                 //    parseList.Add(aFuncType, retval);
@@ -44,9 +45,11 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
-        internal bool Init(string aFuncType, ref string errmsg)
+        internal bool Init(string URL, string aFuncType, ref string errmsg)
         {
-            fFuncType = aFuncType;
+            myLogRecord = new Model.ModelLog(URL, aFuncType);
+            string tmp = string.Empty;
+
             fLogged = false;
             bool retval = true;
             string Status = "Status: 004";
@@ -58,8 +61,8 @@ namespace ASCTracInterfaceDll
                 try
                 {
                     myParse.InitParse("AliasASCTrac");
-
-                    myParse.Globals.myDBUtils.RunSqlCommand("SELECT GETDATE()");
+                    myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
+                    myLogRecord.StartDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
                     fOK = true;
                     myConnStr = myParse.Globals.myDBUtils.myConnString;
                 }
@@ -80,6 +83,10 @@ namespace ASCTracInterfaceDll
                         myConnStr = fDefaultConnectionStr; // "";
                     Status = "Status: Web.Config";
                     myParse.InitParse(myConnStr, ref errmsg);
+
+                    myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
+                    myLogRecord.StartDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
+
                 }
                 if (!String.IsNullOrEmpty(errmsg))
                     throw new Exception("Init Parse for " + aFuncType + " Error " + errmsg);
@@ -112,6 +119,7 @@ namespace ASCTracInterfaceDll
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
                 throw ex;
             }
+            
             if (!String.IsNullOrEmpty(errmsg))
             {
                 retval = false;
@@ -520,6 +528,85 @@ namespace ASCTracInterfaceDll
                 "WHERE PROMO_CODE='" + promoCode + "' AND SITE_ID='" + siteId + "' " +
                 "AND ASCITEMID='" + ascItemId + "'";
             Globals.mydmupdate.AddToUpdate(sqlStr);
+        }
+
+        public void LogError(string errmsg)
+        {
+            if ((myLogRecord != null) && !myLogRecord.LogType.Equals( "X"))
+            {
+                myLogRecord.LogType = "E";
+                myLogRecord.OutData = errmsg;
+            }
+        }
+        public void LogException(Exception ex)
+        {
+            if (myLogRecord != null)
+            {
+                myLogRecord.LogType = "X";
+                myLogRecord.StackTrace = ex.StackTrace;
+                myLogRecord.OutData = ex.Message;
+            }
+        }
+
+        public void PostLog(HttpStatusCode statusCode, string errmsg )
+        {
+            if (!String.IsNullOrEmpty(errmsg) && myLogRecord.LogType.Equals("I"))
+            {
+                myLogRecord.LogType = "E";
+                if (String.IsNullOrEmpty(myLogRecord.OutData))
+                    myLogRecord.OutData = errmsg;
+            }
+            if ((statusCode != HttpStatusCode.OK) && myLogRecord.LogType.Equals("I"))
+            {
+                myLogRecord.LogType = "E";
+            }
+            myLogRecord.ReturnStatus = Convert.ToInt32(statusCode);
+
+            bool fDoit = false;
+            if (fLogging.Equals("A") || myLogRecord.LogType.Equals( "X"))
+                fDoit = true;
+            else if (fLogging.Equals("E") && myLogRecord.LogType.Equals("E"))
+                fDoit = true;
+
+            if (fDoit)
+            {
+                string tmp = string.Empty;
+                myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
+                myLogRecord.StopDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
+
+                var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
+                try
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand("ASC_INSERT_API_LOG", con);
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("Url", myLogRecord.URL);
+                    cmd.Parameters.AddWithValue("LogType", myLogRecord.LogType);
+                    cmd.Parameters.AddWithValue("FunctionID", myLogRecord.FunctionID);
+                    cmd.Parameters.AddWithValue("HttpFunctionID", myLogRecord.HttpFunctionID);
+                    cmd.Parameters.AddWithValue("OrderNum", myLogRecord.OrderNum);
+                    cmd.Parameters.AddWithValue("ItemID", myLogRecord.ItemID);
+
+                    cmd.Parameters.AddWithValue("StartDateTime", myLogRecord.StartDateTime);
+                    cmd.Parameters.AddWithValue("StopDateTime", myLogRecord.StopDateTime);
+                    cmd.Parameters.AddWithValue("ReturnStatus", myLogRecord.ReturnStatus);
+
+                    string sqldata = myLogRecord.SQLData;
+                    if ( string.IsNullOrEmpty( sqldata) && (myParse.Globals.myASCLog != null))
+                        sqldata = myParse.Globals.myASCLog.GetSQLData();
+                    cmd.Parameters.AddWithValue("SQLData", sqldata);
+                    cmd.Parameters.AddWithValue("OutData", myLogRecord.OutData);
+                    cmd.Parameters.AddWithValue("InData", myLogRecord.InData);
+                    cmd.Parameters.AddWithValue("StackTrace", myLogRecord.StackTrace);
+
+                    cmd.ExecuteNonQuery();
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
         }
 
         /*

@@ -18,17 +18,38 @@ namespace ASCTracInterfaceService.Controllers.Export
             List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> outdata = null;
             HttpStatusCode statusCode = HttpStatusCode.OK;
             string errMsg = string.Empty;
+
+            var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Export/" + FuncID;
+            ASCTracInterfaceDll.Class1 myClass = null;
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                statusCode = ASCTracInterfaceDll.Exports.ExportInventoryAudits.DoExportInventoryAudits(aVMICustID, aSiteID, aItemID, ref outdata, ref errMsg);
+                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_INAUD", ref errMsg);
+                myClass.myLogRecord.HttpFunctionID = "Get";
+                myClass.myLogRecord.OrderNum = aVMICustID;
+                myClass.myLogRecord.ItemID = aItemID;
+                myClass.myLogRecord.InData = "aVMICustID=" + aVMICustID + "&aSiteID=" + aSiteID + "&aItemID=" + aItemID;
+
+                try
+                {
+                    ReadMyAppSettings.ReadAppSettings(FuncID);
+                    statusCode = ASCTracInterfaceDll.Exports.ExportInventoryAudits.DoExportInventoryAudits(myClass, aVMICustID, aSiteID, aItemID, ref outdata, ref errMsg);
+                }
+                catch (Exception ex)
+                {
+                    statusCode = HttpStatusCode.BadRequest;
+                    errMsg = ex.Message;
+                    myClass.LogException(ex);
+
+                }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView("GetInventoryAuditRecords", aVMICustID + "," + aSiteID + "," + aItemID, ex.ToString(), ref errMsg);
+                LoggingUtil.LogEventView(FuncID, aVMICustID, ex.ToString(), ref errMsg);
             }
+
             HttpResponseMessage retval;
             if (statusCode == HttpStatusCode.OK)
             {
@@ -37,7 +58,11 @@ namespace ASCTracInterfaceService.Controllers.Export
             }
             else
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
-            ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", aVMICustID + "," + aSiteID + "," + aItemID, Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+            if (myClass != null)
+            {
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+                myClass.PostLog(statusCode, errMsg);
+            }
 
             return (retval);
         }

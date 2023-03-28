@@ -8,13 +8,12 @@ namespace ASCTracInterfaceDll.Exports
 {
     public class ExportPOLines
     {
-        private static string funcType = "EX_RECV_LINES";
-        private static Class1 myClass;
-        private static Model.PO.POExportConfig currPOExportConfig;
+        private string funcType = "EX_RECV_LINES";
+        private Class1 myClass;
+        private Model.PO.POExportConfig currPOExportConfig;
 
-        public static HttpStatusCode doExportPOLines(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter,  ref List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
+        public static HttpStatusCode doExportPOLines(Class1 myClass, ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter,  ref List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse(funcType, ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             aData = new List<ASCTracInterfaceModel.Model.PO.POExportLines>();
             string OrderNum = string.Empty;
@@ -23,16 +22,16 @@ namespace ASCTracInterfaceDll.Exports
             {
                 if (myClass != null)
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
+                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
                         retval = HttpStatusCode.NonAuthoritativeInformation;
                     else
                     {
-
-                        currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
-                        sqlstr = BuildPOExportSQL(aPOExportfilter, ref errmsg);
+                        var myExport = new ExportPOLines(myClass);
+                        sqlstr = myExport.BuildPOExportSQL(aPOExportfilter, ref errmsg);
                         if (!String.IsNullOrEmpty(sqlstr))
                         {
-                            retval = BuildExportList(sqlstr, ref aData, ref errmsg);
+                            myClass.myLogRecord.SQLData = sqlstr;
+                            retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
                         }
                         else
                             retval = HttpStatusCode.BadRequest;
@@ -43,22 +42,26 @@ namespace ASCTracInterfaceDll.Exports
             }
             catch (Exception ex)
             {
-                myClass.myParse.Globals.myASCLog.updateSQL(sqlstr);
-                Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
             return (retval);
         }
 
-        private static string BuildWhereStr(ASCTracInterfaceModel.Model.ModelExportFilter rec)
+        public ExportPOLines(Class1 aClass)
+        {
+            myClass = aClass;
+            currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
+        }
+        private string BuildWhereStr(ASCTracInterfaceModel.Model.ModelExportFilter rec)
         {
             string retval = string.Empty;
             if (myClass.myParse.Globals.myDBUtils.IfFieldExists("TRANFILE", rec.Fieldname))
                 retval = ascLibrary.ascStrUtils.buildwherestr(rec.Fieldname, rec.FilterType.ToString(), rec.Startvalue, rec.Endvalue);
             return (retval);
         }
-        private static string BuildPOExportSQL(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter, ref string errmsg)
+        private string BuildPOExportSQL(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter, ref string errmsg)
         {
             string postedFlagField = currPOExportConfig.postedFlagField;
             string retval = "SELECT SITE_ID, ORDERNUM, RELEASENUM, TRANTYPE, LINENUM, ASCITEMID, ITEMID, LOTID, VENDORID, RECEIVER_ID," +
@@ -92,7 +95,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private static HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
@@ -299,27 +302,24 @@ namespace ASCTracInterfaceDll.Exports
         }
 
 
-        public static HttpStatusCode updateExportPOLines(List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
+        public static HttpStatusCode updateExportPOLines(Class1 myClass, List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
-            myClass = Class1.InitParse("UpdateExportPO", ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = string.Empty;
             try
             {
                 if (myClass != null)
                 {
-                    myClass.myParse.Globals.mydmupdate.InitUpdate();
-                    currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
-                    retval = DoUpdateExportPOLines(aData, ref errmsg);
-                    if (retval == HttpStatusCode.OK)
-                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+                    var myExport = new ExportPOLines(myClass);
+
+                    retval = myExport.DoUpdateExportPOLines(aData, ref errmsg);
                 }
                 else
                     retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                Class1.WriteException("POExport", Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
@@ -327,8 +327,10 @@ namespace ASCTracInterfaceDll.Exports
 
         }
 
-        private static HttpStatusCode DoUpdateExportPOLines(List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
+        private HttpStatusCode DoUpdateExportPOLines(List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
+            myClass.myParse.Globals.mydmupdate.InitUpdate();
+
             HttpStatusCode retval = HttpStatusCode.OK;
             foreach( var rec in aData)
             {
@@ -337,11 +339,13 @@ namespace ASCTracInterfaceDll.Exports
                     posted = "E";
                 SetPosted(rec.PONUMBER, rec.RELEASENUM, rec.LINE_NUMBER, rec.PRODUCT_CODE, rec.LOTID, rec.RECEIVER_NO, rec.ERROR_MESSAGE, posted);
             }
+            if (retval == HttpStatusCode.OK)
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
 
             return (retval);
         }
 
-        private static void SetPosted(string aPONUMBER, string aRELEASENUM, long aLINE_NUMBER, string aPRODUCT_CODE, string aLOTID, string aRECEIVER_NO, string aERROR_MESSAGE,  string aPostedflag)
+        private void SetPosted(string aPONUMBER, string aRELEASENUM, long aLINE_NUMBER, string aPRODUCT_CODE, string aLOTID, string aRECEIVER_NO, string aERROR_MESSAGE,  string aPostedflag)
         {
             int msgLen = Convert.ToInt32(myClass.myParse.Globals.myDBUtils.getfieldsize("TRANFILE", "ERR_MESSAGE"));
             string shortErrorMessage = aERROR_MESSAGE;
