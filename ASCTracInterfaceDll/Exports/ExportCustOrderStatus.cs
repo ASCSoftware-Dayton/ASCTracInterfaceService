@@ -20,25 +20,20 @@ namespace ASCTracInterfaceDll.Exports
             string sqlstr = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                    else
-                    {
-                        var myExport = new ExportCustOrderStatus(myClass);
-                        sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
-                        if (!String.IsNullOrEmpty(sqlstr))
-                        {
-                            myClass.myLogRecord.SQLData = sqlstr;
-                            retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
-                        }
-                        else
-                            retval = HttpStatusCode.BadRequest;
-                    }
-                }
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
                 else
-                    retval = HttpStatusCode.InternalServerError;
+                {
+                    var myExport = new ExportCustOrderStatus(myClass);
+                    sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
+                    if (!String.IsNullOrEmpty(sqlstr))
+                    {
+                        myClass.myLogRecord.SQLData = sqlstr;
+                        retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
+                    }
+                    else
+                        retval = HttpStatusCode.BadRequest;
+                }
             }
             catch (Exception ex)
             {
@@ -218,14 +213,8 @@ namespace ASCTracInterfaceDll.Exports
             string OrderNum = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    var myExport = new ExportCustOrderStatus(myClass);
-
-                    retval = myExport.DoupdateExportCustOrderStatus(aData, ref errmsg);
-                }
-                else
-                    retval = HttpStatusCode.InternalServerError;
+                var myExport = new ExportCustOrderStatus(myClass);
+                retval = myExport.DoupdateExportCustOrderStatus(aData, ref errmsg);
             }
             catch (Exception ex)
             {

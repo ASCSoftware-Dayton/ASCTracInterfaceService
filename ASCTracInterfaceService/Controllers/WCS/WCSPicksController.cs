@@ -27,27 +27,26 @@ namespace ASCTracInterfaceService.Controllers.WCS
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, FuncID, ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Get";
-                myClass.myLogRecord.OrderNum = aOrderType;
-                myClass.myLogRecord.InData = "aOrderType=" + aOrderType;
-
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
+                    myClass.myLogRecord.HttpFunctionID = "Get";
+                    myClass.myLogRecord.OrderNum = aOrderType;
+                    myClass.myLogRecord.InData = "aOrderType=" + aOrderType;
+
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickExport(myClass, aOrderType, ref aData, ref errMsg);
                 }
-                catch (Exception ex)
-                {
-                    myClass.LogException(ex);
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = "(ExportWCSPick) " + ex.Message;
-                }
             }
-            catch( Exception ex)
+            catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(FuncID, aOrderType, ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(FuncID, aOrderType, ex.ToString(), ref errMsg);
             }
             var retval = new HttpResponseMessage(statusCode);
             if (statusCode == HttpStatusCode.OK)
@@ -80,29 +79,27 @@ namespace ASCTracInterfaceService.Controllers.WCS
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, FuncID, ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Post";
-                myClass.myLogRecord.OrderNum = aData.ORDERNUMBER;
-                myClass.myLogRecord.ItemID = aData.ITEMID;
-                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
+                {
+                    myClass.myLogRecord.HttpFunctionID = "Post";
+                    myClass.myLogRecord.OrderNum = aData.ORDERNUMBER;
+                    myClass.myLogRecord.ItemID = aData.ITEMID;
+                    myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
 
-                try
-                {
                     ReadMyAppSettings.ReadAppSettings(FuncID);
-                    statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport( myClass, "C", aData, ref errMsg);
-                }
-                catch (Exception ex)
-                {
-                    myClass.LogException(ex);
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = "(PostWCSPick) " + ex.Message;
-                    //LoggingUtil.LogEventView("PostPick", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                    statusCode = ASCTracInterfaceDll.WCS.WCSProcess.doWCSPickImport(myClass, "C", aData, ref errMsg);
                 }
             }
-            catch( Exception ex)
+            catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(FuncID, aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(FuncID, aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
             Models.ModelResponse resp;
@@ -120,7 +117,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
             //ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.ORDERNUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), statusCode != HttpStatusCode.OK);
             if (myClass != null)
             {
-                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
                 myClass.PostLog(statusCode, errMsg);
             }
 

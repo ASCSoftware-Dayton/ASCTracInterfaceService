@@ -26,26 +26,24 @@ namespace ASCTracInterfaceService.Controllers.Import
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, funcType, ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Post";
-                myClass.myLogRecord.OrderNum = aData.ORDERNUMBER;
-                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
-                    statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrder( myClass, aData, ref errMsg);
-                }
-                catch (Exception ex)
-                {
-                    myClass.LogException(ex);
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = ex.Message;
-                    //LoggingUtil.LogEventView("PostCustOrder", aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                    myClass.myLogRecord.HttpFunctionID = "Post";
+                    myClass.myLogRecord.OrderNum = aData.ORDERNUMBER;
+                    myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+                    statusCode = ASCTracInterfaceDll.Imports.ImportCustOrder.doImportCustOrder(myClass, aData, ref errMsg);
                 }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(funcType, aData.ORDERNUMBER, ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(funcType, aData.ORDERNUMBER, ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
             Models.ModelResponse resp;

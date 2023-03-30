@@ -19,35 +19,30 @@ namespace ASCTracInterfaceDll.Imports
             string OrderNum = aData.ASN;
             try
             {
-                if (aClass != null)
+                if (!aClass.FunctionAuthorized(aClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
+                else
                 {
-                    if (!aClass.FunctionAuthorized(aClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
+                    var siteid = aClass.GetSiteIdFromHostId(aData.FACILITY);
+                    if (String.IsNullOrEmpty(siteid))
+                    {
+                        errmsg = "No Facility or Site defined for record.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
                     else
                     {
-                        var siteid = aClass.GetSiteIdFromHostId(aData.FACILITY);
-                        if (String.IsNullOrEmpty(siteid))
+                        if (string.IsNullOrEmpty(OrderNum))
                         {
-                            errmsg = "No Facility or Site defined for record.";
+                            errmsg = "ASN value is required.";
                             retval = HttpStatusCode.BadRequest;
                         }
                         else
                         {
-                            if (string.IsNullOrEmpty(OrderNum))
-                            {
-                                errmsg = "ASN value is required.";
-                                retval = HttpStatusCode.BadRequest;
-                            }
-                            else
-                            {
-                                var myImport = new ImportASN(aClass, siteid);
-                                retval = myImport.ImportASNRecord(aData, ref errmsg);
-                            }
+                            var myImport = new ImportASN(aClass, siteid);
+                            retval = myImport.ImportASNRecord(aData, ref errmsg);
                         }
                     }
                 }
-                else
-                    retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {

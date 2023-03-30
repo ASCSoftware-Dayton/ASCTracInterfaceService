@@ -16,94 +16,91 @@ namespace ASCTracInterfaceDll.WCS
             string OrderNum = aData.ORDERNUMBER;
             try
             {
-                if (myClass != null)
+                if (!myClass.FunctionAuthorized(funcType))
                 {
-                    if (!myClass.FunctionAuthorized(funcType))
-                    {
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                        errMsg = "WCS is not an authorized interface for this ASCTrac.";
-                    }
-                    else
-                    {
-                        string siteID = aData.SITE_ID;
-                        if (!aImportType.Equals("E") && !aImportType.Equals("U") && !aImportType.Equals("I"))
-                            myClass.myParse.Globals.myGetInfo.GetOrderInfo(OrderNum, "SITE_ID", ref siteID);
-
-                        myClass.myParse.Globals.initsite(siteID);
-                        string pickSeqNum = string.Empty;
-                        if (aData.PICK_SEQUENCE_NO > 0)
-                            pickSeqNum = aData.PICK_SEQUENCE_NO.ToString();
-                        double qtyLefttoPick = aData.QTY_PICKED;
-
-                        string itemid = Utils.ASCUtils.GetTrimString(aData.ITEMID, string.Empty);
-                        string lotid = Utils.ASCUtils.GetTrimString(aData.LOTID, string.Empty);
-                        string locid = Utils.ASCUtils.GetTrimString(aData.LOCATIONID, string.Empty);
-                        string containerid = Utils.ASCUtils.GetTrimString(aData.CONTAINER_ID, string.Empty);
-                        string sernum = Utils.ASCUtils.GetTrimString(aData.SER_NUM, string.Empty);
-                        string userid = Utils.ASCUtils.GetTrimString(aData.USERID, string.Empty);
-
-                        DateTime dtPicked = myClass.myParse.Globals.GetSiteCurrDateTime();
-                        if ((aData.DATETIME_PICKED != null) && (aData.DATETIME_PICKED != DateTime.MinValue))
-                            dtPicked = aData.DATETIME_PICKED;
-                        if (dtPicked == DateTime.MinValue)
-                            dtPicked = DateTime.Now;
-
-                        switch (aImportType)
-                        {
-                            case "C":
-                                // Ticket 2056-11.00, remove Type of pick check
-                                errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
-                                            itemid, lotid, locid, aData.SKIDID,
-                                            containerid, sernum, dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
-                                            ref qtyLefttoPick);
-                                break;
-                            case "E":
-                                errMsg = myClass.myWCSPickImport.ProcessReplen(aData.TYPE_OF_PICK, siteID,
-                                    aData.DELIVERY_LOCATION,
-                                    itemid, locid, aData.SKIDID,
-                                     dtPicked.ToString(), userid, aData.QTY_PICKED);
-                                break;
-                            case "I": // Issue
-                                errMsg = "Issue function not available.";
-                                /*
-                                myClass.myWCSPickImport.ProcessIssue(aData.ORDERNUMBER, pickSeqNum,
-                                            aData.ITEMID, aData.LOTID, aData.LOCATIONID, aData.SKIDID,
-                                            aData.CONTAINER_ID, aData.SER_NUM,
-                                            aData.DATETIME_PICKED, aData.USERID, aData.QTY_PICKED);
-                                */
-                                break;
-                            case "N": // Unpick
-                                errMsg = myClass.myWCSPickImport.ProcessUnpick(aData.ORDERNUMBER, pickSeqNum,
-                                    itemid, lotid, locid, aData.SKIDID,
-                                    containerid, sernum, dtPicked.ToString(), userid,
-                                    ref qtyLefttoPick);
-                                break;
-                            case "R": // repick
-                                errMsg = myClass.myWCSPickImport.ProcessScrap(aData.ORDERNUMBER, pickSeqNum, aData.SKIDID, ref qtyLefttoPick);
-                                if (String.IsNullOrEmpty(errMsg))
-                                {
-                                    errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
-                                                itemid, lotid, locid, aData.SKIDID,
-                                                containerid, sernum,
-                                                dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
-                                                ref qtyLefttoPick);
-                                }
-                                break;
-                            case "S":
-                                errMsg = myClass.myWCSPickImport.ProcessScrap(aData.ORDERNUMBER, pickSeqNum,
-                                    aData.SKIDID, ref qtyLefttoPick);
-                                break;
-                            case "U":
-                                errMsg = myClass.myWCSPickImport.ProcessPutaway(aData.TYPE_OF_PICK, itemid, locid, aData.SKIDID,
-                                    dtPicked.ToString(), userid);
-                                break;
-                        }
-                        if (!String.IsNullOrEmpty(errMsg))
-                            retval = HttpStatusCode.BadRequest;
-                    }
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
+                    errMsg = "WCS is not an authorized interface for this ASCTrac.";
                 }
                 else
-                    retval = HttpStatusCode.InternalServerError;
+                {
+                    string siteID = aData.SITE_ID;
+                    if (!aImportType.Equals("E") && !aImportType.Equals("U") && !aImportType.Equals("I"))
+                        myClass.myParse.Globals.myGetInfo.GetOrderInfo(OrderNum, "SITE_ID", ref siteID);
+
+                    myClass.myParse.Globals.initsite(siteID);
+                    string pickSeqNum = string.Empty;
+                    if (aData.PICK_SEQUENCE_NO > 0)
+                        pickSeqNum = aData.PICK_SEQUENCE_NO.ToString();
+                    double qtyLefttoPick = aData.QTY_PICKED;
+
+                    string itemid = Utils.ASCUtils.GetTrimString(aData.ITEMID, string.Empty);
+                    string lotid = Utils.ASCUtils.GetTrimString(aData.LOTID, string.Empty);
+                    string locid = Utils.ASCUtils.GetTrimString(aData.LOCATIONID, string.Empty);
+                    string containerid = Utils.ASCUtils.GetTrimString(aData.CONTAINER_ID, string.Empty);
+                    string sernum = Utils.ASCUtils.GetTrimString(aData.SER_NUM, string.Empty);
+                    string userid = Utils.ASCUtils.GetTrimString(aData.USERID, string.Empty);
+
+                    DateTime dtPicked = myClass.myParse.Globals.GetSiteCurrDateTime();
+                    if ((aData.DATETIME_PICKED != null) && (aData.DATETIME_PICKED != DateTime.MinValue))
+                        dtPicked = aData.DATETIME_PICKED;
+                    if (dtPicked == DateTime.MinValue)
+                        dtPicked = DateTime.Now;
+                    string aInfoMsg = string.Empty;
+                    switch (aImportType)
+                    {
+                        case "C":
+                            // Ticket 2056-11.00, remove Type of pick check
+                            errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
+                                        itemid, lotid, locid, aData.SKIDID,
+                                        containerid, sernum, dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
+                                        ref qtyLefttoPick, ref aInfoMsg);
+                            break;
+                        case "E":
+                            errMsg = myClass.myWCSPickImport.ProcessReplen(aData.TYPE_OF_PICK, siteID,
+                                aData.DELIVERY_LOCATION,
+                                itemid, locid, aData.SKIDID,
+                                 dtPicked.ToString(), userid, aData.QTY_PICKED);
+                            break;
+                        case "I": // Issue
+                            errMsg = "Issue function not available.";
+                            /*
+                            myClass.myWCSPickImport.ProcessIssue(aData.ORDERNUMBER, pickSeqNum,
+                                        aData.ITEMID, aData.LOTID, aData.LOCATIONID, aData.SKIDID,
+                                        aData.CONTAINER_ID, aData.SER_NUM,
+                                        aData.DATETIME_PICKED, aData.USERID, aData.QTY_PICKED);
+                            */
+                            break;
+                        case "N": // Unpick
+                            errMsg = myClass.myWCSPickImport.ProcessUnpick(aData.ORDERNUMBER, pickSeqNum,
+                                itemid, lotid, locid, aData.SKIDID,
+                                containerid, sernum, dtPicked.ToString(), userid,
+                                ref qtyLefttoPick);
+                            break;
+                        case "R": // repick
+                            errMsg = myClass.myWCSPickImport.ProcessScrap(aData.ORDERNUMBER, pickSeqNum, aData.SKIDID, ref qtyLefttoPick);
+                            if (String.IsNullOrEmpty(errMsg))
+                            {
+                                errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
+                                            itemid, lotid, locid, aData.SKIDID,
+                                            containerid, sernum,
+                                            dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
+                                            ref qtyLefttoPick, ref aInfoMsg);
+                            }
+                            break;
+                        case "S":
+                            errMsg = myClass.myWCSPickImport.ProcessScrap(aData.ORDERNUMBER, pickSeqNum,
+                                aData.SKIDID, ref qtyLefttoPick);
+                            break;
+                        case "U":
+                            errMsg = myClass.myWCSPickImport.ProcessPutaway(aData.TYPE_OF_PICK, itemid, locid, aData.SKIDID,
+                                dtPicked.ToString(), userid);
+                            break;
+                    }
+                    if (!String.IsNullOrEmpty(errMsg))
+                        retval = HttpStatusCode.BadRequest;
+                    else
+                        myClass.myLogRecord.infoMsg = aInfoMsg;
+                }
             }
             catch (Exception ex)
             {
@@ -122,26 +119,19 @@ namespace ASCTracInterfaceDll.WCS
             string OrderNum = string.Empty;
             try
             {
-                //var myClass = Class1.InitParse(funcType, ref errmsg);
-                if (myClass != null)
-                {
-                    if (!myClass.FunctionAuthorized(funcType))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                    else
-                    {
-                        //currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
-                        string sqlstr = BuildWCSExportSQL(aOrderType, ref errmsg);
-                        if (!String.IsNullOrEmpty(sqlstr))
-                        {
-                            retval = BuildExportList(myClass, sqlstr, ref aData, ref errmsg);
-                        }
-                        else
-                            retval = HttpStatusCode.BadRequest;
-                    }
-                }
+                if (!myClass.FunctionAuthorized(funcType))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
                 else
-                    retval = HttpStatusCode.InternalServerError;
-
+                {
+                    //currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
+                    string sqlstr = BuildWCSExportSQL(aOrderType, ref errmsg);
+                    if (!String.IsNullOrEmpty(sqlstr))
+                    {
+                        retval = BuildExportList(myClass, sqlstr, ref aData, ref errmsg);
+                    }
+                    else
+                        retval = HttpStatusCode.BadRequest;
+                }
             }
             catch (Exception ex)
             {

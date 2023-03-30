@@ -19,46 +19,36 @@ namespace ASCTracInterfaceDll.Imports
             string updstr = string.Empty;
             try
             {
-                if (myClass != null)
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
+                else
                 {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
+                    var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                    if (String.IsNullOrEmpty(siteid))
+                    {
+                        myClass.myLogRecord.LogType = "E";
+                        errmsg = "No Facility or Site defined for record.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
+
+                    if (string.IsNullOrEmpty(ItemID))
+                    {
+                        myClass.myLogRecord.LogType = "E";
+                        errmsg = "Itemid (PRODUCT_CODE) value is required.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
                     else
                     {
-                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        if (String.IsNullOrEmpty(siteid))
-                        {
-                            myClass.myLogRecord.LogType = "E";
-                            errmsg = "No Facility or Site defined for record.";
-                            retval = HttpStatusCode.BadRequest;
-                        }
-
-
-                        if (string.IsNullOrEmpty(ItemID))
-                        {
-                            myClass.myLogRecord.LogType = "E";
-                            errmsg = "Itemid (PRODUCT_CODE) value is required.";
-                            retval = HttpStatusCode.BadRequest;
-                        }
-                        else
-                        {
-                            var myImport = new ImportItemMaster(myClass, siteid);
-                            retval = myImport.ImportItemRecord(aData, ref errmsg);
-                        }
-
+                        var myImport = new ImportItemMaster(myClass, siteid);
+                        retval = myImport.ImportItemRecord(aData, ref errmsg);
                     }
                 }
-                else
-                    retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
                 myClass.LogException(ex);
-
-                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), ItemID, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
-
             }
             return (retval);
         }

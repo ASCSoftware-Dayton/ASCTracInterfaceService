@@ -27,5 +27,6 @@ namespace ASCTracInterfaceDll.Model
 		public string InData { get; set; }
 		public string OutData { get; set; }
 		public string StackTrace { get; set; }
+		public string infoMsg { get; set; }
 	}
 }

@@ -20,25 +20,20 @@ namespace ASCTracInterfaceDll.Exports
             string sqlstr = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                    else
-                    {
-                        var myExport = new ExportInventoryAudits(myClass);
-                        sqlstr = myExport.BuildExportSQL(aVMICustID,aSiteID, aItemID, ref errmsg);
-                        if (!String.IsNullOrEmpty(sqlstr))
-                        {
-                            myClass.myLogRecord.SQLData = sqlstr;
-                            retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
-                        }
-                        else
-                            retval = HttpStatusCode.BadRequest;
-                    }
-                }
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
                 else
-                    retval = HttpStatusCode.InternalServerError;
+                {
+                    var myExport = new ExportInventoryAudits(myClass);
+                    sqlstr = myExport.BuildExportSQL(aVMICustID, aSiteID, aItemID, ref errmsg);
+                    if (!String.IsNullOrEmpty(sqlstr))
+                    {
+                        myClass.myLogRecord.SQLData = sqlstr;
+                        retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                    }
+                    else
+                        retval = HttpStatusCode.BadRequest;
+                }
             }
             catch (Exception ex)
             {

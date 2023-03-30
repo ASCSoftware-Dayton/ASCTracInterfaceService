@@ -29,28 +29,26 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_RECV_SKIDS", ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Get";
-                myClass.myLogRecord.OrderNum = "";
-                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
-
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
+                    myClass.myLogRecord.HttpFunctionID = "Get";
+                    myClass.myLogRecord.OrderNum = "";
+                    myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
+
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     statusCode = ASCTracInterfaceDll.Exports.ExportPOLicenses.doExportPOLicenses(myClass, aData, ref outdata, ref errMsg);
-                }
-                catch (Exception ex)
-                {
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = ex.Message;
-                    myClass.LogException(ex);
-
                 }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
             if (statusCode == HttpStatusCode.OK)
@@ -84,28 +82,27 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_RECV_SKIDS", ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Get";
-                myClass.myLogRecord.OrderNum = "";
-                myClass.myLogRecord.InData = "aOnlySendCompletedReceipt=" + aOnlySendCompletedReceipt.ToString();
-
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
+
+                    myClass.myLogRecord.HttpFunctionID = "Get";
+                    myClass.myLogRecord.OrderNum = "";
+                    myClass.myLogRecord.InData = "aOnlySendCompletedReceipt=" + aOnlySendCompletedReceipt.ToString();
+
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     statusCode = ASCTracInterfaceDll.Exports.ExportPOLicenses.doExportPOLicenses(myClass, aData, ref outdata, ref errMsg);
-                }
-                catch (Exception ex)
-                {
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = ex.Message;
-                    myClass.LogException(ex);
-
                 }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
             if (statusCode == HttpStatusCode.OK)
@@ -137,27 +134,25 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_RECV_SKIDS", ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Put";
-                myClass.myLogRecord.OrderNum = "";
-                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aList);
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
+                    myClass.myLogRecord.HttpFunctionID = "Put";
+                    myClass.myLogRecord.OrderNum = "";
+                    myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aList);
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     statusCode = ASCTracInterfaceDll.Exports.ExportPOLicenses.updateExportPOLicenses(myClass, aList, ref errMsg);
-                }
-                catch (Exception ex)
-                {
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = ex.Message;
-                    myClass.LogException(ex);
-
                 }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
             }
             HttpResponseMessage retval;
             if (statusCode == HttpStatusCode.OK)

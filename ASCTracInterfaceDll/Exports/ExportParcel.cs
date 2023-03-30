@@ -20,30 +20,25 @@ namespace ASCTracInterfaceDll.Exports
             string sqlstr = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                    else
-                    {
-                        var myexport = new ExportParcel(myClass);
-                        sqlstr = myexport.BuildExportSQL(aExportfilter, ref errmsg);
-                        if (!String.IsNullOrEmpty(sqlstr))
-                        {
-                            myClass.myLogRecord.SQLData = sqlstr;
-                            retval = myexport.BuildExportList(sqlstr, ref aData, ref errmsg);
-                            myexport.BuildShipmentList(ref aData, ref errmsg);
-                            if (aData.Count == 0)
-                                retval = HttpStatusCode.NoContent;
-                            else
-                                retval = HttpStatusCode.OK;
-                        }
-                        else
-                            retval = HttpStatusCode.BadRequest;
-                    }
-                }
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
                 else
-                    retval = HttpStatusCode.InternalServerError;
+                {
+                    var myexport = new ExportParcel(myClass);
+                    sqlstr = myexport.BuildExportSQL(aExportfilter, ref errmsg);
+                    if (!String.IsNullOrEmpty(sqlstr))
+                    {
+                        myClass.myLogRecord.SQLData = sqlstr;
+                        retval = myexport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                        myexport.BuildShipmentList(ref aData, ref errmsg);
+                        if (aData.Count == 0)
+                            retval = HttpStatusCode.NoContent;
+                        else
+                            retval = HttpStatusCode.OK;
+                    }
+                    else
+                        retval = HttpStatusCode.BadRequest;
+                }
             }
             catch (Exception ex)
             {
@@ -401,16 +396,10 @@ namespace ASCTracInterfaceDll.Exports
         public static HttpStatusCode UpdateExport(Class1 myClass, List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            string OrderNum = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    var myExport = new ExportParcel(myClass);
-                    retval = myExport.DoUpdateExport(aData, ref errmsg);
-                }
-                else
-                    retval = HttpStatusCode.InternalServerError;
+                var myExport = new ExportParcel(myClass);
+                retval = myExport.DoUpdateExport(aData, ref errmsg);
             }
             catch (Exception ex)
             {

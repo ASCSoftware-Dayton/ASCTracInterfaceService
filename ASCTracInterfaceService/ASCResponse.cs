@@ -9,11 +9,15 @@ namespace ASCTracInterfaceService
 {
     internal class ASCResponse
     {
-        static internal Models.ModelResponse BuildResponse(HttpStatusCode statusCode, string errmsg)
+        static internal Models.ModelResponse BuildResponse(HttpStatusCode statusCode, string aerrmsg)
         {
+            string errmsg = string.Empty;
+            if( !String.IsNullOrEmpty( aerrmsg))
+                errmsg = aerrmsg.Replace( "~", "\r\n");
             Models.ModelResponse resp = new Models.ModelResponse();
             resp.ReturnCode = statusCode;
             resp.ReturnCodeDescription = statusCode.ToString();
+
             resp.Message = errmsg;
             if( statusCode == HttpStatusCode.PreconditionFailed)
             {

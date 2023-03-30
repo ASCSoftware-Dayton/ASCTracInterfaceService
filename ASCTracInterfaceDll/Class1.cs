@@ -598,6 +598,7 @@ namespace ASCTracInterfaceDll
                     cmd.Parameters.AddWithValue("SQLData", sqldata);
                     cmd.Parameters.AddWithValue("OutData", myLogRecord.OutData);
                     cmd.Parameters.AddWithValue("InData", myLogRecord.InData);
+                    cmd.Parameters.AddWithValue("InfoMsg", myLogRecord.infoMsg);
                     cmd.Parameters.AddWithValue("StackTrace", myLogRecord.StackTrace);
 
                     cmd.ExecuteNonQuery();

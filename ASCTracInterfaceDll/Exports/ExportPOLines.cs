@@ -20,25 +20,20 @@ namespace ASCTracInterfaceDll.Exports
             string sqlstr = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                    else
-                    {
-                        var myExport = new ExportPOLines(myClass);
-                        sqlstr = myExport.BuildPOExportSQL(aPOExportfilter, ref errmsg);
-                        if (!String.IsNullOrEmpty(sqlstr))
-                        {
-                            myClass.myLogRecord.SQLData = sqlstr;
-                            retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
-                        }
-                        else
-                            retval = HttpStatusCode.BadRequest;
-                    }
-                }
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
                 else
-                    retval = HttpStatusCode.InternalServerError;
+                {
+                    var myExport = new ExportPOLines(myClass);
+                    sqlstr = myExport.BuildPOExportSQL(aPOExportfilter, ref errmsg);
+                    if (!String.IsNullOrEmpty(sqlstr))
+                    {
+                        myClass.myLogRecord.SQLData = sqlstr;
+                        retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                    }
+                    else
+                        retval = HttpStatusCode.BadRequest;
+                }
             }
             catch (Exception ex)
             {
@@ -305,17 +300,10 @@ namespace ASCTracInterfaceDll.Exports
         public static HttpStatusCode updateExportPOLines(Class1 myClass, List<ASCTracInterfaceModel.Model.PO.POExportLines> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-            string OrderNum = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    var myExport = new ExportPOLines(myClass);
-
-                    retval = myExport.DoUpdateExportPOLines(aData, ref errmsg);
-                }
-                else
-                    retval = HttpStatusCode.InternalServerError;
+                var myExport = new ExportPOLines(myClass);
+                retval = myExport.DoUpdateExportPOLines(aData, ref errmsg);
             }
             catch (Exception ex)
             {

@@ -25,29 +25,28 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_INAUD", ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Get";
-                myClass.myLogRecord.OrderNum = aVMICustID;
-                myClass.myLogRecord.ItemID = aItemID;
-                myClass.myLogRecord.InData = "aVMICustID=" + aVMICustID + "&aSiteID=" + aSiteID + "&aItemID=" + aItemID;
-
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
+
+                    myClass.myLogRecord.HttpFunctionID = "Get";
+                    myClass.myLogRecord.OrderNum = aVMICustID;
+                    myClass.myLogRecord.ItemID = aItemID;
+                    myClass.myLogRecord.InData = "aVMICustID=" + aVMICustID + "&aSiteID=" + aSiteID + "&aItemID=" + aItemID;
+
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     statusCode = ASCTracInterfaceDll.Exports.ExportInventoryAudits.DoExportInventoryAudits(myClass, aVMICustID, aSiteID, aItemID, ref outdata, ref errMsg);
-                }
-                catch (Exception ex)
-                {
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = ex.Message;
-                    myClass.LogException(ex);
-
                 }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(FuncID, aVMICustID, ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(FuncID, aVMICustID, ex.ToString(), ref errMsg);
             }
 
             HttpResponseMessage retval;

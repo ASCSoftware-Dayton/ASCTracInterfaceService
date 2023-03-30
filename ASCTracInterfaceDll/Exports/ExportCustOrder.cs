@@ -22,26 +22,21 @@ namespace ASCTracInterfaceDll.Exports
             string sqlstr = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
-                    else
-                    {
-                        var myExport = new ExportCustOrder(myClass);
-
-                        sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
-                        if (!String.IsNullOrEmpty(sqlstr))
-                        {
-                            myClass.myLogRecord.SQLData = sqlstr;
-                            retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
-                        }
-                        else
-                            retval = HttpStatusCode.BadRequest;
-                    }
-                }
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
                 else
-                    retval = HttpStatusCode.InternalServerError;
+                {
+                    var myExport = new ExportCustOrder(myClass);
+
+                    sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
+                    if (!String.IsNullOrEmpty(sqlstr))
+                    {
+                        myClass.myLogRecord.SQLData = sqlstr;
+                        retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
+                    }
+                    else
+                        retval = HttpStatusCode.BadRequest;
+                }
             }
             catch (Exception ex)
             {
@@ -52,7 +47,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        public ExportCustOrder( Class1 aClass)
+        public ExportCustOrder(Class1 aClass)
         {
             myClass = aClass;
             currExportConfig = Configs.CustOrderConfig.getCOExportSite("1", myClass.myParse.Globals);
@@ -487,7 +482,7 @@ namespace ASCTracInterfaceDll.Exports
 
         private void WriteSerNums(ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport aHdrRec)
         {
-            string sqlStr = "SELECT * FROM SER_NUM (NOLOCK) WHERE CUST_ORDER_NUM=@orderNum " + 
+            string sqlStr = "SELECT * FROM SER_NUM (NOLOCK) WHERE CUST_ORDER_NUM=@orderNum " +
                     "ORDER BY ORDLINENUM, SER_NUM";
             using (SqlDataAdapter daHostPallet = new SqlDataAdapter())
             using (SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
@@ -550,12 +545,12 @@ namespace ASCTracInterfaceDll.Exports
             HttpStatusCode retval = HttpStatusCode.OK;
             myClass.myParse.Globals.mydmupdate.InitUpdate();
 
-            foreach ( var rec in aData)
+            foreach (var rec in aData)
             {
                 string posted = "T";
                 if (!rec.SUCCESSFUL)
                     posted = "E";
-                         string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'PK', 'CS', 'LO')";
+                string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'PK', 'CS', 'LO')";
                 SetPosted(where, rec.ERROR_MESSAGE, posted);
             }
 
@@ -567,23 +562,15 @@ namespace ASCTracInterfaceDll.Exports
 
         public static HttpStatusCode updateExportCustOrder(Class1 myClass, List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
-            //myClass = Class1.InitParse("UpdateExportCustOrder", ref errmsg);
             HttpStatusCode retval = HttpStatusCode.OK;
-            string OrderNum = string.Empty;
             try
             {
-                if (myClass != null)
-                {
-                    var myExport = new ExportCustOrder(myClass);
-
-                    retval = myExport.DoUpdateExportCustOrder(aData, ref errmsg);
-                }
-                else
-                    retval = HttpStatusCode.InternalServerError;
+                var myExport = new ExportCustOrder(myClass);
+                retval = myExport.DoUpdateExportCustOrder(aData, ref errmsg);
             }
             catch (Exception ex)
             {
-                myClass.LogException(ex); 
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

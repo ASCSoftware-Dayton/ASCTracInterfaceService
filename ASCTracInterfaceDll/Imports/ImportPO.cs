@@ -18,65 +18,55 @@ namespace ASCTracInterfaceDll.Imports
             string OrderNum = aData.PONUMBER;
             try
             {
-                if (myClass != null)
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
+                else
                 {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
+                    var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                    //currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
+                    if (String.IsNullOrEmpty(siteid))
+                    {
+                        myClass.myLogRecord.LogType = "E";
+                        errmsg = "No Facility or Site defined for record.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
+                    else if (string.IsNullOrEmpty(OrderNum))
+                    {
+                        myClass.myLogRecord.LogType = "E";
+                        errmsg = "PO Number value is required.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
+                    else if (string.IsNullOrEmpty(aData.STATUS_FLAG))
+                    {
+                        myClass.myLogRecord.LogType = "E";
+                        errmsg = "STATUS_FLAG value is required.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
                     else
                     {
-                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        //currPOImportConfig = Configs.POConfig.getPOImportSite(siteid, myClass.myParse.Globals);
-                        if (String.IsNullOrEmpty(siteid))
-                        {
-                            myClass.myLogRecord.LogType = "E";
-                            errmsg = "No Facility or Site defined for record.";
-                            retval = HttpStatusCode.BadRequest;
-                        }
-                        else if (string.IsNullOrEmpty(OrderNum))
-                        {
-                            myClass.myLogRecord.LogType = "E";
-                            errmsg = "PO Number value is required.";
-                            retval = HttpStatusCode.BadRequest;
-                        }
-                        else if (string.IsNullOrEmpty( aData.STATUS_FLAG))
-                        {
-                            myClass.myLogRecord.LogType = "E";
-                            errmsg = "STATUS_FLAG value is required.";
-                            retval = HttpStatusCode.BadRequest;
-                        }
+                        var myimport = new ImportPO(myClass, siteid);
+                        string WarningMsg = string.Empty;
+                        if (String.IsNullOrEmpty(aData.ORDER_TYPE))
+                            retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                        else if (aData.ORDER_TYPE.Equals("R"))
+                            retval = myimport.ImportRMARecord(aData, ref errmsg, ref WarningMsg);
+                        else if (aData.ORDER_TYPE.Equals("A"))
+                            retval = myimport.ImportASNRecord(aData, ref errmsg, ref WarningMsg);
                         else
-                        {
-                            var myimport = new ImportPO(myClass, siteid);
-                            string WarningMsg = string.Empty;
-                            if ( String.IsNullOrEmpty( aData.ORDER_TYPE))
-                                retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
-                            else if (aData.ORDER_TYPE.Equals("R"))
-                                retval = myimport.ImportRMARecord(aData, ref errmsg, ref WarningMsg);
-                            else if (aData.ORDER_TYPE.Equals("A"))
-                                retval = myimport.ImportASNRecord(aData, ref errmsg, ref WarningMsg);
-                            else
-                                retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
-                            if (!String.IsNullOrEmpty(errmsg))
-                                retval = HttpStatusCode.BadRequest;
-                            else
-                                errmsg = WarningMsg;
-                        }
-
+                            retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                        if (!String.IsNullOrEmpty(errmsg))
+                            retval = HttpStatusCode.BadRequest;
+                        else
+                            errmsg = WarningMsg;
                     }
+
                 }
-                else
-                    retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                myClass.myLogRecord.LogType = "X";
-                myClass.myLogRecord.StackTrace = ex.StackTrace;
-                myClass.myLogRecord.OutData = ex.Message;
-
-                //Class1.WriteException(myClass.myLogRecord.FunctionID, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
-
             }
             return (retval);
         }

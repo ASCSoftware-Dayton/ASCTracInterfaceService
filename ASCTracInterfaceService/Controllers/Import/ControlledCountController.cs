@@ -26,29 +26,25 @@ namespace ASCTracInterfaceService.Controllers.Import
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, funcType, ref errMsg);
-                myClass.myLogRecord.HttpFunctionID = "Post";
-                myClass.myLogRecord.OrderNum = aData.COUNTID.ToString();
-                myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
-                try
+                if (myClass == null)
+                    statusCode = HttpStatusCode.InternalServerError;
+                else
                 {
+                    myClass.myLogRecord.HttpFunctionID = "Post";
+                    myClass.myLogRecord.OrderNum = aData.COUNTID.ToString();
+                    myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
                     //ReadMyAppSettings.ReadAppSettings(FuncID);
                     statusCode = ASCTracInterfaceDll.Imports.ImportControlledCount.doImportControlledCount(myClass, aData, ref errMsg);
-                    //statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(aData, ref errMsg);
-
-                }
-                catch (Exception ex)
-                {
-                    myClass.LogException(ex);
-                    statusCode = HttpStatusCode.BadRequest;
-                    errMsg = ex.Message;
-                    //LoggingUtil.LogEventView("PostCount", aData.COUNTID.ToString(), ex.ToString(), ref errMsg);
                 }
             }
             catch (Exception ex)
             {
                 statusCode = HttpStatusCode.BadRequest;
                 errMsg = ex.Message;
-                LoggingUtil.LogEventView(funcType, aData.COUNTID.ToString(), ex.ToString(), ref errMsg);
+                if (myClass != null)
+                    myClass.LogException(ex);
+                else
+                    LoggingUtil.LogEventView(funcType, aData.COUNTID.ToString(), ex.ToString(), ref errMsg);
             }
 
             HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);

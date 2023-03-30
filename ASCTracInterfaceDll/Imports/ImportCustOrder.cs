@@ -20,42 +20,35 @@ namespace ASCTracInterfaceDll.Imports
             string OrderNum = aData.ORDERNUMBER;
             try
             {
-                if (myClass != null)
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
+                else
                 {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
+                    var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+
+                    if (String.IsNullOrEmpty(siteid))
+                    {
+                        errmsg = "No Facility or Site defined for record.";
+                        myClass.LogError(errmsg);
+                        retval = HttpStatusCode.BadRequest;
+                    }
                     else
                     {
-                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-
-                        if (String.IsNullOrEmpty(siteid))
+                        string warningmsg = string.Empty;
+                        var myimport = new ImportCustOrder(myClass, siteid);
+                        retval = myimport.ImportCORecord(aData, ref errmsg, ref warningmsg);
+                        if (retval == HttpStatusCode.OK)
                         {
-                            errmsg = "No Facility or Site defined for record.";
-                            myClass.LogError(errmsg);
-                            retval = HttpStatusCode.BadRequest;
+                            errmsg = warningmsg;
                         }
                         else
-                        {
-                            string warningmsg = string.Empty;
-                            var myimport = new ImportCustOrder(myClass, siteid);
-                            retval = myimport.ImportCORecord(aData, ref errmsg, ref warningmsg);
-                            if (retval == HttpStatusCode.OK)
-                            {
-                                errmsg = warningmsg;
-                            }
-                            else
-                                myClass.LogError(errmsg);
-                        }
+                            myClass.LogError(errmsg);
                     }
                 }
-                else
-                    retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
                 myClass.LogException(ex);
-
-                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }

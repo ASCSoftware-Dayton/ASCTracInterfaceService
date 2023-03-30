@@ -19,39 +19,30 @@ namespace ASCTracInterfaceDll.Imports
             HttpStatusCode retval = HttpStatusCode.OK;
             try
             {
-                if (myClass != null)
+                if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
+                    retval = HttpStatusCode.NonAuthoritativeInformation;
+                else
                 {
-                    if (!myClass.FunctionAuthorized(myClass.myLogRecord.FunctionID))
-                        retval = HttpStatusCode.NonAuthoritativeInformation;
+                    var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
+                    //Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
+                    if (String.IsNullOrEmpty(siteid))
+                    {
+                        myClass.myLogRecord.LogType = "E";
+                        myClass.myLogRecord.OutData = "No Facility or Site defined for record.";
+                        retval = HttpStatusCode.BadRequest;
+                    }
                     else
                     {
-                        var siteid = myClass.GetSiteIdFromHostId(aData.FACILITY);
-                        //Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
-                        if (String.IsNullOrEmpty(siteid))
-                        {
-                            myClass.myLogRecord.LogType = "E";
-                            myClass.myLogRecord.OutData = "No Facility or Site defined for record.";
-                            retval = HttpStatusCode.BadRequest;
-                        }
-                        else
-                        {
-                            myClass.myParse.Globals.initsite(siteid);
-                            var myimport = new ImportControlledCount(myClass, siteid);
-                            retval = myimport.ImportControlledCountRecord(aData, ref errmsg);
-                        
-                        }
+                        myClass.myParse.Globals.initsite(siteid);
+                        var myimport = new ImportControlledCount(myClass, siteid);
+                        retval = myimport.ImportControlledCountRecord(aData, ref errmsg);
+
                     }
                 }
-                else
-                    retval = HttpStatusCode.InternalServerError;
             }
             catch (Exception ex)
             {
-                myClass.myLogRecord.LogType = "X";
-                myClass.myLogRecord.StackTrace = ex.StackTrace;
-                myClass.myLogRecord.OutData = ex.Message;
-
-                //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), "", ex.Message, ex.StackTrace);
+                myClass.LogException(ex);
                 retval = HttpStatusCode.BadRequest;
                 errmsg = ex.Message;
             }
@@ -62,10 +53,7 @@ namespace ASCTracInterfaceDll.Imports
         {
             myClass = aClass;
             siteid = aSiteID;
-            //currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
-            //Configs.ConfigUtils.ReadTransationFields(GWTranslation, "ASN_DET", myClass.myParse.Globals);
         }
-
 
         private HttpStatusCode ImportControlledCountRecord(ASCTracInterfaceModel.Model.Count.ModelCountHeader aData, ref string errmsg)
         {
