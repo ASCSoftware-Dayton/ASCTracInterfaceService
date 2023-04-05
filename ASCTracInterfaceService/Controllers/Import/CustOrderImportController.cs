@@ -56,7 +56,7 @@ namespace ASCTracInterfaceService.Controllers.Import
                 }
                 else
                 {
-                    resp = ASCResponse.BuildResponse(HttpStatusCode.PreconditionFailed, "Missing Items:" + errMsg.Replace("|", ", ").Trim());
+                    resp = ASCResponse.BuildResponse(HttpStatusCode.PreconditionFailed, "Customer Order: " + aData.ORDERNUMBER + ", Missing Items: " + errMsg.Replace("|", ", ").Trim());
                     retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
                 }
             }

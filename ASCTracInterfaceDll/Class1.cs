@@ -548,7 +548,7 @@ namespace ASCTracInterfaceDll
             }
         }
 
-        public void PostLog(HttpStatusCode statusCode, string errmsg )
+        public void PostLog(HttpStatusCode statusCode, string errmsg)
         {
             if (!String.IsNullOrEmpty(errmsg) && myLogRecord.LogType.Equals("I"))
             {
@@ -563,53 +563,68 @@ namespace ASCTracInterfaceDll
             myLogRecord.ReturnStatus = Convert.ToInt32(statusCode);
 
             bool fDoit = false;
-            if (fLogging.Equals("A") || myLogRecord.LogType.Equals( "X"))
+            if (fLogging.Equals("A") || myLogRecord.LogType.Equals("X"))
                 fDoit = true;
             else if (fLogging.Equals("E") && myLogRecord.LogType.Equals("E"))
                 fDoit = true;
-
             if (fDoit)
             {
-                string tmp = string.Empty;
-                myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
-                myLogRecord.StopDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
-
-                var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
-                try
-                {
-                    con.Open();
-                    SqlCommand cmd = new SqlCommand("ASC_INSERT_API_LOG", con);
-                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("Url", myLogRecord.URL);
-                    cmd.Parameters.AddWithValue("LogType", myLogRecord.LogType);
-                    cmd.Parameters.AddWithValue("FunctionID", myLogRecord.FunctionID);
-                    cmd.Parameters.AddWithValue("HttpFunctionID", myLogRecord.HttpFunctionID);
-                    cmd.Parameters.AddWithValue("OrderNum", myLogRecord.OrderNum);
-                    cmd.Parameters.AddWithValue("ItemID", myLogRecord.ItemID);
-
-                    cmd.Parameters.AddWithValue("StartDateTime", myLogRecord.StartDateTime);
-                    cmd.Parameters.AddWithValue("StopDateTime", myLogRecord.StopDateTime);
-                    cmd.Parameters.AddWithValue("ReturnStatus", myLogRecord.ReturnStatus);
-
-                    string sqldata = myLogRecord.SQLData;
-                    if ( string.IsNullOrEmpty( sqldata) && (myParse.Globals.myASCLog != null))
-                        sqldata = myParse.Globals.myASCLog.GetSQLData();
-                    cmd.Parameters.AddWithValue("SQLData", sqldata);
-                    cmd.Parameters.AddWithValue("OutData", myLogRecord.OutData);
-                    cmd.Parameters.AddWithValue("InData", myLogRecord.InData);
-                    cmd.Parameters.AddWithValue("InfoMsg", myLogRecord.infoMsg);
-                    cmd.Parameters.AddWithValue("StackTrace", myLogRecord.StackTrace);
-
-                    cmd.ExecuteNonQuery();
-                }
-                finally
-                {
-                    con.Close();
-                }
+                if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
+                    PostAPILog(statusCode, errmsg);
+                else
+                    PostAPPLog(statusCode, errmsg);
             }
         }
 
+        private void PostAPPLog(HttpStatusCode statusCode, string errmsg)
+        {
+            string sqldata = myLogRecord.SQLData;
+            if (string.IsNullOrEmpty(sqldata) && (myParse.Globals.myASCLog != null))
+                sqldata = myParse.Globals.myASCLog.GetSQLData();
+
+            myStaticParse.Globals.WriteAppLog("", myLogRecord.FunctionID, statusCode.ToString(), myLogRecord.InData, errmsg, myLogRecord.StackTrace, myLogRecord.OutData, myLogRecord.OrderNum);
+        }
+
+        private void PostAPILog(HttpStatusCode statusCode, string errmsg)
+        {
+            string tmp = string.Empty;
+            myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
+            myLogRecord.StopDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
+
+            var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("ASC_INSERT_API_LOG", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("Url", myLogRecord.URL);
+                cmd.Parameters.AddWithValue("LogType", myLogRecord.LogType);
+                cmd.Parameters.AddWithValue("FunctionID", myLogRecord.FunctionID);
+                cmd.Parameters.AddWithValue("HttpFunctionID", myLogRecord.HttpFunctionID);
+                cmd.Parameters.AddWithValue("OrderNum", myLogRecord.OrderNum);
+                cmd.Parameters.AddWithValue("ItemID", myLogRecord.ItemID);
+
+                cmd.Parameters.AddWithValue("StartDateTime", myLogRecord.StartDateTime);
+                cmd.Parameters.AddWithValue("StopDateTime", myLogRecord.StopDateTime);
+                cmd.Parameters.AddWithValue("ReturnStatus", myLogRecord.ReturnStatus);
+
+                string sqldata = myLogRecord.SQLData;
+                if (string.IsNullOrEmpty(sqldata) && (myParse.Globals.myASCLog != null))
+                    sqldata = myParse.Globals.myASCLog.GetSQLData();
+                cmd.Parameters.AddWithValue("SQLData", sqldata);
+                cmd.Parameters.AddWithValue("OutData", myLogRecord.OutData);
+                cmd.Parameters.AddWithValue("InData", myLogRecord.InData);
+                cmd.Parameters.AddWithValue("InfoMsg", myLogRecord.infoMsg);
+                cmd.Parameters.AddWithValue("StackTrace", myLogRecord.StackTrace);
+
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
         /*
         internal string GetUserDefInfo(string poNum, string lineNum, string skidId, string customDataDefault, string userDefField, bool userDefFieldInIntfc)
         {
