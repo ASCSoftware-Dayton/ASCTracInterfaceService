@@ -569,9 +569,9 @@ namespace ASCTracInterfaceDll
                 fDoit = true;
             if (fDoit)
             {
-                if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
-                    PostAPILog(statusCode, errmsg);
-                else
+                //if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
+                //    PostAPILog(statusCode, errmsg);
+                //else
                     PostAPPLog(statusCode, errmsg);
             }
         }
@@ -582,7 +582,15 @@ namespace ASCTracInterfaceDll
             if (string.IsNullOrEmpty(sqldata) && (myParse.Globals.myASCLog != null))
                 sqldata = myParse.Globals.myASCLog.GetSQLData();
 
-            myStaticParse.Globals.WriteAppLog("", myLogRecord.FunctionID, statusCode.ToString(), myLogRecord.InData, errmsg, myLogRecord.StackTrace, myLogRecord.OutData, myLogRecord.OrderNum);
+            string errorType = "INFO";
+            if (statusCode == HttpStatusCode.BadRequest)
+                errorType = "CRIT";
+            else if (statusCode != HttpStatusCode.OK)
+                errorType = "DATA";
+            else if (!String.IsNullOrEmpty(errmsg))
+                errorType = "WARN";
+
+            myStaticParse.Globals.WriteAppLog("", myLogRecord.FunctionID, errorType, myLogRecord.InData, errmsg, myLogRecord.StackTrace, myLogRecord.OutData, myLogRecord.OrderNum);
         }
 
         private void PostAPILog(HttpStatusCode statusCode, string errmsg)
