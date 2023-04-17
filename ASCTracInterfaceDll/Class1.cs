@@ -154,7 +154,7 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
-        public static void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aStackTrace)
+        public void WriteException( string aFunc, string aData,  string aOrderNum,  string ErrorStr, string aStackTrace)
         {
             fLogged = true;
             //if (parseList.Count > 0)
@@ -162,9 +162,9 @@ namespace ASCTracInterfaceDll
             //    ParseNet.ParseNetMain myParse = null;
             //    foreach (var rec in parseList)
             //        myParse = rec.Value.myParse;
-            if (myStaticParse != null)
+            if (myParse != null)
             {
-                myStaticParse.Globals.WriteAppLog("", aFunc, aOrderNum, aData, ErrorStr, aStackTrace, aData, aOrderNum );
+                myParse.Globals.WriteAppLog( "", aFunc, "DATA", aData, ErrorStr, aStackTrace, aData, aOrderNum );
                 /*
                 var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
                 try
@@ -200,7 +200,7 @@ namespace ASCTracInterfaceDll
             }
         }
 
-
+        /*
         public static void LogTransaction(string FuncID, string aOrdernum, string inData, string outData, bool isError)
         {
             try
@@ -232,6 +232,7 @@ namespace ASCTracInterfaceDll
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Log Transactin: " + inData+ "\r\n" + ex.ToString(), true);
             }
         }
+        */
 
         internal string GetZone(string siteId)
         {
@@ -569,31 +570,31 @@ namespace ASCTracInterfaceDll
                 fDoit = true;
             if (fDoit)
             {
+                string errorType = "INFO";
+                if (statusCode == HttpStatusCode.BadRequest)
+                    errorType = "CRIT";
+                else if (statusCode != HttpStatusCode.OK)
+                    errorType = "DATA";
+                else if (!String.IsNullOrEmpty(errmsg))
+                    errorType = "WARN";
+
                 //if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
-                //    PostAPILog(statusCode, errmsg);
+                //    PostAPILog(statusCode, errmsg, errorType);
                 //else
-                    PostAPPLog(statusCode, errmsg);
+                    PostAPPLog(statusCode, errmsg, errorType);
             }
         }
 
-        private void PostAPPLog(HttpStatusCode statusCode, string errmsg)
+        private void PostAPPLog(HttpStatusCode statusCode, string errmsg, string errorType)
         {
             string sqldata = myLogRecord.SQLData;
             if (string.IsNullOrEmpty(sqldata) && (myParse.Globals.myASCLog != null))
                 sqldata = myParse.Globals.myASCLog.GetSQLData();
 
-            string errorType = "INFO";
-            if (statusCode == HttpStatusCode.BadRequest)
-                errorType = "CRIT";
-            else if (statusCode != HttpStatusCode.OK)
-                errorType = "DATA";
-            else if (!String.IsNullOrEmpty(errmsg))
-                errorType = "WARN";
-
-            myStaticParse.Globals.WriteAppLog("", myLogRecord.FunctionID, errorType, myLogRecord.InData, errmsg, myLogRecord.StackTrace, myLogRecord.OutData, myLogRecord.OrderNum);
+            myParse.Globals.WriteAppLog("", myLogRecord.FunctionID, errorType, myLogRecord.InData, errmsg, myLogRecord.StackTrace, myLogRecord.OutData, myLogRecord.OrderNum);
         }
 
-        private void PostAPILog(HttpStatusCode statusCode, string errmsg)
+        private void PostAPILog(HttpStatusCode statusCode, string errmsg, string errorType)
         {
             string tmp = string.Empty;
             myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
@@ -612,6 +613,7 @@ namespace ASCTracInterfaceDll
                 cmd.Parameters.AddWithValue("HttpFunctionID", myLogRecord.HttpFunctionID);
                 cmd.Parameters.AddWithValue("OrderNum", myLogRecord.OrderNum);
                 cmd.Parameters.AddWithValue("ItemID", myLogRecord.ItemID);
+                cmd.Parameters.AddWithValue("ASC_ERROR_TYPE", errorType);
 
                 cmd.Parameters.AddWithValue("StartDateTime", myLogRecord.StartDateTime);
                 cmd.Parameters.AddWithValue("StopDateTime", myLogRecord.StopDateTime);

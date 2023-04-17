@@ -1,0 +1,72 @@
+<!-- Copyright (c) Microsoft Corporation and Contributors. -->
+<!-- Licensed under the MIT License. -->
+
+<Page
+    x:Class="ASCTracInterfaceUtility.pageAPILog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ASCTracInterfaceUtility"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls"
+    xmlns:telerikGrid="using:Telerik.UI.Xaml.Controls.Grid" 
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid x:Name="GridMain" ColumnSpacing="2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <telerik:RadCollectionNavigator x:Name="collectionNavigator" Source="{Binding}" Grid.Row="0" Grid.Column="0" />
+            <telerik:RadRibbonButton x:Name="btnCount" Content="#" Grid.Row="0" Grid.Column="1" MinWidth="84" Background="LightGray" Click="btnCount_Click"/>
+            <telerik:RadRibbonButton x:Name="btnRefresh" Content="Refresh" Grid.Row="0" Grid.Column="2" MinWidth="84" Background="LightGray" Click="btnRefresh_Click"/>
+            <telerik:RadRibbonButton Grid.Row="0" Grid.Column="3" MinWidth="84" Background="LightGray" IsEnabled="False"/>
+            <telerik:RadRibbonButton x:Name="btnRetry" Content="Retry" Grid.Row="0" Grid.Column="4" MinWidth="84" Background="LightGray" Click="btnRetry_Click"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" >
+                <TextBox Text="Start Date: "/>
+                <DatePicker x:Name="dtpStartDate"/>
+            </StackPanel>
+        </Grid>
+        <TabView Grid.Row="1" Grid.Column="0" >
+            <TabViewItem Header="List">
+                 <telerikGrid:RadDataGrid x:Name="myDataGrid" ItemsSource="{Binding ElementName=collectionNavigator, Path=CollectionView}">
+
+                </telerikGrid:RadDataGrid>
+            </TabViewItem>
+            <TabViewItem Header="Detail">
+                <Grid DataContext="{Binding ElementName=myDataGrid, Path=SelectedItem}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="ID" Margin="3" Grid.Column="0" Grid.Row="0" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding [ID]}" Margin="3"  Grid.Column="1" Grid.Row="0"/>
+                    <TextBlock Text="URL" Margin="3"  Grid.Column="0" Grid.Row="1" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding Path=[URL]}" Margin="3"  Grid.Column="1" Grid.Row="1"/>
+
+                </Grid>
+            </TabViewItem>
+        </TabView>
+
+    </Grid>
+</Page>

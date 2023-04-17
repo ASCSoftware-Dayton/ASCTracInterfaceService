@@ -1818,7 +1818,7 @@ namespace ASCTracInterfaceDll.Imports
                                 {
                                     var fLastErrMsg = "Error building WO Det from BOM " + tmperr;
 
-                                    Class1.WriteException("ImportOrdrDet", "Item " + itemId, orderNum, fLastErrMsg, "");
+                                    myClass.WriteException("ImportOrdrDet", "Item " + itemId, orderNum, fLastErrMsg, "");
 
                                 }
 
@@ -2007,7 +2007,7 @@ namespace ASCTracInterfaceDll.Imports
                                             ascItemId = toSiteId + "&" + itemId + "&" + vmiCustId;
                                             if (!myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "STOCK_UOM", ref uom))
                                             {
-                                                Class1.WriteException("ImportOrder", "", orderNum,
+                                                myClass.WriteException("ImportOrder", "", orderNum,
                                                     "Item [" + itemId + "] does not exist in Site [" +
                                                         toSiteId + "] for VMI Cust ID [" + vmiCustId + "]. Item will not be added to Transfer PO " + poNum + ".", "");
                                                 continue;
@@ -2205,7 +2205,7 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 catch (Exception e1)
                 {
-                    Class1.WriteException("ImportOrder", "AfterOrderImport", orderNum, e1.Message, e1.StackTrace);
+                    myClass.WriteException( "IM_ORDER", "AfterOrderImport", orderNum, e1.Message, e1.StackTrace);
                 }
 
                 sql = "UPDATE ORDRDET SET ORDERFILLED='T' WHERE ORDERNUMBER='" + orderNum + "' AND ASCITEMID IN ( SELECT ASCITEMID FROM ITEMMSTR WHERE PURORMFG='K')";

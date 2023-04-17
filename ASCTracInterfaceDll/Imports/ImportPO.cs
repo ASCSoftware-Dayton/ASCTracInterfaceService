@@ -89,8 +89,7 @@ namespace ASCTracInterfaceDll.Imports
             {
                 fExist = true;
                 if (tmp.Equals("C"))
-                    {
-                    
+                {
                     errmsg = "Cannot update RMA# " + aData.PONUMBER + ": RMA is already received.";
                 }
             }
@@ -704,9 +703,8 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         retval = "Error on PO# " + ponum + ", Release " + relnum + ", line " + lineNum + ": " +
                             "Cannot delete PO line item that has been received.";
-                        Class1.WriteException("POImport", "PO# " + ponum + ", Release " + relnum + ", line " + lineNum, ponum, retval, "");
+                        myClass.WriteException("POImport", "PO# " + ponum + ", Release " + relnum + ", line " + lineNum, ponum, retval, "");
                         break;
-
                     }
                 }
                 else if (importAction == "C")
@@ -721,7 +719,6 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 else
                 {
-
                     string updStr = string.Empty;
 
                     if (!recExists)
@@ -748,7 +745,7 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         retval = "Error on PO# " + ponum + ", Release " + relnum + ", line " + lineNum + ": " +
                        "Cannot change Item ID on PO Line that was already received.";
-                        Class1.WriteException("POImport", "PO# " + ponum + ", Release " + relnum + ", line " + lineNum, ponum, retval, "");
+                        myClass.WriteException("POImport", "PO# " + ponum + ", Release " + relnum + ", line " + lineNum, ponum, retval, "");
                         break;
                     }
 
@@ -761,7 +758,7 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         retval = "Error on PO# " + ponum + ", Release " + relnum + ", line " + lineNum + ": " +
                         "Cannot change qty to less than the quantity already received.";
-                        Class1.WriteException("POImport", "PO# " + ponum + ", Release " + relnum + ", line " + lineNum, ponum, retval, "");
+                        myClass.WriteException("POImport", "PO# " + ponum + ", Release " + relnum + ", line " + lineNum, ponum, retval, "");
                         break;
                     }
 

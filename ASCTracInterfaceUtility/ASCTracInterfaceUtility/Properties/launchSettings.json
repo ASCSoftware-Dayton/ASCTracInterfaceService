@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ASCTracInterfaceUtility (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ASCTracInterfaceUtility (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
