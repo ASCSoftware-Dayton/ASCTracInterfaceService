@@ -10,10 +10,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:telerik="using:Telerik.UI.Xaml.Controls"
     xmlns:telerikGrid="using:Telerik.UI.Xaml.Controls.Grid" 
+    xmlns:telerikinput="using:Telerik.UI.Xaml.Controls.Input"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid x:Name="GridMain" ColumnSpacing="2">
+    <Grid x:Name="GridMain" ColumnSpacing="2" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -33,37 +34,90 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-            <telerik:RadCollectionNavigator x:Name="collectionNavigator" Source="{Binding}" Grid.Row="0" Grid.Column="0" />
-            <telerik:RadRibbonButton x:Name="btnCount" Content="#" Grid.Row="0" Grid.Column="1" MinWidth="84" Background="LightGray" Click="btnCount_Click"/>
-            <telerik:RadRibbonButton x:Name="btnRefresh" Content="Refresh" Grid.Row="0" Grid.Column="2" MinWidth="84" Background="LightGray" Click="btnRefresh_Click"/>
-            <telerik:RadRibbonButton Grid.Row="0" Grid.Column="3" MinWidth="84" Background="LightGray" IsEnabled="False"/>
-            <telerik:RadRibbonButton x:Name="btnRetry" Content="Retry" Grid.Row="0" Grid.Column="4" MinWidth="84" Background="LightGray" Click="btnRetry_Click"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" >
-                <TextBox Text="Start Date: "/>
-                <DatePicker x:Name="dtpStartDate"/>
-            </StackPanel>
-        </Grid>
-        <TabView Grid.Row="1" Grid.Column="0" >
-            <TabViewItem Header="List">
-                 <telerikGrid:RadDataGrid x:Name="myDataGrid" ItemsSource="{Binding ElementName=collectionNavigator, Path=CollectionView}">
+            <!--
+            <telerik:RadCollectionNavigator x:Name="collectionNavigator"  Source="{Binding myDataTable}" Grid.Row="0" Grid.Column="0" />
+            -->
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
 
+                <telerik:RadRibbonButton x:Name="btnNext" Content=">" Grid.Row="0" Grid.Column="0" MinWidth="84" Background="LightGray" Click="btnNext_Click" Visibility="Collapsed"/>
+                <telerik:RadRibbonButton x:Name="btnCount" Content="#" Grid.Row="0" Grid.Column="1" MinWidth="84" Background="LightGray" Click="btnCount_Click"/>
+                <telerik:RadRibbonButton x:Name="btnRefresh" Content="Refresh" Grid.Row="0" Grid.Column="2" MinWidth="84" Background="LightGray" Click="btnRefresh_Click"/>
+                <telerik:RadRibbonButton Grid.Row="0" Grid.Column="3" MinWidth="84" Background="LightGray" IsEnabled="False"/>
+                <telerik:RadRibbonButton x:Name="btnRetry" Content="Retry" Grid.Row="0" Grid.Column="4" MinWidth="84" Background="LightGray" Click="btnRetry_Click"/>
+            </Grid>
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Spacing="3" HorizontalAlignment="Stretch" >
+                <TextBox Text="Date Filter:"/>
+                <ComboBox x:Name="cbDateFilter" SelectionChanged="cbDateFilter_SelectionChanged"/>
+                <!--<DatePicker x:Name="dtpStartDate"/>-->
+            </StackPanel>
+            <telerikinput:RadDatePicker x:Name="dtpStartDate" Visibility="Collapsed" Grid.Row="1" Grid.Column="1"/>
+        </Grid>
+        <TabView x:Name="tabViewMain" Grid.Row="1" Grid.Column="0" SelectionChanged="tabViewMain_SelectionChanged">
+            <TabViewItem Header="List">
+                <telerikGrid:RadDataGrid x:Name="myDataGrid" ItemsSource="{Binding myDataTable}" SelectedItem="{Binding SelectedRow,Mode=TwoWay}" >
                 </telerikGrid:RadDataGrid>
             </TabViewItem>
-            <TabViewItem Header="Detail">
-                <Grid DataContext="{Binding ElementName=myDataGrid, Path=SelectedItem}">
+            <TabViewItem x:Name="tabDetail" Header="Detail">
+                <Grid ColumnSpacing="3" RowSpacing="3">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="ID" Margin="3" Grid.Column="0" Grid.Row="0" TextAlignment="Right"/>
-                    <TextBlock Text="{Binding [ID]}" Margin="3"  Grid.Column="1" Grid.Row="0"/>
+                    <TextBlock Text="{Binding  SelectedRow[ID] }" Margin="3"  Grid.Column="1" Grid.Row="0"/>
                     <TextBlock Text="URL" Margin="3"  Grid.Column="0" Grid.Row="1" TextAlignment="Right"/>
-                    <TextBlock Text="{Binding Path=[URL]}" Margin="3"  Grid.Column="1" Grid.Row="1"/>
+                    <TextBlock Text="{Binding SelectedRow[URL]}" Margin="3"  Grid.Column="1" Grid.Row="1"/>
+                    <TextBlock Text="Log Type" Margin="3" Grid.Column="0" Grid.Row="2" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding  SelectedRow[Log_Type] }" Margin="3"  Grid.Column="1" Grid.Row="2"/>
+                    <TextBlock Text="Function ID" Margin="3"  Grid.Column="0" Grid.Row="3" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[Function_ID]}" Margin="3"  Grid.Column="1" Grid.Row="3"/>
+                    <TextBlock Text="Start DateTime" Margin="3" Grid.Column="0" Grid.Row="4" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding  SelectedRow[START_DATETIME] }" Margin="3"  Grid.Column="1" Grid.Row="4"/>
+                    <TextBlock Text="Stop DateTime" Margin="3"  Grid.Column="0" Grid.Row="5" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[STOP_DATETIME]}" Margin="3"  Grid.Column="1" Grid.Row="5"/>
+                    <TextBlock Text="Return Status" Margin="3" Grid.Column="0" Grid.Row="6" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding  SelectedRow[RETURN_STATUS] }" Margin="3"  Grid.Column="1" Grid.Row="6"/>
+                    <TextBlock Text="Retry Flag" Margin="3"  Grid.Column="0" Grid.Row="7" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[RETRY_FLAG]}" Margin="3"  Grid.Column="1" Grid.Row="7"/>
+                    <TextBlock Text="Retry Datetime" Margin="3"  Grid.Column="0" Grid.Row="8" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[RETRY_DATETIME]}" Margin="3"  Grid.Column="1" Grid.Row="8"/>
+                    <TextBlock Text="Retry User ID" Margin="3"  Grid.Column="0" Grid.Row="9" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[RETRY_USERID]}" Margin="3"  Grid.Column="1" Grid.Row="9"/>
+                    <TextBlock Text="Order Number" Margin="3"  Grid.Column="0" Grid.Row="10" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[ORDERNUM]}" Margin="3"  Grid.Column="1" Grid.Row="10"/>
+                    <TextBlock Text="Item ID" Margin="3"  Grid.Column="0" Grid.Row="11" TextAlignment="Right"/>
+                    <TextBlock Text="{Binding SelectedRow[ITEMID]}" Margin="3"  Grid.Column="1" Grid.Row="11"/>
 
+                    <Button x:Name="btnMsgInput" HorizontalAlignment="Stretch" Content="Input Data" IsEnabled="{Binding SelectedRow[INPUT_DATA_FLAG]}" Click="btnShowData_Click" Grid.Row="2" Grid.Column="2"/>
+                    <Button x:Name="btnMsgMsg" HorizontalAlignment="Stretch" Content="Message" IsEnabled="{Binding SelectedRow[MSG_DATA_FLAG]}" Click="btnShowData_Click" Grid.Row="3" Grid.Column="2"/>
+                    <Button x:Name="btnMsgOutput" HorizontalAlignment="Stretch" Content="Output Data" IsEnabled="{Binding SelectedRow[OUTPUT_DATA_FLAG]}" Click="btnShowData_Click" Grid.Row="4" Grid.Column="2"/>
+                    <Button x:Name="btnMsgStack" HorizontalAlignment="Stretch" Content="Stack Trace" IsEnabled="{Binding SelectedRow[STACK_DATA_FLAG]}" Click="btnShowData_Click" Grid.Row="5" Grid.Column="2"/>
+                    <Button x:Name="btnMsgQuery" HorizontalAlignment="Stretch" Content="Query Data" IsEnabled="{Binding SelectedRow[QUERY_DATA_FLAG]}" Click="btnShowData_Click" Grid.Row="6" Grid.Column="2"/>
                 </Grid>
             </TabViewItem>
         </TabView>

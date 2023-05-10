@@ -161,7 +161,7 @@ namespace ASCTracInterfaceDll.Imports
 
                     }
                 }
-
+            }
                 if (string.IsNullOrEmpty(errmsg))
                 {
                     myClass.myParse.Globals.mydmupdate.ProcessUpdates();
@@ -169,7 +169,7 @@ namespace ASCTracInterfaceDll.Imports
                 else
                     retval = HttpStatusCode.BadRequest;
 
-            }
+            
             return (retval);
         }
 

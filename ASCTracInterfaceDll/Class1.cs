@@ -29,19 +29,29 @@ namespace ASCTracInterfaceDll
         //public static ascLibrary.ascDBUtils myInterface
         //public static bool fInitParse = false;
 
-        public static Class1 InitParse(string aURL, string aFuncType, ref string errmsg)
+        public static void InitParse( Class1 retval, string aURL, string aFuncType, ref string errmsg)
         {
-            Class1 retval;
+            //Class1 retval;
             //if (parseList.ContainsKey(aFuncType))
             //    retval = parseList[aFuncType];
             //else
             //{
-                retval = new Class1();
+            //    retval = new Class1();
                 if (!retval.Init(aURL, aFuncType, ref errmsg))
                     retval = null;
                 //else
                 //    parseList.Add(aFuncType, retval);
             //}
+            //return (retval);
+        }
+
+        public static Class1 InitParse2(string aConnectionString, string aURL, string aFuncType, ref string errmsg)
+        {
+            Class1 retval;
+            fDefaultConnectionStr = aConnectionString;
+            retval = new Class1();
+            if (!retval.Init(aURL, aFuncType, ref errmsg))
+                retval = null;
             return (retval);
         }
 
@@ -94,7 +104,7 @@ namespace ASCTracInterfaceDll
                 else
                 {
                     myParse.Globals.initASCLog("INTERFACE", "ASCTracInterface", "1", "ASCTrac Interface API");
-                    if (aFuncType.StartsWith("WCS"))
+                    if (aFuncType.StartsWith("WCS") || aFuncType.StartsWith( "Retry"))
                     {
                         Status = "WCS";
                         string wcsConnStr = string.Empty;
@@ -115,7 +125,8 @@ namespace ASCTracInterfaceDll
             }
             catch (Exception ex)
             {
-                errmsg = ex.Message;
+                errmsg = "Initialize Connection Exception: " + "\r\n" + ex.ToString();
+                //WriteException(aFuncType, "InitDatabase", "", errmsg, ex.StackTrace);
                 ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
                 throw ex;
             }

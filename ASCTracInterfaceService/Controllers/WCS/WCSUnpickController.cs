@@ -26,7 +26,8 @@ namespace ASCTracInterfaceService.Controllers.WCS
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, FuncID, ref errMsg);
+                myClass = new ASCTracInterfaceDll.Class1();
+                ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, FuncID, ref errMsg);
                 if (myClass == null)
                     statusCode = HttpStatusCode.InternalServerError;
                 else

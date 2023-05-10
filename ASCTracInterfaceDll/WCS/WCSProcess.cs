@@ -10,12 +10,14 @@ namespace ASCTracInterfaceDll.WCS
     {
         public static HttpStatusCode doWCSPickImport( Class1 myClass, string aImportType, ASCTracInterfaceModel.Model.WCS.WCSPick aData, ref string errMsg)
         {
+            string status = "A";
             string funcType = "WCS";
             HttpStatusCode retval = HttpStatusCode.OK;
             //var myClass = Class1.InitParse(funcType, ref errMsg);
             string OrderNum = aData.ORDERNUMBER;
             try
             {
+                status = "A1";
                 if (!myClass.FunctionAuthorized(funcType))
                 {
                     retval = HttpStatusCode.NonAuthoritativeInformation;
@@ -23,23 +25,26 @@ namespace ASCTracInterfaceDll.WCS
                 }
                 else
                 {
+                    status="A2";
                     string siteID = aData.SITE_ID;
                     if (!aImportType.Equals("E") && !aImportType.Equals("U") && !aImportType.Equals("I"))
                         myClass.myParse.Globals.myGetInfo.GetOrderInfo(OrderNum, "SITE_ID", ref siteID);
-
+                    status = "A3";
                     myClass.myParse.Globals.initsite(siteID);
+                    status = "A4";
                     string pickSeqNum = string.Empty;
                     if (aData.PICK_SEQUENCE_NO > 0)
                         pickSeqNum = aData.PICK_SEQUENCE_NO.ToString();
                     double qtyLefttoPick = aData.QTY_PICKED;
-
+                    status = "A5";
                     string itemid = Utils.ASCUtils.GetTrimString(aData.ITEMID, string.Empty);
+                    status = "A6";
                     string lotid = Utils.ASCUtils.GetTrimString(aData.LOTID, string.Empty);
                     string locid = Utils.ASCUtils.GetTrimString(aData.LOCATIONID, string.Empty);
                     string containerid = Utils.ASCUtils.GetTrimString(aData.CONTAINER_ID, string.Empty);
                     string sernum = Utils.ASCUtils.GetTrimString(aData.SER_NUM, string.Empty);
                     string userid = Utils.ASCUtils.GetTrimString(aData.USERID, string.Empty);
-
+                    status = "A7";
                     DateTime dtPicked = myClass.myParse.Globals.GetSiteCurrDateTime();
                     if ((aData.DATETIME_PICKED != null) && (aData.DATETIME_PICKED != DateTime.MinValue))
                         dtPicked = aData.DATETIME_PICKED;
@@ -49,11 +54,13 @@ namespace ASCTracInterfaceDll.WCS
                     switch (aImportType)
                     {
                         case "C":
+                            status = "A8";
                             // Ticket 2056-11.00, remove Type of pick check
                             errMsg = myClass.myWCSPickImport.ProcessPick(aImportType, aData.TYPE_OF_PICK, aData.ORDERNUMBER, pickSeqNum,
                                         itemid, lotid, locid, aData.SKIDID,
                                         containerid, sernum, dtPicked.ToString(), userid, aData.TYPE_OF_PICK,
                                         ref qtyLefttoPick, ref aInfoMsg);
+                            status = "A9";
                             break;
                         case "E":
                             errMsg = myClass.myWCSPickImport.ProcessReplen(aData.TYPE_OF_PICK, siteID,
@@ -107,7 +114,7 @@ namespace ASCTracInterfaceDll.WCS
                 myClass.LogException(ex);
                 //Class1.WriteException(funcType, Newtonsoft.Json.JsonConvert.SerializeObject(aData), OrderNum, ex.Message, ex.StackTrace);
                 retval = HttpStatusCode.BadRequest;
-                errMsg = "(DoWCSPickImport) " + ex.Message;
+                errMsg = "(DoWCSPickImport " + status + ") " + ex.Message;
             }
             return (retval);
         }

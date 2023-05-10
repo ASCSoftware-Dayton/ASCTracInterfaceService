@@ -12,6 +12,7 @@ namespace ASCTracInterfaceService.Controllers.Import
     {
         private static string FuncID = "POImport";
         private string funcType = "IM_RECV";
+        public static readonly object LockObject = new object();
         /// <summary>
         /// Import a Purchase Order (Header and Details)
         /// </summary>
@@ -19,64 +20,68 @@ namespace ASCTracInterfaceService.Controllers.Import
         [HttpPost]
         public HttpResponseMessage PostPO(ASCTracInterfaceModel.Model.PO.POHdrImport aData)
         {
+            HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
             string errMsg = string.Empty;
             var baseUrl = Request.RequestUri.GetLeftPart(UriPartial.Authority) + "/Import/POImport";
             HttpStatusCode statusCode = HttpStatusCode.Accepted;
-            ASCTracInterfaceDll.Class1 myClass = null;
-            try
+            lock (LockObject)
             {
-                ReadMyAppSettings.ReadAppSettings(FuncID);
-                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, funcType, ref errMsg);
-                if (myClass == null)
-                    statusCode = HttpStatusCode.InternalServerError;
-                else
+                ASCTracInterfaceDll.Class1 myClass = null;
+                try
                 {
-                    myClass.myLogRecord.HttpFunctionID = "Post";
-                    myClass.myLogRecord.OrderNum = aData.PONUMBER;
-                    myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
-
+                    //bthrow new Exception("Test exception");
                     ReadMyAppSettings.ReadAppSettings(FuncID);
-                    statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(myClass, aData, ref errMsg);
-                }
-            }
-            catch (Exception ex)
-            {
-                statusCode = HttpStatusCode.BadRequest;
-                errMsg = ex.Message;
-                if (myClass != null)
-                    myClass.LogException(ex);
-                else
-                    LoggingUtil.LogEventView(funcType, aData.PONUMBER, ex.ToString(), ref errMsg);
-            }
+                    myClass = new ASCTracInterfaceDll.Class1();
+                    ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, funcType, ref errMsg);
+                    if (myClass == null)
+                        statusCode = HttpStatusCode.InternalServerError;
+                    else
+                    {
+                        myClass.myLogRecord.HttpFunctionID = "Post";
+                        myClass.myLogRecord.OrderNum = aData.PONUMBER;
+                        myClass.myLogRecord.InData = Newtonsoft.Json.JsonConvert.SerializeObject(aData);
 
-            HttpResponseMessage retval; // = ASCResponse.BuildResponse( statusCode, errMsg);
-            Models.ModelResponse resp;
-            if (statusCode == HttpStatusCode.OK)
-            {
-                if (String.IsNullOrEmpty(errMsg))
+                        //ReadMyAppSettings.ReadAppSettings(FuncID);
+                        statusCode = ASCTracInterfaceDll.Imports.ImportPO.doImportPO(myClass, aData, ref errMsg);
+                    }
+                }
+                catch (Exception ex)
                 {
-                    resp = ASCResponse.BuildResponse(statusCode, null);
+                    statusCode = HttpStatusCode.BadRequest;
+                    errMsg = ex.Message;
+                    if (myClass != null)
+                        myClass.LogException(ex);
+                    else
+                        LoggingUtil.LogEventView(funcType, aData.PONUMBER, ex.ToString(), ref errMsg);
+                }
+
+                Models.ModelResponse resp;
+                if (statusCode == HttpStatusCode.OK)
+                {
+                    if (String.IsNullOrEmpty(errMsg))
+                    {
+                        resp = ASCResponse.BuildResponse(statusCode, null);
+                        retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
+                    }
+                    else
+                    {
+                        errMsg = "Purchase Order: " + aData.PONUMBER + ", Missing Items: " + errMsg.Replace("|", ", ").Trim();
+                        resp = ASCResponse.BuildResponse(HttpStatusCode.PreconditionFailed, errMsg);
+                        retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
+                    }
+                }
+                else
+                {
+                    resp = ASCResponse.BuildResponse(statusCode, errMsg, baseUrl, "Post");
                     retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
                 }
-                else
+                //ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.PONUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), fError);
+                if (myClass != null)
                 {
-                    errMsg = "Purchase Order: " + aData.PONUMBER + ", Missing Items: " + errMsg.Replace("|", ", ").Trim();
-                    resp = ASCResponse.BuildResponse( HttpStatusCode.PreconditionFailed, errMsg);
-                    retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
+                    myClass.PostLog(statusCode, errMsg);
                 }
             }
-            else
-            {
-                resp = ASCResponse.BuildResponse(statusCode, errMsg, baseUrl, "Post");
-                retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
-            }
-            //ASCTracInterfaceDll.Class1.LogTransaction(FuncID, aData.PONUMBER, Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(resp), fError);
-            if (myClass != null)
-            {
-                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
-                myClass.PostLog(statusCode, errMsg);
-            }
-
             return (retval);
         }
         /*

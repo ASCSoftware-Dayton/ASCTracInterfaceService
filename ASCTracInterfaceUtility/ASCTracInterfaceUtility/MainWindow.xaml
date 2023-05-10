@@ -10,12 +10,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:telerik="using:Telerik.UI.Xaml.Controls"
     mc:Ignorable="d">
-
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <telerik:RadTabControl x:Name="mytabview" Grid.Row="0" >
-        </telerik:RadTabControl>
-    </Grid>
+    <StackPanel>
+            <MenuBar x:Name="mnuMain">
+                <MenuBarItem Title="File">
+                    <MenuFlyoutItem x:Name="o4" Text="Exit" Click="onExit"/>
+                </MenuBarItem>
+            <MenuBarItem Title="Processes">
+                <MenuFlyoutItem x:Name="mnuProcessesAPILog" Text="API Log" Click="mnuProcessesAPILog_Click"/>
+                <MenuFlyoutItem x:Name="mnuProcessesDBConnection" Text="Setup DB Connection" Click="mnuProcessesDBConnection_Click"/>
+            </MenuBarItem>
+            </MenuBar>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <telerik:RadTabControl x:Name="mytabview" Grid.Row="0" >
+            </telerik:RadTabControl>
+        </Grid>
+    </StackPanel>
 </Window>

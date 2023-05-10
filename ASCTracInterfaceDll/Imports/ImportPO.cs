@@ -355,6 +355,8 @@ namespace ASCTracInterfaceDll.Imports
                 fExist = true;
                 if (poStatus.Equals("C"))
                     errmsg = "Cannot update PO# " + ponum + ": PO is already Completed.";
+                else if (poStatus.Equals("X"))
+                    errmsg = "Cannot update PO# " + ponum + ": PO is already Cancelled.";
             }
             if (String.IsNullOrEmpty(errmsg))
             {
@@ -925,6 +927,14 @@ namespace ASCTracInterfaceDll.Imports
                     //ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updStr, "ALLOW_BACKORDER", "T");
 
                     myClass.myParse.Globals.myDBUtils.InsertRecord("ITEMMSTR", updStr);
+
+                    updStr = "IF NOT EXISTS ( SELECT * FROM ITEMQTY WHERE ASCITEMID='" + ascItemId + "')" +
+                        " BEGIN" +
+                        " INSERT INTO ITEMQTY" +
+                        " (ASCITEMID, QTYTOTAL, QTYALLOC, QTYONHOLD, QTYSUBITEMS, QTYREQUIRED, QTYSCHEDULED)" +
+                        " VALUES('" + ascItemId + "', 0, 0, 0, 0, 0, 0)" + 
+                        " END ";
+                    myClass.myParse.Globals.myDBUtils.RunSqlCommand(updStr);
 
                     myClass.ImportCustomData("ReceiptsNewItem", "ITEMMSTR", "ASCITEMID='" + ascItemId + "'", itemId);  //added 10-17-17 (JXG)
                 }

@@ -24,7 +24,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_INAUD", ref errMsg);
+                myClass = new ASCTracInterfaceDll.Class1();
+                ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, "EX_INAUD", ref errMsg);
                 if (myClass == null)
                     statusCode = HttpStatusCode.InternalServerError;
                 else

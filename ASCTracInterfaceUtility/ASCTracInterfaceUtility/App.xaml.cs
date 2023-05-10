@@ -33,6 +33,8 @@ namespace ASCTracInterfaceUtility
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
+        private Model.ModelDBConnection connection = new Model.ModelDBConnection( string.Empty);
+        public Model.ModelDBConnection Connection { get => connection; set => connection = value; }
         public App()
         {
             this.InitializeComponent();

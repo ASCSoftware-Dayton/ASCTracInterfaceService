@@ -11,9 +11,11 @@
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <BaseOutputPath>C:\Projects\ASCTracInterfaceUtility</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="pageAPILog.xaml" />
+    <None Remove="pageDisplayAPIInfo.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +55,11 @@
     <Reference Include="ASCTracInterfaceService">
       <HintPath>..\..\ASCTracInterfaceService\bin\ASCTracInterfaceService.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="pageDisplayAPIInfo.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="pageAPILog.xaml">

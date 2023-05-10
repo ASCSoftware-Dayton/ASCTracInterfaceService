@@ -27,7 +27,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_PARC", ref errMsg);
+                myClass = new ASCTracInterfaceDll.Class1();
+                ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, "EX_PARC", ref errMsg);
                 if (myClass == null)
                     statusCode = HttpStatusCode.InternalServerError;
                 else
@@ -81,7 +82,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_PARC", ref errMsg);
+                myClass = new ASCTracInterfaceDll.Class1();
+                ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, "EX_PARC", ref errMsg);
                 if (myClass == null)
                     statusCode = HttpStatusCode.InternalServerError;
                 else
@@ -133,7 +135,8 @@ namespace ASCTracInterfaceService.Controllers.Export
             try
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
-                myClass = ASCTracInterfaceDll.Class1.InitParse(baseUrl, "EX_PARC", ref errMsg);
+                myClass = new ASCTracInterfaceDll.Class1();
+                ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, "EX_PARC", ref errMsg);
                 if (myClass == null)
                     statusCode = HttpStatusCode.InternalServerError;
                 else
