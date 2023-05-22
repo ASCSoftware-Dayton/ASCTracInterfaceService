@@ -102,6 +102,9 @@ namespace ASCTracInterfaceDll.WCS
                             errMsg = myClass.myWCSPickImport.ProcessPutaway(aData.TYPE_OF_PICK, itemid, locid, aData.SKIDID,
                                 dtPicked.ToString(), userid);
                             break;
+                        case "X":
+                            errMsg = myClass.myWCSPickImport.ProcessUnpickAndCancel(aData.ORDERNUMBER, dtPicked.ToString(), string.Empty, userid);
+                            break;
                     }
                     if (!String.IsNullOrEmpty(errMsg))
                         retval = HttpStatusCode.BadRequest;

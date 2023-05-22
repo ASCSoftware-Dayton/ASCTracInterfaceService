@@ -589,9 +589,9 @@ namespace ASCTracInterfaceDll
                 else if (!String.IsNullOrEmpty(errmsg))
                     errorType = "WARN";
 
-                //if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
-                //    PostAPILog(statusCode, errmsg, errorType);
-                //else
+                if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
+                    PostAPILog(statusCode, errmsg, errorType);
+                else
                     PostAPPLog(statusCode, errmsg, errorType);
             }
         }
