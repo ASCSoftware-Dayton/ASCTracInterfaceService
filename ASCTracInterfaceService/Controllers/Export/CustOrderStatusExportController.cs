@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -156,16 +157,24 @@ namespace ASCTracInterfaceService.Controllers.Export
                 else
                     LoggingUtil.LogEventView(FuncID, "", ex.ToString(), ref errMsg);
             }
+            Models.ModelResponse resp;
             HttpResponseMessage retval;
             if (statusCode == HttpStatusCode.OK)
-                retval = Request.CreateResponse(statusCode, errMsg);
+                resp = ASCResponse.BuildResponse(statusCode, null);
+            //retval = Request.CreateResponse(statusCode, errMsg);
             else
-                retval = Request.CreateErrorResponse(statusCode, errMsg);
+                resp = ASCResponse.BuildResponse(statusCode, errMsg); //, baseUrl Request.CreateErrorResponse(statusCode, errMsg);
             if (myClass != null)
             {
-                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+                //myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp, Formatting.Indented,
+                    new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
                 myClass.PostLog(statusCode, errMsg);
             }
+            retval = Request.CreateResponse<Models.ModelResponse>(statusCode, resp);
 
             return (retval);
 
