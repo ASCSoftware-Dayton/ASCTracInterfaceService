@@ -16,7 +16,8 @@ namespace ASCTracInterfaceModel
 
 		public string FACILITY { get; set; }
 		public string ORDER_TYPE{ get; set; }
-		public string PONUMBER{ get; set; }
+		public string PONUMBER { get; set; }
+		public string HOST_PONUMBER { get; set; }
 		public string VENDOR_CODE{ get; set; }
 		public string TO_FACILITY { get; set; }
 		//public DateTime LEAVES_DATE { get; set; }

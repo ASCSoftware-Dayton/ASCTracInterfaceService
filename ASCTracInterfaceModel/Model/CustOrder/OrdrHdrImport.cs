@@ -19,6 +19,7 @@ namespace ASCTracInterfaceModel.Model.CustOrder
         public string ORDER_TYPE { get; set; }
 
         public string ORDERNUMBER { get; set; }
+        public string HOST_ORDERNUMBER { get; set; }
 
         //public string CUST_ID { get; set; }
 

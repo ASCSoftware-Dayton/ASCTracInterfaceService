@@ -13,8 +13,12 @@ namespace ASCTracInterfaceDll.Imports
         private Model.PO.POImportConfig currPOImportConfig;
         public static HttpStatusCode doImportPO(Class1 myClass, ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg)
         {
-            //myClass = Class1.InitParse funcType, ref errmsg);
-            HttpStatusCode retval = HttpStatusCode.OK;
+            return( doImportPO(myClass, aData, "I", ref errmsg));
+        }
+            public static HttpStatusCode doImportPO(Class1 myClass, ASCTracInterfaceModel.Model.PO.POHdrImport aData, string aOrderSource, ref string errmsg)
+            {
+                //myClass = Class1.InitParse funcType, ref errmsg);
+                HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.PONUMBER;
             try
             {
@@ -47,13 +51,13 @@ namespace ASCTracInterfaceDll.Imports
                         var myimport = new ImportPO(myClass, siteid);
                         string WarningMsg = string.Empty;
                         if (String.IsNullOrEmpty(aData.ORDER_TYPE))
-                            retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                            retval = myimport.ImportPORecord(aData, aOrderSource, ref errmsg, ref WarningMsg);
                         else if (aData.ORDER_TYPE.Equals("R"))
                             retval = myimport.ImportRMARecord(aData, ref errmsg, ref WarningMsg);
                         else if (aData.ORDER_TYPE.Equals("A"))
                             retval = myimport.ImportASNRecord(aData, ref errmsg, ref WarningMsg);
                         else
-                            retval = myimport.ImportPORecord(aData, ref errmsg, ref WarningMsg);
+                            retval = myimport.ImportPORecord(aData, aOrderSource, ref errmsg, ref WarningMsg);
                         if (!String.IsNullOrEmpty(errmsg))
                             retval = HttpStatusCode.BadRequest;
                         else
@@ -341,7 +345,7 @@ namespace ASCTracInterfaceDll.Imports
         }
         #endregion
         #region PO_REGION
-        private HttpStatusCode ImportPORecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, ref string errmsg, ref string aWarningMsg)
+        private HttpStatusCode ImportPORecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string aOrderSource, ref string errmsg, ref string aWarningMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string ponum = aData.PONUMBER;
@@ -384,7 +388,7 @@ namespace ASCTracInterfaceDll.Imports
                         }
                         if (String.IsNullOrEmpty(errmsg))
                         {
-                            errmsg = ImportPOHeaderRecord(aData, ponum, relnum, fExist);
+                            errmsg = ImportPOHeaderRecord(aData, ponum, relnum, aOrderSource, fExist);
                             if (string.IsNullOrEmpty(errmsg))
                                 errmsg = ImportPODetailRecords(aData, ponum, relnum, ref aWarningMsg);
                             if (string.IsNullOrEmpty(errmsg))
@@ -432,7 +436,7 @@ namespace ASCTracInterfaceDll.Imports
             return (retval);
         }
 
-        private string ImportPOHeaderRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, bool recExists)
+        private string ImportPOHeaderRecord(ASCTracInterfaceModel.Model.PO.POHdrImport aData, string ponum, string relnum, string aOrderSource, bool recExists)
         {
             string retval = String.Empty;
 
@@ -446,6 +450,7 @@ namespace ASCTracInterfaceDll.Imports
             if (!recExists)
             {
                 Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "PONUMBER", ponum);
+                Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "HOST_PONUMBER", aData.HOST_PONUMBER);
                 Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "RELEASENUM", relnum);
                 Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "ORDERTYPE", orderType);
                 ascLibrary.ascStrUtils.ascAppendSetQty(ref updStr, "CREATE_DATE", "GETDATE()");
@@ -453,7 +458,7 @@ namespace ASCTracInterfaceDll.Imports
                 if (importAction != "C")
                     Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "RECEIVED", "O");
                 // ORDER_SOURCE F for Demand Forecasting,  Import, P-PO module, M- MRP, S for plus sign.,A=AutoCreate
-                Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "ORDER_SOURCE", "I");
+                Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "ORDER_SOURCE", aOrderSource); // "I");
                 Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "SITE_ID", siteid);
 
             }

@@ -14,9 +14,13 @@ namespace ASCTracInterfaceDll.Imports
         private Model.CustOrder.COImportConfig currCOImportConfig;
         private Class1 myClass;
 
-        public static HttpStatusCode doImportCustOrder( Class1 myClass,  ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
+        public static HttpStatusCode doImportCustOrder(Class1 myClass, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
         {
-            HttpStatusCode retval = HttpStatusCode.OK;
+            return (doImportCustOrder(myClass, aData, "I", ref errmsg));
+        }
+            public static HttpStatusCode doImportCustOrder(Class1 myClass, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg)
+            {
+                HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.ORDERNUMBER;
             try
             {
@@ -36,7 +40,7 @@ namespace ASCTracInterfaceDll.Imports
                     {
                         string warningmsg = string.Empty;
                         var myimport = new ImportCustOrder(myClass, siteid);
-                        retval = myimport.ImportCORecord(aData, ref errmsg, ref warningmsg);
+                        retval = myimport.ImportCORecord(aData, aOrderSource, ref errmsg, ref warningmsg);
                         if (retval == HttpStatusCode.OK)
                         {
                             errmsg = warningmsg;
@@ -62,7 +66,7 @@ namespace ASCTracInterfaceDll.Imports
             currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
         }
 
-        private HttpStatusCode ImportCORecord( ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg, ref string warningmsg)
+        private HttpStatusCode ImportCORecord( ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg, ref string warningmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string pickstatus = ascLibrary.dbConst.ssNOTSCHED;
@@ -108,7 +112,7 @@ namespace ASCTracInterfaceDll.Imports
                         fOK = PurgeOrderDet(orderNum, ref errmsg);  //moved PurgeOrderDet to after ImportOrderHdr 08-02-16 (JXG)
                     if (fOK)
                     {
-                        if (ImportOrderHdr(orderNum, pickstatus, fExist, aData, ref errmsg))
+                        if (ImportOrderHdr(orderNum, pickstatus, fExist, aData, aOrderSource, ref errmsg))
                         {
                             bool fPostit = false;
                             if (ImportOrderDet(orderNum, pickstatus, aData.ORDER_TYPE, aData, ref errmsg, ref warningmsg))
@@ -622,7 +626,7 @@ namespace ASCTracInterfaceDll.Imports
             }
         }
 
-        private bool ImportOrderHdr(string orderNum, string pickStatus, bool fExist, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, ref string errmsg)
+        private bool ImportOrderHdr(string orderNum, string pickStatus, bool fExist, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg)
         {
             bool retval = true;
             if (fExist && currCOImportConfig.GWUpdateInProgressOrders)
@@ -900,10 +904,11 @@ namespace ASCTracInterfaceDll.Imports
             if (!fExist)  //added 11-10-15 (JXG)
             {
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERNUMBER", orderNum);
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "HOST_ORDERNUMBER", aData.HOST_ORDERNUMBER);
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDERFILLED", "O");
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CREATEDATE", createDate.ToString());
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CREATE_USERID", currCOImportConfig.GatewayUserID); // "GATEWAY";
-                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDER_SOURCE", "I");  //added 06-24-16 (JXG)
+                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDER_SOURCE", aOrderSource);  //added 06-24-16 (JXG)
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDER_SOURCE_SYSTEM", aData.ORDER_SOURCE_SYSTEM);
             }
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "EXPORT", "F");
