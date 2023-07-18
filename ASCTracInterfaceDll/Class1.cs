@@ -23,6 +23,7 @@ namespace ASCTracInterfaceDll
         //private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
         private static ParseNet.ParseNetMain myStaticParse;
+        private bool fPostAPILog = true;
 
         public Model.ModelLog myLogRecord;
 
@@ -37,12 +38,18 @@ namespace ASCTracInterfaceDll
             //else
             //{
             //    retval = new Class1();
-                if (!retval.Init(aURL, aFuncType, ref errmsg))
-                    retval = null;
-                //else
-                //    parseList.Add(aFuncType, retval);
+            if (!retval.Init(aURL, aFuncType, true, ref errmsg))
+                retval = null;
+            //else
+            //    parseList.Add(aFuncType, retval);
             //}
             //return (retval);
+        }
+
+        public static void InitParse(Class1 retval, string aURL, string aFuncType, bool aPostAPILog, ref string errmsg)
+        {
+            if (!retval.Init(aURL, aFuncType, aPostAPILog, ref errmsg))
+                retval = null;
         }
 
         public static Class1 InitParse2(string aConnectionString, string aURL, string aFuncType, ref string errmsg)
@@ -50,12 +57,12 @@ namespace ASCTracInterfaceDll
             Class1 retval;
             fDefaultConnectionStr = aConnectionString;
             retval = new Class1();
-            if (!retval.Init(aURL, aFuncType, ref errmsg))
+            if (!retval.Init(aURL, aFuncType, true, ref errmsg))
                 retval = null;
             return (retval);
         }
 
-        internal bool Init(string URL, string aFuncType, ref string errmsg)
+        internal bool Init(string URL, string aFuncType, bool aPostAPILog, ref string errmsg)
         {
             myLogRecord = new Model.ModelLog(URL, aFuncType);
             string tmp = string.Empty;
@@ -75,6 +82,10 @@ namespace ASCTracInterfaceDll
                     myLogRecord.StartDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
                     fOK = true;
                     myConnStr = myParse.Globals.myDBUtils.myConnString;
+
+                    fPostAPILog = aPostAPILog;
+                    if (fPostAPILog)
+                        fPostAPILog = myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'");
                 }
                 catch
                 {
@@ -589,7 +600,7 @@ namespace ASCTracInterfaceDll
                 else if (!String.IsNullOrEmpty(errmsg))
                     errorType = "WARN";
 
-                if (myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'"))
+                if( fPostAPILog)
                     PostAPILog(statusCode, errmsg, errorType);
                 else
                     PostAPPLog(statusCode, errmsg, errorType);

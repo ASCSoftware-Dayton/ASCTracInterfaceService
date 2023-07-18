@@ -581,6 +581,11 @@
             Import a Controlled Count(Header and Details)
             </summary>
         </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.CustomerMasterImportController.PostCustomerMaster(ASCTracInterfaceModel.Model.Customer.CustomerMasterImport)">
+            <summary>
+            Import an Customer Record
+            </summary>
+        </member>
         <member name="M:ASCTracInterfaceService.Controllers.Import.CustOrderImportController.PostCustOrder(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport)">
             <summary>
             Import a Customer Order (Header and Details)
