@@ -30,7 +30,7 @@ namespace ASCTracInterfaceDll
         //public static ascLibrary.ascDBUtils myInterface
         //public static bool fInitParse = false;
 
-        public static void InitParse( Class1 retval, string aURL, string aFuncType, ref string errmsg)
+        public static void InitParse( ref Class1 retval, string aURL, string aFuncType, ref string errmsg)
         {
             //Class1 retval;
             //if (parseList.ContainsKey(aFuncType))
@@ -109,13 +109,16 @@ namespace ASCTracInterfaceDll
                     myLogRecord.StartDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
 
                 }
-                if (!String.IsNullOrEmpty(errmsg))
-                    throw new Exception("Init Parse for " + aFuncType + " Error " + errmsg);
+                errmsg = "Init Parse Failure Test";
+                fOK = string.IsNullOrEmpty(errmsg);
+                //if (!String.IsNullOrEmpty(errmsg))
+                //    //throw new Exception("Init Parse for " + aFuncType + " Error " + errmsg);
                 //ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
-                else
+                //else
+                if ( fOK )
                 {
                     myParse.Globals.initASCLog("INTERFACE", "ASCTracInterface", "1", "ASCTrac Interface API");
-                    if (aFuncType.StartsWith("WCS") || aFuncType.StartsWith( "Retry"))
+                    if (aFuncType.StartsWith("WCS") || aFuncType.StartsWith("Retry"))
                     {
                         Status = "WCS";
                         string wcsConnStr = string.Empty;
@@ -138,8 +141,8 @@ namespace ASCTracInterfaceDll
             {
                 errmsg = "Initialize Connection Exception: " + "\r\n" + ex.ToString();
                 //WriteException(aFuncType, "InitDatabase", "", errmsg, ex.StackTrace);
-                ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
-                throw ex;
+                //ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
+                //throw ex;
             }
             
             if (!String.IsNullOrEmpty(errmsg))

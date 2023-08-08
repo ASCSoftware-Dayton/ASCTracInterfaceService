@@ -102,7 +102,7 @@ namespace ASCTracInterfaceDll.Imports
 
             stockUom = Utils.ASCUtils.GetTrimString(aData.STOCK_UOM, "EA");
             cwUom = Utils.ASCUtils.GetTrimString(aData.CW_UOM, String.Empty);
-            labelUom = Utils.ASCUtils.GetTrimString(aData.LABEL_UOM, "PL");
+            labelUom = Utils.ASCUtils.GetTrimString(aData.LABEL_UOM, string.Empty);
 
             dualUnitItem = false;
             if (String.IsNullOrEmpty(cwUom) == false)
@@ -290,7 +290,7 @@ namespace ASCTracInterfaceDll.Imports
             if (recExists && currImportConfig.doNotUpdateUOMValues)
                 uom2 = string.Empty;
 
-            uom3 = Utils.ASCUtils.GetTrimString(aData.UNIT3_UOM, uom2);
+            uom3 = Utils.ASCUtils.GetTrimString(aData.UNIT3_UOM, uom3);
             if (recExists && currImportConfig.doNotUpdateUOMValues)
                 uom3 = string.Empty;
 

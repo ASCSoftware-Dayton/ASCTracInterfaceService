@@ -31,7 +31,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 {
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     myClass = new ASCTracInterfaceDll.Class1();
-                    ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, FuncID, ref errMsg);
+                    ASCTracInterfaceDll.Class1.InitParse(ref myClass, baseUrl, FuncID, ref errMsg);
                     if (myClass == null)
                         statusCode = HttpStatusCode.InternalServerError;
                     else
@@ -87,7 +87,7 @@ namespace ASCTracInterfaceService.Controllers.WCS
                 {
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     myClass = new ASCTracInterfaceDll.Class1();
-                    ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, FuncID, ref errMsg);
+                    ASCTracInterfaceDll.Class1.InitParse(ref myClass, baseUrl, FuncID, ref errMsg);
                     if (myClass == null)
                         statusCode = HttpStatusCode.InternalServerError;
                     else

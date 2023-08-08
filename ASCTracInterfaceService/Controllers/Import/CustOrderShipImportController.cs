@@ -25,7 +25,7 @@ namespace ASCTracInterfaceService.Controllers.Import
             {
                 ReadMyAppSettings.ReadAppSettings(FuncID);
                 myClass = new ASCTracInterfaceDll.Class1();
-                ASCTracInterfaceDll.Class1.InitParse(myClass, baseUrl, funcType, ref errMsg);
+                ASCTracInterfaceDll.Class1.InitParse(ref myClass, baseUrl, funcType, ref errMsg);
                 if (myClass == null)
                     statusCode = HttpStatusCode.InternalServerError;
                 else
@@ -64,6 +64,8 @@ namespace ASCTracInterfaceService.Controllers.Import
                 myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
                 myClass.PostLog(statusCode, errMsg);
             }
+            else
+                LoggingUtil.LogEventView(funcType, aOrderNumber, errMsg, ref errMsg);
             return (retval);
         }
     }

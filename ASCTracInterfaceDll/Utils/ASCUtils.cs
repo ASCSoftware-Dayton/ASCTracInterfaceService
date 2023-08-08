@@ -35,20 +35,23 @@ namespace ASCTracInterfaceDll.Utils
             }
             long maxlen = 0;
             bool fISNullable;
+            bool fHasDefault;
             if( myFieldList.ContainsKey( aFieldname))
             {
                 string tmp = myFieldList[aFieldname];
                 maxlen = ascLibrary.ascUtils.ascStrToInt(ascLibrary.ascStrUtils.GetNextWord(ref tmp), 0);
-                fISNullable = tmp.Equals("YES");
+                fISNullable = ascLibrary.ascStrUtils.GetNextWord(ref tmp).Equals("YES");
+                fHasDefault = !String.IsNullOrEmpty(ascLibrary.ascStrUtils.GetNextWord(ref tmp));
             }
             else
             {
                 string tmp = string.Empty;
-                ascLibrary.ascDBUtils.libASCDBUtils.ReadFieldFromDB("SELECT CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='" + aTblName + "' AND COLUMN_NAME='" + aFieldname + "' ", "", ref tmp);
+                ascLibrary.ascDBUtils.libASCDBUtils.ReadFieldFromDB("SELECT CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='" + aTblName + "' AND COLUMN_NAME='" + aFieldname + "' ", "", ref tmp);
                 myFieldList.Add(aFieldname, tmp);
 
                 maxlen = ascLibrary.ascUtils.ascStrToInt(ascLibrary.ascStrUtils.GetNextWord(ref tmp), 0);
-                fISNullable = tmp.Equals("YES");
+                fISNullable = ascLibrary.ascStrUtils.GetNextWord(ref tmp).Equals("YES");
+                fHasDefault = !String.IsNullOrEmpty(ascLibrary.ascStrUtils.GetNextWord(ref tmp));
             }
             if (!String.IsNullOrEmpty(aValue))
             {
@@ -57,7 +60,7 @@ namespace ASCTracInterfaceDll.Utils
 
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, aFieldname, aValue);
             }
-            else if ( !fISNullable)
+            else if ( !fISNullable && !fHasDefault)
                 errmsg += "Value for Column " + aFieldname + " in table " + aTblName + " is required.\r\n";
         }
 
