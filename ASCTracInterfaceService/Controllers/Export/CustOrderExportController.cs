@@ -55,13 +55,25 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
+                if (myClass != null)
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+            }
+            else if (statusCode == HttpStatusCode.NoContent)
+            {
+                errMsg = "No Records Found";
+                var resp = ASCResponse.BuildResponse(HttpStatusCode.OK, errMsg);
+                retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
+                if (myClass != null)
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
             }
             else
+            {
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
-            //ASCTracInterfaceDll.Class1.LogTransaction(FuncID, "", Newtonsoft.Json.JsonConvert.SerializeObject(aData), Newtonsoft.Json.JsonConvert.SerializeObject(retval), statusCode != HttpStatusCode.OK);
+                if (myClass != null)
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+            }
             if (myClass != null)
             {
-                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
                 myClass.PostLog(statusCode, errMsg);
             }
 
@@ -111,12 +123,25 @@ namespace ASCTracInterfaceService.Controllers.Export
             {
                 retval = new HttpResponseMessage(statusCode);
                 retval.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(outdata));
+                if (myClass != null)
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+            }
+            else if (statusCode == HttpStatusCode.NoContent)
+            {
+                errMsg = "No Records Found";
+                var resp = ASCResponse.BuildResponse(HttpStatusCode.OK, errMsg);
+                retval = Request.CreateResponse<Models.ModelResponse>(HttpStatusCode.OK, resp);
+                if (myClass != null)
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(resp);
             }
             else
+            {
                 retval = Request.CreateErrorResponse(statusCode, errMsg);
+                if (myClass != null)
+                    myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
+            }
             if (myClass != null)
             {
-                myClass.myLogRecord.OutData = Newtonsoft.Json.JsonConvert.SerializeObject(retval);
                 myClass.PostLog(statusCode, errMsg);
             }
             return (retval);

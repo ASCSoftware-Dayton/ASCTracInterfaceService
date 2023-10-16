@@ -214,7 +214,8 @@ namespace ASCTracInterfaceDll.Imports
 
             Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "SCC14", Utils.ASCUtils.GetTrimString(aData.SCC14, ""), ref errmsg);
 
-            Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "SHELFLIFE", aData.SHELF_LIFE.ToString(), ref errmsg);
+            if (aData.SHELF_LIFE > 0)
+                Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "SHELFLIFE", aData.SHELF_LIFE.ToString(), ref errmsg);
 
             Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "HOLD_DATA", Utils.ASCUtils.GetTrimString(aData.AUTO_QC_REASON, string.Empty), ref errmsg);
 

@@ -32,9 +32,13 @@ namespace ASCTracInterfaceService.Controllers.Import
                 {
                     ReadMyAppSettings.ReadAppSettings(FuncID);
                     myClass = new ASCTracInterfaceDll.Class1();
-                    ASCTracInterfaceDll.Class1.InitParse(ref myClass, baseUrl, funcType, ref errMsg);
-                    if (myClass == null)
+                    if (!myClass.Init(baseUrl, funcType, true, ref errMsg))
+                    {
+                        myClass = null;
                         statusCode = HttpStatusCode.InternalServerError;
+                        if (string.IsNullOrEmpty(errMsg))
+                            errMsg = "Database Initialization Failed.";
+                    }
                     else
                     {
                         myClass.myLogRecord.HttpFunctionID = "Post";

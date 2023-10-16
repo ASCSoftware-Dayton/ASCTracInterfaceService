@@ -22,9 +22,10 @@ namespace ASCTracInterfaceDll
         internal ASCTracWCSProcess.Imports.dmPickImport myWCSPickImport ;
         //private static Dictionary<string, Class1> parseList = new Dictionary<string, Class1>();
         public ParseNet.ParseNetMain myParse;
-        private static ParseNet.ParseNetMain myStaticParse;
+        //private static ParseNet.ParseNetMain myStaticParse;
         private bool fPostAPILog = true;
 
+        public readonly object LockObject = new object();
         public Model.ModelLog myLogRecord;
 
         //public static ascLibrary.ascDBUtils myInterface
@@ -62,97 +63,104 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
-        internal bool Init(string URL, string aFuncType, bool aPostAPILog, ref string errmsg)
+        public bool Init(string URL, string aFuncType, bool aPostAPILog, ref string errmsg)
         {
-            myLogRecord = new Model.ModelLog(URL, aFuncType);
-            string tmp = string.Empty;
-
-            fLogged = false;
             bool retval = true;
-            string Status = "Status: 004";
-            try
+            lock (LockObject)
             {
-                bool fOK = false;
-                myParse = new ParseNet.ParseNetMain();
-                string myConnStr = string.Empty;
+
+                myLogRecord = new Model.ModelLog(URL, aFuncType);
+                string tmp = string.Empty;
+
+                fLogged = false;
+                string Status = "Status: 004";
+                string asc004ErrMsg = string.Empty;
                 try
                 {
-                    myParse.InitParse("AliasASCTrac");
-                    myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
-                    myLogRecord.StartDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
-                    fOK = true;
-                    myConnStr = myParse.Globals.myDBUtils.myConnString;
-
-                    fPostAPILog = aPostAPILog;
-                    if (fPostAPILog)
-                        fPostAPILog = myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'");
-                }
-                catch
-                {
-                    myParse = new ParseNet.ParseNetMain();
-                    fOK = false;
-                }
-                if (!fOK)
-                {
-                    try
+                    bool fOK = false;
+                    int count = 1;
+                    string myConnStr = string.Empty;
+                    while (!fOK && (count <= 3))
                     {
-                        myConnStr = ""; // ConfigurationManager.ConnectionStrings["ASCTracConnectionString"].ConnectionString;
-                    }
-                    catch
-                    { }
-                    if (String.IsNullOrEmpty(myConnStr))
-                        myConnStr = fDefaultConnectionStr; // "";
-                    Status = "Status: Web.Config";
-                    myParse.InitParse(myConnStr, ref errmsg);
-
-                    myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
-                    myLogRecord.StartDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
-
-                }
-                errmsg = "Init Parse Failure Test";
-                fOK = string.IsNullOrEmpty(errmsg);
-                //if (!String.IsNullOrEmpty(errmsg))
-                //    //throw new Exception("Init Parse for " + aFuncType + " Error " + errmsg);
-                //ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", "Init Parse for " + aFuncType + " Error: " + errmsg, false);
-                //else
-                if ( fOK )
-                {
-                    myParse.Globals.initASCLog("INTERFACE", "ASCTracInterface", "1", "ASCTrac Interface API");
-                    if (aFuncType.StartsWith("WCS") || aFuncType.StartsWith("Retry"))
-                    {
-                        Status = "WCS";
-                        string wcsConnStr = string.Empty;
+                        myParse = new ParseNet.ParseNetMain();
                         try
                         {
-                            ascLibrary.ascDBUtils tmpDBUtils = new ascLibrary.ascDBUtils();
-                            tmpDBUtils.BuildConnectString("AliasWCS");
-                            wcsConnStr = tmpDBUtils.myConnString;
-                        }
-                        catch { }
-                        if (String.IsNullOrEmpty(wcsConnStr))
-                            wcsConnStr = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ascWCSPicking";
+                            myParse.InitParse("AliasASCTrac");
+                            myLogRecord.StartDateTime = myParse.Globals.myDBUtils.GetSQLDateTime();
+                            fOK = true;
+                            myConnStr = myParse.Globals.myDBUtils.myConnString;
 
-                        ASCTracWCSProcess.wcsGlobals.InitWCSGlobalsForInterface("ASCTracInterface", "ASCTracInterface", "ASCWEB", true, myConnStr, wcsConnStr);
-                        myWCSPickImport = new ASCTracWCSProcess.Imports.dmPickImport(aFuncType, myParse.Globals);
+                            fPostAPILog = aPostAPILog;
+                            if (fPostAPILog)
+                                fPostAPILog = myParse.Globals.myDBUtils.ifRecExists("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'API_LOG'");
+                        }
+                        catch (Exception ex)
+                        {
+                            asc004ErrMsg = ex.ToString() + "\r\nRetry Count " + count.ToString();
+                            myParse = new ParseNet.ParseNetMain();
+                            fOK = false;
+                            //if (asc004ErrMsg.Contains("primary key") || asc004ErrMsg.Contains("ConnectionString") || asc004ErrMsg.Contains("Reading of configuration failed"))
+                                count += 1;
+                            //else
+                            //    count = 4;
+                            ascLibrary.ascUtils.ascPause(500);
+                        }
+                    }
+                    if (!fOK)
+                    {
+                        try
+                        {
+                            myConnStr = ""; // ConfigurationManager.ConnectionStrings["ASCTracConnectionString"].ConnectionString;
+                        }
+                        catch
+                        { }
+                        if (String.IsNullOrEmpty(myConnStr))
+                            myConnStr = fDefaultConnectionStr; // "";
+                        Status = "Status: Web.Config";
+                        myParse.InitParse(myConnStr, ref errmsg);
+
+                        myLogRecord.StartDateTime = myParse.Globals.myDBUtils.GetSQLDateTime();
+                    }
+                    fOK = string.IsNullOrEmpty(errmsg);
+
+                    if (fOK)
+                    {
+                        myParse.Globals.initASCLog("INTERFACE", "ASCTracInterface", "1", "ASCTrac Interface API");
+                        if (aFuncType.StartsWith("WCS") || aFuncType.StartsWith("Retry"))
+                        {
+                            Status = "WCS";
+                            string wcsConnStr = string.Empty;
+                            try
+                            {
+                                ascLibrary.ascDBUtils tmpDBUtils = new ascLibrary.ascDBUtils();
+                                tmpDBUtils.BuildConnectString("AliasWCS");
+                                wcsConnStr = tmpDBUtils.myConnString;
+                            }
+                            catch { }
+                            if (String.IsNullOrEmpty(wcsConnStr))
+                                wcsConnStr = "packet size=4096;user id=app_user;Password='WeH73w';data source=asc-cin-app01;persist security info=False;initial catalog=ascWCSPicking";
+
+                            ASCTracWCSProcess.wcsGlobals.InitWCSGlobalsForInterface("ASCTracInterface", "ASCTracInterface", "ASCWEB", true, myConnStr, wcsConnStr);
+                            myWCSPickImport = new ASCTracWCSProcess.Imports.dmPickImport(aFuncType, myParse.Globals);
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                errmsg = "Initialize Connection Exception: " + "\r\n" + ex.ToString();
-                //WriteException(aFuncType, "InitDatabase", "", errmsg, ex.StackTrace);
-                //ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
-                //throw ex;
-            }
-            
-            if (!String.IsNullOrEmpty(errmsg))
-            {
-                retval = false;
-                errmsg += "(" + Status + ")";
-            }
-            else
-                myStaticParse = myParse;
+                catch (Exception ex)
+                {
+                    errmsg = "Initialize Connection Exception: \r\nFirst Exception: " + asc004ErrMsg + "\r\nSecondary Exception: " + ex.ToString();
+                    //WriteException(aFuncType, "InitDatabase", "", errmsg, ex.StackTrace);
+                    //ascLibrary.ascUtils.ascWriteLog("INTERFACE_ERR", ex.ToString(), false);
+                    //throw ex;
+                }
 
+                if (!String.IsNullOrEmpty(errmsg))
+                {
+                    retval = false;
+                    errmsg += "(" + Status + ")";
+                }
+                //else
+                //    myStaticParse = myParse;
+            }
             return (retval);
         }
 
@@ -162,8 +170,8 @@ namespace ASCTracInterfaceDll
             if (!String.IsNullOrEmpty(aHostSiteId))
             {
                 string sqlStr = "SELECT SITE_ID FROM SITES (NOLOCK)" +
-                                " WHERE HOST_SITE_ID='" + aHostSiteId + "'";
-                myParse.Globals.myDBUtils.ReadFieldFromDB(sqlStr, "", ref retval);
+                                " WHERE HOST_SITE_ID=@HOST_SITE_ID"; // '" + aHostSiteId + "'";
+                retval = myParse.Globals.myDBUtils.ReadFieldFromDBWithParam(sqlStr, "@HOST_SITE_ID", aHostSiteId); // sql.ReadFieldFromDB(sqlStr, "", ref retval);
             }
             return (retval);
         }
@@ -622,8 +630,7 @@ namespace ASCTracInterfaceDll
         private void PostAPILog(HttpStatusCode statusCode, string errmsg, string errorType)
         {
             string tmp = string.Empty;
-            myParse.Globals.myDBUtils.ReadFieldFromDB("SELECT GETDATE()", "", ref tmp);
-            myLogRecord.StopDateTime = ascLibrary.ascUtils.ascStrToDate(tmp, DateTime.Now);
+            myLogRecord.StopDateTime  = myParse.Globals.myDBUtils.GetSQLDateTime();
 
             var con = new SqlConnection(myParse.Globals.myDBUtils.myConnString);
             try

@@ -699,8 +699,9 @@ namespace ASCTracInterfaceDll.Imports
                 toSiteID = myClass.GetSiteIdFromHostId(aData.TO_FACILITY);
                 if (!String.IsNullOrEmpty(toSiteID))
                 {
-                    if ( myClass.myParse.Globals.myGetInfo.GetSiteInfo(toSiteID, "CUSTID", ref tmpStr))
-                        stCustId = toSiteID;
+                    myClass.myParse.Globals.myGetInfo.GetSiteInfo(toSiteID, "CUSTID", ref tmpStr);
+                    if (!String.IsNullOrEmpty(tmpStr))
+                        stCustId = tmpStr;
                 }
             }
 

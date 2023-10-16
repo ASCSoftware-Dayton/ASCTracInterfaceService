@@ -44,7 +44,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        public ExportInventoryAudits( Class1 aClass)
+        public ExportInventoryAudits(Class1 aClass)
         {
             myClass = aClass;
             currExportConfig = Configs.ItemConfig.getImportSite("1", myClass.myParse.Globals);
@@ -68,7 +68,7 @@ namespace ASCTracInterfaceDll.Exports
                 sql.Append("'' AS ALT_LOTID ");  //added 08-02-16 (JXG) for Driscoll's
             }
             sql.Append("FROM LOCITEMS LI (NOLOCK) ");
-            if (currExportConfig.InvAuditExportExcludeNonPickable )
+            if (currExportConfig.InvAuditExportExcludeNonPickable)
                 sql.Append("INNER JOIN LOC L (NOLOCK) ON L.LOCATIONID=LI.LOCATIONID AND L.SITE_ID=LI.SITE_ID ");
             sql.Append("LEFT JOIN SITES S (NOLOCK) ON S.SITE_ID=LI.SITE_ID ");
             sql.Append("LEFT JOIN ITEMMSTR I (NOLOCK) ON I.ASCITEMID=LI.ASCITEMID ");
@@ -94,7 +94,7 @@ namespace ASCTracInterfaceDll.Exports
             if (!String.IsNullOrEmpty(aVMICustID))
                 sql.Append("AND LI.VMI_CUSTID='" + aVMICustID + "' ");
             if (!String.IsNullOrEmpty(aSiteID))
-                sql.Append("AND LI.SITE_ID='" + aSiteID+ "' ");
+                sql.Append("AND LI.SITE_ID='" + aSiteID + "' ");
             if (!String.IsNullOrEmpty(aItemID))
                 sql.Append("AND LI.ITEMID='" + aItemID + "' ");
             sql.Append("AND (L2.QTYTOTAL=0 OR L2.QTYTOTAL IS NULL) ");
@@ -119,6 +119,9 @@ namespace ASCTracInterfaceDll.Exports
             conn.Open();
             SqlDataReader drAudit = cmd.ExecuteReader();
 
+            bool exportLotId = Configs.ConfigUtils.ReadConfigSetting("GWExportLotIDInAudits", false, myClass.myParse.Globals);
+            bool excludeNonPickable = Configs.ConfigUtils.ReadConfigSetting("GWExcludeNonPickableInvInAudits", false, myClass.myParse.Globals);
+
             myClass.myParse.Globals.mydmupdate.InitUpdate();
             try
             {
@@ -131,11 +134,11 @@ namespace ASCTracInterfaceDll.Exports
                     double totQty = ascLibrary.ascUtils.ascStrToDouble(drAudit["TOTQTY"].ToString(), 0);
                     double qtyDualUnit = ascLibrary.ascUtils.ascStrToDouble(drAudit["QTYDUALUNIT"].ToString(), 0);
                     string tmpStr = string.Empty;
-                    myClass.myParse.Globals.myGetInfo.GetASCItemInfo( ascItemId, "DUAL_UNIT_ITEM, BILL_UOM, MFG_ID, STANDARDCOST", ref tmpStr);
-                    bool dualUnitItem =  ascLibrary.ascStrUtils.GetNextWord( ref tmpStr).Equals("T");
-                    string billUom = ascLibrary.ascStrUtils.GetNextWord( ref tmpStr);
-                    string mfgId = ascLibrary.ascStrUtils.GetNextWord( ref tmpStr);  //added 03-24-17 (JXG)
-                    string stdCost = ascLibrary.ascStrUtils.GetNextWord( ref tmpStr);  //added 03-24-17 (JXG)
+                    myClass.myParse.Globals.myGetInfo.GetASCItemInfo(ascItemId, "DUAL_UNIT_ITEM, BILL_UOM, MFG_ID, STANDARDCOST", ref tmpStr);
+                    bool dualUnitItem = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr).Equals("T");
+                    string billUom = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);
+                    string mfgId = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);  //added 03-24-17 (JXG)
+                    string stdCost = ascLibrary.ascStrUtils.GetNextWord(ref tmpStr);  //added 03-24-17 (JXG)
 
                     if (currExportConfig.InvAuditExportExcludeZeroQuantity && totQty == 0)
                         continue;
@@ -150,24 +153,22 @@ namespace ASCTracInterfaceDll.Exports
                     if (DateTime.TryParse(drAudit["EXPDATE"].ToString(), out dtExpDate))
                         rec.EXPDATE = dtExpDate;
 
-                        rec.QTY_ALLOCATED  = ascLibrary.ascUtils.ascStrToDouble( drAudit["ALLOCQTY"].ToString(), 0);
-                        rec.QTY_ONHOLD = ascLibrary.ascUtils.ascStrToDouble(drAudit["HOLDQTY"].ToString(), 0);
-                        rec.DATE_TIME = DateTime.Now;
-                        rec.UOM = drAudit["STOCK_UOM"].ToString();
-                        rec.VMI_CUSTID = drAudit["VMI_CUSTID"].ToString();
-                        rec.LOTID = drAudit["LOTID"].ToString();
-                    
+                    rec.QTY_ALLOCATED = ascLibrary.ascUtils.ascStrToDouble(drAudit["ALLOCQTY"].ToString(), 0);
+                    rec.QTY_ONHOLD = ascLibrary.ascUtils.ascStrToDouble(drAudit["HOLDQTY"].ToString(), 0);
+                    rec.DATE_TIME = DateTime.Now;
+                    rec.UOM = drAudit["STOCK_UOM"].ToString();
+                    rec.VMI_CUSTID = drAudit["VMI_CUSTID"].ToString();
+                    rec.LOTID = drAudit["LOTID"].ToString();
+                    rec.ALT_LOTID = drAudit["ALT_LOTID"].ToString();  //added 08-02-16 (JXG) for Driscoll's
 
-                        rec.VMI_CUSTID = drAudit["VMI_CUSTID"].ToString();
+                    rec.VMI_CUSTID = drAudit["VMI_CUSTID"].ToString();
 
-                        rec.ALT_LOTID = drAudit["ALT_LOTID"].ToString();  //added 08-02-16 (JXG) for Driscoll's
-
-                        if (!String.IsNullOrEmpty(mfgId))
-                            rec.MFG_ID = mfgId;
+                    if (!String.IsNullOrEmpty(mfgId))
+                        rec.MFG_ID = mfgId;
                     if (!string.IsNullOrEmpty(stdCost))  //added 03-24-17 (JXG)
                     {
                         //if (Decimal.TryParse(stdCost, out tmpDecimal))
-                        rec.COST_EACH = ascLibrary.ascUtils.ascStrToDouble( stdCost, 0);
+                        rec.COST_EACH = ascLibrary.ascUtils.ascStrToDouble(stdCost, 0);
                     }
 
                     if (!String.IsNullOrEmpty(billUom) || dualUnitItem)
@@ -177,9 +178,7 @@ namespace ASCTracInterfaceDll.Exports
                     }
 
                     aData.Add(rec);
-
                 }
-
             }
             finally
             {
@@ -190,7 +189,5 @@ namespace ASCTracInterfaceDll.Exports
             }
             return (retval);
         }
-
-
     }
 }

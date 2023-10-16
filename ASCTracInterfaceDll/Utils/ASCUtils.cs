@@ -8,7 +8,7 @@ namespace ASCTracInterfaceDll.Utils
     internal class ASCUtils
     {
         private static Dictionary<string, Dictionary<string, string>> myTableList = new Dictionary<string, Dictionary<string, string>>();
-        internal static string GetTrimString( string aValue, string aDefaultValue)
+        internal static string GetTrimString(string aValue, string aDefaultValue)
         {
             string retval = aDefaultValue;
             if (!String.IsNullOrEmpty(aValue))
@@ -23,10 +23,10 @@ namespace ASCTracInterfaceDll.Utils
             if (!String.IsNullOrEmpty(errmsg))
                 throw new Exception(errmsg);
         }
-            internal static void CheckAndAppend(ref string updstr, string aTblName, string aFieldname, string aValue, ref string errmsg)
+        internal static void CheckAndAppend(ref string updstr, string aTblName, string aFieldname, string aValue, ref string errmsg)
         {
             Dictionary<String, string> myFieldList; //
-            if( myTableList.ContainsKey( aTblName))
+            if (myTableList.ContainsKey(aTblName))
                 myFieldList = myTableList[aTblName];
             else
             {
@@ -36,7 +36,7 @@ namespace ASCTracInterfaceDll.Utils
             long maxlen = 0;
             bool fISNullable;
             bool fHasDefault;
-            if( myFieldList.ContainsKey( aFieldname))
+            if (myFieldList.ContainsKey(aFieldname))
             {
                 string tmp = myFieldList[aFieldname];
                 maxlen = ascLibrary.ascUtils.ascStrToInt(ascLibrary.ascStrUtils.GetNextWord(ref tmp), 0);
@@ -60,10 +60,8 @@ namespace ASCTracInterfaceDll.Utils
 
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, aFieldname, aValue);
             }
-            else if ( !fISNullable && !fHasDefault)
+            else if (!fISNullable && !fHasDefault)
                 errmsg += "Value for Column " + aFieldname + " in table " + aTblName + " is required.\r\n";
         }
-
-
     }
 }
