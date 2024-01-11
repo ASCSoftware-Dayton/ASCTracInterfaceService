@@ -606,6 +606,12 @@
             Import a Purchase Order (Header and Details)
             </summary>
         </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.QCHoldController.PostVendor(ASCTracInterfaceModel.Model.QC.QCHoldImport)">
+            <summary>
+            Import a QC Hold Record of structure ASCTracInterfaceModel.Model.QC.QCHoldImport 
+            </summary>
+            <param name="data">The data to be imported.</param>
+        </member>
         <member name="M:ASCTracInterfaceService.Controllers.Import.VendorImportController.PostVendor(ASCTracInterfaceModel.Model.Vendor.VendorImport)">
             <summary>
             Import a Vendor Record of structure ASCTracInterfaceModel.Model.Vendor.VendorImport 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 using System.Text;
@@ -25,11 +26,12 @@ namespace ASCTracInterfaceDll.Exports
                 else
                 {
                     var myExport = new ExportPOLicenses(myClass);
-                    sqlstr = myExport.BuildPOExportSQL(aPOExportfilter, ref errmsg);
+                    Dictionary<string, string> paramlist = new Dictionary<string, string>();
+                    sqlstr = myExport.BuildPOExportSQL(aPOExportfilter, paramlist, ref errmsg);
                     if (!String.IsNullOrEmpty(sqlstr))
                     {
                         myClass.myLogRecord.SQLData = sqlstr;
-                        retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                        retval = myExport.BuildExportList(sqlstr, paramlist, ref aData, ref errmsg);
                     }
                     else
                         retval = HttpStatusCode.BadRequest;
@@ -49,6 +51,7 @@ namespace ASCTracInterfaceDll.Exports
             myClass = aClass;
             currPOExportConfig = Configs.POConfig.getPOExportSite("1", myClass.myParse.Globals);
         }
+        /*
         private string BuildWhereStr(ASCTracInterfaceModel.Model.ModelExportFilter rec)
         {
             string retval = string.Empty;
@@ -56,7 +59,8 @@ namespace ASCTracInterfaceDll.Exports
                 retval = ascLibrary.ascStrUtils.buildwherestr(rec.Fieldname, rec.FilterType.ToString(), rec.Startvalue, rec.Endvalue);
             return (retval);
         }
-        private string BuildPOExportSQL(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter, ref string errmsg)
+        */
+        private string BuildPOExportSQL(ASCTracInterfaceModel.Model.PO.POExportFilter aPOExportfilter, Dictionary<string, string> paramlist, ref string errmsg)
         {
             string postedFlagField = currPOExportConfig.postedFlagField;
             
@@ -80,14 +84,9 @@ namespace ASCTracInterfaceDll.Exports
             if (currPOExportConfig.ExportUnreceivesAsInvAdj)
                 retval += " AND QTY > 0";
 
-            foreach (var rec in aPOExportfilter.ExportFilterList)
-            {
-                string wherestr = BuildWhereStr(rec);
-                if (!String.IsNullOrEmpty(wherestr))
-                {
-                    retval += " AND " + wherestr;
-                }
-            }
+            string wherestr = myClass.BuildWhereFilter(aPOExportfilter.ExportFilterList, "TRANFILE", paramlist);
+            if( !String.IsNullOrEmpty( wherestr))
+                retval += " AND " + wherestr;
             if (!String.IsNullOrEmpty(retval))
             {
                 retval += " GROUP BY SITE_ID, ORDERNUM, RELEASENUM, TRANTYPE, LINENUM, ASCITEMID, ITEMID, LOTID, VENDORID, RECEIVER_ID, SKIDID";
@@ -96,11 +95,15 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, Dictionary<string, string> paramlist, ref List<ASCTracInterfaceModel.Model.PO.POExportLicenses> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
+            foreach (var key in paramlist.Keys)
+            {
+                cmd.Parameters.Add(key, SqlDbType.VarChar).Value = paramlist[key];
+            }
             conn.Open();
             SqlDataReader dr2 = cmd.ExecuteReader();
 

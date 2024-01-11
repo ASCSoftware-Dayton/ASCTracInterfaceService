@@ -104,9 +104,15 @@ namespace ASCTracInterfaceDll.Imports
             cwUom = Utils.ASCUtils.GetTrimString(aData.CW_UOM, String.Empty);
             labelUom = Utils.ASCUtils.GetTrimString(aData.LABEL_UOM, string.Empty);
 
-            dualUnitItem = false;
-            if (String.IsNullOrEmpty(cwUom) == false)
-                dualUnitItem = true;
+            tmpStr = Utils.ASCUtils.GetTrimString(aData.LABEL_UOM, string.Empty);
+            if (String.IsNullOrEmpty(tmpStr))
+            {
+                dualUnitItem = false;
+                if (String.IsNullOrEmpty(cwUom) == false)
+                    dualUnitItem = true;
+            }
+            else
+                dualUnitItem = tmpStr.StartsWith("T");
 
             if (dualUnitItem)
                 buyUom = cwUom;
@@ -254,6 +260,10 @@ namespace ASCTracInterfaceDll.Imports
 
             if (dualUnitItem)
                 Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "DUAL_UNIT_ITEM", "T");
+
+            Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "TI", aData.TI);
+            Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "HI", aData.HI);
+            Utils.ASCUtils.CheckAndAppend(ref updstr, "ITEMMSTR", "EXPIRE_DAYS_PROHIBIT", aData.EXPIRE_DAYS_PROHIBIT);
 
             /*
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr,"LABELDATA1", aData.ITEM_CUSTOMDATA1.Trim());

@@ -158,6 +158,12 @@ namespace ASCTracInterfaceModel.Model.Item
         public string ZONEID { get; set; }
         public double ORDERMINIMUM { get; set; }
         public double MRP_SAFETY_STOCK { get; set; }
+
+        public string TI { get; set; }
+        public string HI { get; set; }
+        public string DUAL_UNIT_ITEM { get; set; }
+        public string EXPIRE_DAYS_PROHIBIT { get; set; }
+
         public Dictionary<string,string> ExtDataList { get; set; }
         public List<NotesImport> NotesList { get; set; }
         public List<ModelCustomData> CustomList { get; set; }

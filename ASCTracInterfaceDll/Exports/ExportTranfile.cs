@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 using System.Text;
@@ -25,11 +26,12 @@ namespace ASCTracInterfaceDll.Exports
                 else
                 {
                     var myExport = new ExportTranfile(myClass);
-                    sqlstr = myExport.BuildExportSQL(aExportfilter, ref errmsg);
+                    Dictionary<string, string> paramlist = new Dictionary<string, string>();
+                    sqlstr = myExport.BuildExportSQL(aExportfilter, paramlist, ref errmsg);
                     if (!String.IsNullOrEmpty(sqlstr))
                     {
                         myClass.myLogRecord.SQLData = sqlstr;
-                        retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                        retval = myExport.BuildExportList(sqlstr, paramlist,  ref aData, ref errmsg);
                     }
                     else
                         retval = HttpStatusCode.BadRequest;
@@ -51,7 +53,7 @@ namespace ASCTracInterfaceDll.Exports
             currExportConfig = Configs.TranfileConfig.getExportSite("1", myClass.myParse.Globals);
         }
 
-        private string BuildExportSQL(ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter aExportFilter, ref string errmsg)
+        private string BuildExportSQL(ASCTracInterfaceModel.Model.TranFile.TranFileExportFilter aExportFilter, Dictionary<string, string> paramlist , ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
             string sqlStr = "SELECT SITES.HOST_SITE_ID, ITEMMSTR.VMI_CUSTID, ITEMMSTR.STOCK_UOM, TRANFILE.* " +
@@ -69,11 +71,17 @@ namespace ASCTracInterfaceDll.Exports
                 "AND SITES.HOST_SITE_ID<>'' AND ISNULL(TRANFILE." + postedFlagField + ",'F') IN (" + currExportConfig.FilterPostedValues + ") ";
 
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sqlStr += "AND ITEMMSTR.VMI_CUSTID='" + aExportFilter.CustID + "' ";
+            {
+                sqlStr += "AND ITEMMSTR.VMI_CUSTID=@custid "; // '" + aExportFilter.CustID + "' ";
+                paramlist.Add("custid", aExportFilter.CustID);
+            }
             if (!String.IsNullOrEmpty(aExportFilter.ExcludeTranType))
                 sqlStr += " and NOT TRANFILE.TRANTYPE IN ( '" + aExportFilter.ExcludeTranType.Replace(",", "','") + "')";
 
-            Utils.FilterUtils.AppendToExportFilter(ref sqlStr, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ITEMMSTR");
+            string wherestr = myClass.BuildWhereFilter(aExportFilter.ExportFilterList, "TRANFILE", paramlist);
+            if (!string.IsNullOrEmpty(wherestr))
+                sqlStr += " AND " + wherestr;
+            //Utils.FilterUtils.AppendToExportFilter(ref sqlStr, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ITEMMSTR");
 
             sqlStr += "ORDER BY SITES.HOST_SITE_ID, TRANFILE.ID";
             return (sqlStr);
@@ -87,11 +95,15 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.TranFile.TranfileExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, Dictionary<string, string> paramlist, ref List<ASCTracInterfaceModel.Model.TranFile.TranfileExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
+            foreach (var key in paramlist.Keys)
+            {
+                cmd.Parameters.Add(key, SqlDbType.VarChar).Value = paramlist[key];
+            }
             conn.Open();
             SqlDataReader drTrans = cmd.ExecuteReader();
 

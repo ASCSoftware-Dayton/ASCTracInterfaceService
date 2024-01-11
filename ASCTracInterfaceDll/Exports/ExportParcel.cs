@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 using System.Text;
@@ -25,12 +26,13 @@ namespace ASCTracInterfaceDll.Exports
                 else
                 {
                     var myexport = new ExportParcel(myClass);
-                    sqlstr = myexport.BuildExportSQL(aExportfilter, ref errmsg);
+                    Dictionary<string, string> paramlist = new Dictionary<string, string>();
+                   sqlstr = myexport.BuildExportSQL(aExportfilter, paramlist, ref errmsg);
                     if (!String.IsNullOrEmpty(sqlstr))
                     {
                         myClass.myLogRecord.SQLData = sqlstr;
-                        retval = myexport.BuildExportList(sqlstr, ref aData, ref errmsg);
-                        myexport.BuildShipmentList(ref aData, ref errmsg);
+                        retval = myexport.BuildExportList(sqlstr, paramlist, ref aData, ref errmsg);
+                        myexport.BuildShipmentList(aExportfilter, ref aData, ref errmsg);
                         if (aData.Count == 0)
                             retval = HttpStatusCode.NoContent;
                         else
@@ -55,7 +57,7 @@ namespace ASCTracInterfaceDll.Exports
             currExportConfig = Configs.ParcelConfig.getExportSite("1", myClass.myParse.Globals);
         }
 
-        private string BuildExportSQL(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportFilter, ref string errmsg)
+        private string BuildExportSQL(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportFilter, Dictionary<string,string> paramlist, ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
             string sqlStr = "SELECT P.*, OH.SALESORDERNUMBER FROM PARCEL P (NOLOCK) " +
@@ -63,19 +65,27 @@ namespace ASCTracInterfaceDll.Exports
                 "LEFT JOIN CUST C (NOLOCK) ON C.CUSTID=OH.SOLDTOCUSTID " +
                 "WHERE P.VOID<>'Y' AND P.VOID<>'T' AND P.EXPORT_TO_HOST<>'T' ";
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sqlStr += "AND (OH.SOLDTOCUSTID='" + aExportFilter.CustID + "' OR C.CLIENT_ID_ASSOCIATION='" + aExportFilter.CustID + "') ";
+            {
+                sqlStr += "AND (OH.SOLDTOCUSTID=@CUSTID OR C.CLIENT_ID_ASSOCIATION=@CUSTID) ";
+                paramlist.Add("CUSTID", aExportFilter.CustID);
+            }
+            //sqlStr += "AND (OH.SOLDTOCUSTID='" + aExportFilter.CustID + "' OR C.CLIENT_ID_ASSOCIATION='" + aExportFilter.CustID + "') ";
 
             sqlStr += "ORDER BY P.TRANS_DATE";
             return (sqlStr);
         }
 
-        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, Dictionary<string, string> paramlist, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
             bool fExportByLot = true; // fExportByLot
 
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
+            foreach (var key in paramlist.Keys)
+            {
+                cmd.Parameters.Add(key, SqlDbType.VarChar).Value = paramlist[key];
+            }
             conn.Open();
             SqlDataReader drParcel = cmd.ExecuteReader();
 
@@ -247,7 +257,7 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private void BuildShipmentList(ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
+        private void BuildShipmentList(ASCTracInterfaceModel.Model.CustOrder.ParcelExporFilter aExportfilter, ref List<ASCTracInterfaceModel.Model.CustOrder.ParcelExport> aData, ref string errmsg)
         {
             string orderNum, proNum, shipmentId, trailerId, salesOrderNum = "";
             bool useTrailerShipments = (myClass.myParse.Globals.myConfig.iniCPInputTrailer.Value != "F");
@@ -255,13 +265,23 @@ namespace ASCTracInterfaceDll.Exports
             if (useTrailerShipments)
             {
                 string sqlStr = "SELECT S.HOST_SITE_ID, SH.PRO_NUM, SH.ORDERNUM, SH.TRAILER_NUM, SH.SHIPMENT_ID, " +
-                    "CARRIER, SHIPPER, ISNULL(FREIGHT,0) AS FREIGHT, ISNULL(SHIPCOST,0) AS SHIPCOST, SHIP_DATETIME " +
-                    "FROM SHIPMENT SH (NOLOCK), SITES S (NOLOCK) " +
-                    "WHERE SH.SITE_ID=S.SITE_ID AND ISNULL(SH.EXPORT, 'F') = 'F' " +
-                    "ORDER BY SH.ORDERNUM";
+                    "SH.CARRIER, SH.SHIPPER, ISNULL(SH.FREIGHT,0) AS FREIGHT, ISNULL(SH.SHIPCOST,0) AS SHIPCOST, SH.SHIP_DATETIME " +
+                    "FROM SHIPMENT SH (NOLOCK)" +
+                    " JOIN SITES S (NOLOCK) ON SH.SITE_ID=S.SITE_ID " +
+                    " JOIN ORDRHDR (NOLOCK) ON ORDRHDR.ORDERNUMBER=SH.ORDERNUM" +
+                    " LEFT JOIN CUST (NOLOCK) ON CUST.CUSTID=ORDRHDR.SOLDTOCUSTID" +
+                    " WHERE ISNULL(SH.EXPORT, 'F') = 'F' ";
+                if (!String.IsNullOrEmpty(aExportfilter.CustID))
+                {
+                    sqlStr += " AND (ORDRHDR.SOLDTOCUSTID=@CUSTID OR CUST.CLIENT_ID_ASSOCIATION=@CUSTID) ";
+                }
+
+                sqlStr += " ORDER BY SH.ORDERNUM";
                 using (SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
                 using (SqlCommand cmd = new SqlCommand(sqlStr, conn))
                 {
+                    if (!String.IsNullOrEmpty(aExportfilter.CustID))
+                        cmd.Parameters.Add("CUSTID", SqlDbType.VarChar).Value = aExportfilter.CustID;
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -303,14 +323,23 @@ namespace ASCTracInterfaceDll.Exports
             }
             else
             {
-                string sqlStr = "SELECT HOST_SITE_ID, PRO_NUM, ORDERNUMBER, CARRIER, SHIPDATE, CARRIER_SERVICE_CODE, " +
-                    "ISNULL(SHIPCOST,0) AS SHIPCOST, ISNULL(SHIPCUSTCOST,0) AS SHIPCUSTCOST, SALESORDERNUMBER " +
-                    "FROM ORDRHDR H (NOLOCK), SITES S (NOLOCK) " +
-                    "WHERE PICKSTATUS='C' AND H.SITE_ID=S.SITE_ID AND ISNULL(H.SHIPMENT_EXPORT, 'F') = 'F' " +
-                    "ORDER BY ORDERNUMBER";
+                string sqlStr = "SELECT S.HOST_SITE_ID, H.PRO_NUM, H.ORDERNUMBER, H.CARRIER, H.SHIPDATE, H.CARRIER_SERVICE_CODE, " +
+                    "ISNULL(H.SHIPCOST,0) AS SHIPCOST, ISNULL(H.SHIPCUSTCOST,0) AS SHIPCUSTCOST, H.SALESORDERNUMBER " +
+                    "FROM ORDRHDR H (NOLOCK) " +
+                    " JOIN SITES S (NOLOCK) ON H.SITE_ID=S.SITE_ID " +
+                    " LEFT JOIN CUST (NOLOCK) ON CUST.CUSTID=H.SOLDTOCUSTID" +
+                    "WHERE H.PICKSTATUS='C' AND H.SITE_ID=S.SITE_ID AND ISNULL(H.SHIPMENT_EXPORT, 'F') = 'F' ";
+                if (!String.IsNullOrEmpty(aExportfilter.CustID))
+                {
+                    sqlStr += " AND (H.SOLDTOCUSTID=@CUSTID OR CUST.CLIENT_ID_ASSOCIATION=@CUSTID) ";
+                }
+                
+                   sqlStr += "ORDER BY H.ORDERNUMBER";
                 using (SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString))
                 using (SqlCommand cmd = new SqlCommand(sqlStr, conn))
                 {
+                    if (!String.IsNullOrEmpty(aExportfilter.CustID))
+                        cmd.Parameters.Add("CUSTID", SqlDbType.VarChar).Value = aExportfilter.CustID;
                     conn.Open();
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {

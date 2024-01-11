@@ -27,12 +27,12 @@ namespace ASCTracInterfaceDll.Exports
                 else
                 {
                     var myExport = new ExportCustOrder(myClass);
-
-                    sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref errmsg);
+                    string custid = string.Empty;
+                    sqlstr = myExport.BuildCustOrderExportSQL(aCOExportfilter, ref custid, ref errmsg);
                     if (!String.IsNullOrEmpty(sqlstr))
                     {
                         myClass.myLogRecord.SQLData = sqlstr;
-                        retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
+                        retval = myExport.BuildExportList(sqlstr, custid, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
                     }
                     else
                         retval = HttpStatusCode.BadRequest;
@@ -54,7 +54,7 @@ namespace ASCTracInterfaceDll.Exports
 
         }
 
-        private string BuildCustOrderExportSQL(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aExportFilter, ref string errmsg)
+        private string BuildCustOrderExportSQL(ASCTracInterfaceModel.Model.CustOrder.CustOrderExportFilter aExportFilter, ref string custid, ref string errmsg)
         {
             string postedFlagField = currExportConfig.postedFlagField;
             string sql = "SELECT SITES.HOST_SITE_ID, TRANFILE.ORDERNUM, TRANFILE.SHIPMENT_ID, TRANFILE.ID, ORDRHDR.CARRIER, ORDRHDR.CARRIER_SERVICE_CODE" +
@@ -76,11 +76,15 @@ namespace ASCTracInterfaceDll.Exports
                 sql += " AND TRANFILE.TRANTYPE='CS' ";
             }
 
-            if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sql += " AND ORDRHDR.SOLDTOCUSTID='" + aExportFilter.CustID + "' ";
-            else if (!String.IsNullOrEmpty(aExportFilter.EDIMasterCustId))
-                sql += " AND (OH.SOLDTOCUSTID='" + aExportFilter.EDIMasterCustId + "' OR CUST.CLIENT_ID_ASSOCIATION='" + aExportFilter.EDIMasterCustId + "') ";
-
+            custid = aExportFilter.CustID;
+            if (String.IsNullOrEmpty(custid))
+                custid = aExportFilter.EDIMasterCustId;
+            if( !String.IsNullOrEmpty( custid))
+            {
+                sql += " AND (ORDRHDR.SOLDTOCUSTID=@CUSTID1 OR CUST.CLIENT_ID_ASSOCIATION=@CUSTID2 )";
+                //"'" + aExportFilter.EDIMasterCustId + "' '" + aExportFilter.EDIMasterCustId + "') ";
+                //sql += " AND ORDRHDR.SOLDTOCUSTID=@SOLDTOCUSTID"; // '" + aExportFilter.CustID + "' ";
+            }
             Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ORDRHDR|CUST");
             sql += "ORDER BY TRANFILE.SHIPMENT_ID, TRANFILE.ORDERNUM, TRANFILE.ID";
             return (sql);
@@ -115,11 +119,16 @@ namespace ASCTracInterfaceDll.Exports
             return altLotId;
         }
 
-        private HttpStatusCode BuildExportList(string sqlstr, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, string custid, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderHeaderExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
+            if( !String.IsNullOrEmpty( custid))
+            {
+                cmd.Parameters.Add("CUSTID1", SqlDbType.VarChar).Value = custid;
+                cmd.Parameters.Add("CUSTID2", SqlDbType.VarChar).Value = custid;
+            }
             conn.Open();
             SqlDataReader dr = cmd.ExecuteReader();
 

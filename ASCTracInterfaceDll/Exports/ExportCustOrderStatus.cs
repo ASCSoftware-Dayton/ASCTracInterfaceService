@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 using System.Text;
@@ -29,7 +30,7 @@ namespace ASCTracInterfaceDll.Exports
                     if (!String.IsNullOrEmpty(sqlstr))
                     {
                         myClass.myLogRecord.SQLData = sqlstr;
-                        retval = myExport.BuildExportList(sqlstr, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
+                        retval = myExport.BuildExportList(sqlstr, aCOExportfilter.CustID, aCOExportfilter.MaxRecords, ref aData, ref errmsg);
                     }
                     else
                         retval = HttpStatusCode.BadRequest;
@@ -63,7 +64,7 @@ namespace ASCTracInterfaceDll.Exports
                 " AND (SITES.HOST_SITE_ID<>'') " +
                 " AND ORDRHDR.ORDERTYPE<>'C' ";  //"AND ORDRHDR.ORDERTYPE<>'T' AND ORDRHDR.PICKSTATUS<>'C' AND ORDRHDR.PICKSTATUS<>'X'"
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sql += " AND ORDRHDR.SOLDTOCUSTID='" + aExportFilter.CustID + "'";
+                sql += " AND ORDRHDR.SOLDTOCUSTID=@CUSTID "; // '" + aExportFilter.CustID + "'";
             Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|ORDRHDR|CUST");
             /*
             sql += " UNION " +
@@ -89,18 +90,23 @@ namespace ASCTracInterfaceDll.Exports
                 "AND (SITES.HOST_SITE_ID<>'') " +
                 "AND (POHDR.ORDERTYPE='S' OR POHDR.ORDERTYPE='T') ";  //"AND ORDRHDR.RECEIVED<>'C' AND ORDRHDR.RECEIVED<>'X'"
             if (!String.IsNullOrEmpty(aExportFilter.CustID))
-                sql += " AND POHDR.VENDORID='" + aExportFilter.CustID + "'";
+                sql += " AND POHDR.VENDORID=@VENDORID "; // '" + aExportFilter.CustID + "'";
             Utils.FilterUtils.AppendToExportFilter(ref sql, aExportFilter.ExportFilterList, "TRANFILE", "SITES|POHDR|CUST");
 
-            sql += "ORDER BY TRANFILE.ORDERNUM, TRANFILE.ID ";  //TRANFILE.TRANTYPE, TRANFILE.ID ";  //changed 07-18-16 (JXG)
+            sql += " ORDER BY TRANFILE.ORDERNUM, TRANFILE.ID ";  //TRANFILE.TRANTYPE, TRANFILE.ID ";  //changed 07-18-16 (JXG)
             return (sql);
         }
 
-        private HttpStatusCode BuildExportList(string sqlstr, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderStatusExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, string custid, long aMaxRecords, ref List<ASCTracInterfaceModel.Model.CustOrder.CustOrderStatusExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
+            if (!String.IsNullOrEmpty(custid))
+            {
+                cmd.Parameters.Add("CUSTID", SqlDbType.VarChar).Value = custid;
+                cmd.Parameters.Add("VENDORID", SqlDbType.VarChar).Value = custid;
+            }
             conn.Open();
             SqlDataReader reader = cmd.ExecuteReader();
 
@@ -238,7 +244,9 @@ namespace ASCTracInterfaceDll.Exports
                     if (!rec.SUCCESSFUL)
                         posted = "E";
                     string where = "ORDERNUM='" + rec.ORDERNUMBER + "' AND TRANTYPE IN ( 'LC', 'LO', 'LR', 'LU', 'CS', 'CU')";
-                    SetPosted( where, rec.ERROR_MESSAGE, posted);
+                    //string where = "ORDERNUM=@ORDERNUM AND TRANTYPE IN ( 'LC', 'LO', 'LR', 'LU', 'CS', 'CU')";
+                    //SetPosted( where, "@ORDERNUM", rec.ORDERNUMBER, rec.ERROR_MESSAGE, posted);
+                    SetPosted(where, rec.ERROR_MESSAGE, posted);
                 }
                 myClass.myParse.Globals.mydmupdate.ProcessUpdates();
             }

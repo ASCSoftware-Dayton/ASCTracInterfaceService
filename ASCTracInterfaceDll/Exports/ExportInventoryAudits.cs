@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 using System.Text;
@@ -25,11 +26,12 @@ namespace ASCTracInterfaceDll.Exports
                 else
                 {
                     var myExport = new ExportInventoryAudits(myClass);
-                    sqlstr = myExport.BuildExportSQL(aVMICustID, aSiteID, aItemID, ref errmsg);
+                    Dictionary<string, string> paramlist = new Dictionary<string, string>();
+                    sqlstr = myExport.BuildExportSQL(aVMICustID, aSiteID, aItemID, paramlist, ref errmsg);
                     if (!String.IsNullOrEmpty(sqlstr))
                     {
                         myClass.myLogRecord.SQLData = sqlstr;
-                        retval = myExport.BuildExportList(sqlstr, ref aData, ref errmsg);
+                        retval = myExport.BuildExportList(sqlstr, paramlist, ref aData, ref errmsg);
                     }
                     else
                         retval = HttpStatusCode.BadRequest;
@@ -50,7 +52,7 @@ namespace ASCTracInterfaceDll.Exports
             currExportConfig = Configs.ItemConfig.getImportSite("1", myClass.myParse.Globals);
         }
 
-        private string BuildExportSQL(string aVMICustID, string aSiteID, string aItemID, ref string errmsg)
+        private string BuildExportSQL(string aVMICustID, string aSiteID, string aItemID, Dictionary<string,string> paramlist, ref string errmsg)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -76,11 +78,11 @@ namespace ASCTracInterfaceDll.Exports
             if (currExportConfig.InvAuditExportExcludeNonPickable)
                 sql.Append("AND ISNULL(L.PICKABLE_FLAG,'')<>'F' ");
             if (!String.IsNullOrEmpty(aVMICustID))
-                sql.Append("AND LI.VMI_CUSTID='" + aVMICustID + "' ");
+                sql.Append("AND LI.VMI_CUSTID=@VMI_CUSTID "); // '" + aVMICustID + "' ");
             if (!String.IsNullOrEmpty(aSiteID))
-                sql.Append("AND LI.SITE_ID='" + aSiteID + "' ");
+                sql.Append("AND LI.SITE_ID=@SITE_ID "); // '" + aSiteID + "' ");
             if (!String.IsNullOrEmpty(aItemID))
-                sql.Append("AND LI.ITEMID='" + aItemID + "' ");
+                sql.Append("AND LI.ITEMID=@ITEMID "); // '" + aItemID + "' ");
             sql.Append("GROUP BY S.SITE_ID, S.HOST_SITE_ID, LI.ASCITEMID, LI.ITEMID, I.STOCK_UOM, I.VMI_CUSTID, LI.EXPDATE ");
             if (currExportConfig.InvAuditExportLotId)
                 sql.Append(", ISNULL(LI.LOTID, '') ");
@@ -92,11 +94,21 @@ namespace ASCTracInterfaceDll.Exports
             sql.Append("LEFT JOIN ITEMQTY L2 (NOLOCK) ON LI.ASCITEMID=L2.ASCITEMID ");
             sql.Append("WHERE S.HOST_SITE_ID<>'' ");
             if (!String.IsNullOrEmpty(aVMICustID))
-                sql.Append("AND LI.VMI_CUSTID='" + aVMICustID + "' ");
+            {
+                sql.Append("AND LI.VMI_CUSTID=@VMI_CUSTID ") ; // '" + aVMICustID + "' ");
+                paramlist.Add("VMI_CUSTID", aVMICustID);
+            }
             if (!String.IsNullOrEmpty(aSiteID))
-                sql.Append("AND LI.SITE_ID='" + aSiteID + "' ");
+            {
+                sql.Append("AND LI.SITE_ID=@SITE_ID "); // '" + aSiteID + "' ");
+                paramlist.Add("SITE_ID", aSiteID);
+            }
             if (!String.IsNullOrEmpty(aItemID))
-                sql.Append("AND LI.ITEMID='" + aItemID + "' ");
+            {
+                sql.Append("AND LI.ITEMID=@ITEMID "); // '" + aSiteID + "' ");
+                paramlist.Add("ITEMID", aItemID);
+            }
+            //sql.Append("AND LI.ITEMID='" + aItemID + "' ");
             sql.Append("AND (L2.QTYTOTAL=0 OR L2.QTYTOTAL IS NULL) ");
             sql.Append("GROUP BY S.SITE_ID, S.HOST_SITE_ID, LI.ASCITEMID, LI.ITEMID, LI.STOCK_UOM, LI.VMI_CUSTID ");
             sql.Append("ORDER BY S.SITE_ID, S.HOST_SITE_ID, LI.ASCITEMID, LI.ITEMID");
@@ -111,11 +123,15 @@ namespace ASCTracInterfaceDll.Exports
             return (retval);
         }
 
-        private HttpStatusCode BuildExportList(string sqlstr, ref List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> aData, ref string errmsg)
+        private HttpStatusCode BuildExportList(string sqlstr, Dictionary<string, string> paramlist, ref List<ASCTracInterfaceModel.Model.Item.InventoryAuditExport> aData, ref string errmsg)
         {
             HttpStatusCode retval = HttpStatusCode.NoContent;
             SqlConnection conn = new SqlConnection(myClass.myParse.Globals.myDBUtils.myConnString);
             SqlCommand cmd = new SqlCommand(sqlstr, conn);
+            foreach( var key in paramlist.Keys)
+            {
+                cmd.Parameters.Add(key, SqlDbType.VarChar).Value = paramlist[key];
+            }
             conn.Open();
             SqlDataReader drAudit = cmd.ExecuteReader();
 

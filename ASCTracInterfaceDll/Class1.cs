@@ -176,6 +176,115 @@ namespace ASCTracInterfaceDll
             return (retval);
         }
 
+        public string BuildWhereFilter(List<ASCTracInterfaceModel.Model.ModelExportFilter> aExportFilterList, string atblName, Dictionary<String,String> paramlist)
+        {
+            string retval = string.Empty;
+            int idx = 1;
+            foreach (var rec in aExportFilterList)
+            {
+                string fieldname = rec.Fieldname;
+                if (myParse.Globals.myDBUtils.IfFieldExists("TRANFILE", fieldname))
+                {
+                    string startval = ascLibrary.ascStrUtils.ConvertDateValue(rec.Startvalue);
+                    string endval = ascLibrary.ascStrUtils.ConvertDateValue(rec.Endvalue);
+
+                    // filter types
+                    //rtRange        = 0;
+                    //rtOutsideRange = 1;
+                    //rtEqualTo      = 2;
+                    //rtNotEqualTo   = 3;
+                    //rtBlank        = 4; 
+                    //rtContains     = 5;
+                    //rtStartsWith   = 6;
+                    //rtEndsWith     = 7;
+                    //rtInSetOf      = 8;
+
+                    string wherestr = "";
+                    string paramname = String.Empty;
+                    string filtertype = rec.FilterType.ToString();
+                    if (filtertype == "0")
+                    {
+                        if (startval != "")
+                        {
+                            paramname = "PARAM" + (idx++).ToString();
+                            wherestr = fieldname + ">=@" + paramname;
+                            paramlist.Add(paramname, startval);
+                        }
+                        if (endval != "")
+                        {
+                            if (!String.IsNullOrEmpty(wherestr))
+                                wherestr += " AND ";
+                            paramname = "PARAM" + (idx++).ToString();
+                            wherestr += fieldname + "<=@" + paramname;
+                            paramlist.Add(paramname, endval);
+                        }
+                    }
+                    else if (filtertype == "1")
+                    {
+                        if (startval != "")
+                        {
+                            paramname = "PARAM" + (idx++).ToString();
+                            wherestr = fieldname + "<@" + paramname;
+                            paramlist.Add(paramname, startval);
+                        }
+                        if (endval != "")
+                        {
+                            if (!String.IsNullOrEmpty(wherestr))
+                                wherestr += " OR ";
+                            paramname = "PARAM" + (idx++).ToString();
+                            wherestr += fieldname + ">@" + paramname;
+                            paramlist.Add(paramname, endval);
+                        }
+
+                    }
+                    else if (filtertype == "8") // setof
+                    {
+                        wherestr = "( " + fieldname + " in ( '" + startval.Replace(" ", "").Replace(",", "','") + "'))";
+                    }
+                    else
+                    {
+                        paramname = "PARAM" + (idx++).ToString();
+                        wherestr = fieldname;
+                        if (filtertype == "2")
+                            wherestr += "= @" + paramname;
+                        else if (filtertype == "3")
+                            wherestr += "<> @" + paramname;
+                        else if (filtertype == "4")
+                            wherestr = "( ISNULL( @" + paramname + ",'') = ''";
+                        else if (filtertype == "5")
+                        {
+                            wherestr += " like @" + paramname;
+                            startval = "%" + startval + "%";
+                          }
+                        else if (filtertype == "6")
+                        {
+                            wherestr += " like @" + paramname;
+                            startval = startval + "%";
+                        }
+                        //wherestr += " like '" + startval + "%'";
+                        else if (filtertype == "7")
+                        {
+                            wherestr += " like @" + paramname;
+                            startval = "%" + startval;
+                        }
+                        //wherestr += " like '%" + startval + "'";
+                        else
+                            wherestr = "";
+                        if (!String.IsNullOrEmpty(wherestr))
+                            paramlist.Add(paramname, startval);
+                    }
+
+
+                    if (!String.IsNullOrEmpty(wherestr))
+                    {
+                        retval += " AND ( " + wherestr + ")";
+                    }
+                }
+            }
+
+            return (retval);
+        }
+
         internal bool FunctionAuthorized( string aFuncType)
         {
             bool retval = true;

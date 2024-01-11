@@ -196,6 +196,7 @@
     <Compile Include="Controllers\Import\CustOrderShipImportController.cs" />
     <Compile Include="Controllers\Import\ItemMasterImportController.cs" />
     <Compile Include="Controllers\Import\POImportController.cs" />
+    <Compile Include="Controllers\Import\QCHoldController.cs" />
     <Compile Include="Controllers\Import\VendorImportController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Controllers\WCS\WCSCancelController.cs" />

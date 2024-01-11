@@ -82,7 +82,8 @@ namespace ASCTracInterfaceService.Filters
                     if (fUsingAuthentication)
                     {
                         string tmp = string.Empty;
-                        if (myDBUtils.ReadFieldFromDB("SELECT START_DATE, END_DATE, GetDate() FROM ASCREST_AUTH WHERE TOKEN_VALUE='" + token + "'", "", ref tmp))
+                        if( myDBUtils.ReadFieldsFromDBWithParam("SELECT START_DATE, END_DATE, GetDate() FROM ASCREST_AUTH WHERE TOKEN_VALUE=@TOKEN_VALUE", "@TOKEN_VALUE", token, ref tmp))
+                        //if (myDBUtils.ReadFieldFromDB("SELECT START_DATE, END_DATE, GetDate() FROM ASCREST_AUTH WHERE TOKEN_VALUE='" + token + "'", "", ref tmp))
                         {
                             DateTime startDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);
                             DateTime endDT = ascLibrary.ascUtils.ascStrToDate(ascLibrary.ascStrUtils.GetNextWord(ref tmp), DateTime.MinValue);
