@@ -64,7 +64,9 @@ namespace ASCTracInterfaceDll.Imports
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string custId = aData.CUST_ID.Trim();
-            string masterCustId = aData.MASTER_CUSTID.Trim();
+            string masterCustId = string.Empty;
+            if( !String.IsNullOrEmpty( aData.MASTER_CUSTID))
+                masterCustId = aData.MASTER_CUSTID.Trim();
 
             string sql = "SELECT NULL FROM CUST (NOLOCK) WHERE CUSTID='" + custId + "'";
             string tmpStr = string.Empty;

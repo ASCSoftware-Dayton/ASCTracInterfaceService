@@ -18,9 +18,9 @@ namespace ASCTracInterfaceDll.Imports
         {
             return (doImportCustOrder(myClass, aData, "I", ref errmsg));
         }
-            public static HttpStatusCode doImportCustOrder(Class1 myClass, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg)
-            {
-                HttpStatusCode retval = HttpStatusCode.OK;
+        public static HttpStatusCode doImportCustOrder(Class1 myClass, ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg)
+        {
+            HttpStatusCode retval = HttpStatusCode.OK;
             string OrderNum = aData.ORDERNUMBER;
             try
             {
@@ -66,7 +66,7 @@ namespace ASCTracInterfaceDll.Imports
             currCOImportConfig = Configs.CustOrderConfig.getCOImportSite(siteid, myClass.myParse.Globals);
         }
 
-        private HttpStatusCode ImportCORecord( ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg, ref string warningmsg)
+        private HttpStatusCode ImportCORecord(ASCTracInterfaceModel.Model.CustOrder.OrdrHdrImport aData, string aOrderSource, ref string errmsg, ref string warningmsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
             string pickstatus = ascLibrary.dbConst.ssNOTSCHED;
@@ -166,14 +166,14 @@ namespace ASCTracInterfaceDll.Imports
                     }
                 }
             }
-                if (string.IsNullOrEmpty(errmsg))
-                {
-                    myClass.myParse.Globals.mydmupdate.ProcessUpdates();
-                }
-                else
-                    retval = HttpStatusCode.BadRequest;
+            if (string.IsNullOrEmpty(errmsg))
+            {
+                myClass.myParse.Globals.mydmupdate.ProcessUpdates();
+            }
+            else
+                retval = HttpStatusCode.BadRequest;
 
-            
+
             return (retval);
         }
 
@@ -190,7 +190,7 @@ namespace ASCTracInterfaceDll.Imports
                     pickStatus == "H" || pickStatus == "U");
         }
 
-        private void RemoveOrderFromGroups( string orderNum)
+        private void RemoveOrderFromGroups(string orderNum)
         {
             string batchnum = string.Empty;
             if (myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "WAVE_NUM, BATCH_NUM", ref batchnum))
@@ -423,7 +423,7 @@ namespace ASCTracInterfaceDll.Imports
                         myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
 
                         sql = "DELETE FROM PCEPICKING WHERE RECID='" + orderNum + "' ";
-                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql); 
+                        myClass.myParse.Globals.mydmupdate.AddToUpdate(sql);
                         myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                     }
 
@@ -462,12 +462,12 @@ namespace ASCTracInterfaceDll.Imports
             return (okToDelete);
         }
 
-        private bool DeleteOrder( string orderNum, ref string errmsg)
+        private bool DeleteOrder(string orderNum, ref string errmsg)
         {
 
             try
             {
-                if (CancelOrder( orderNum, false))
+                if (CancelOrder(orderNum, false))
                 {
                     bool okToDelete = CheckIfPicked(orderNum);
 
@@ -712,7 +712,7 @@ namespace ASCTracInterfaceDll.Imports
             if (createDate == DateTime.MinValue)
                 createDate = DateTime.Now;
             string updstr = string.Empty;
-            if (!currCOImportConfig.useB2BLogic && !ordertype.Equals( "T"))
+            if (!currCOImportConfig.useB2BLogic && !ordertype.Equals("T"))
             {
                 // SHIP TO
                 if (!String.IsNullOrEmpty(stCustId) && !myClass.myParse.Globals.myGetInfo.GetCustInfo(stCustId, "CUSTID", ref tmpStr))
@@ -754,7 +754,7 @@ namespace ASCTracInterfaceDll.Imports
 
                 }
                 // BILL TO
-                if (!String.IsNullOrEmpty(btCustId) && !stCustId.Equals( btCustId, StringComparison.OrdinalIgnoreCase) && !myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "CUSTID", ref tmpStr))
+                if (!String.IsNullOrEmpty(btCustId) && !stCustId.Equals(btCustId, StringComparison.OrdinalIgnoreCase) && !myClass.myParse.Globals.myGetInfo.GetCustInfo(btCustId, "CUSTID", ref tmpStr))
                 {
                     updstr = string.Empty;
                     Utils.ASCUtils.CheckAndAppend(ref updstr, "CUST", "CUSTID", btCustId);
@@ -994,7 +994,7 @@ namespace ASCTracInterfaceDll.Imports
                 ////////////////////////////////
                 //CheckFieldChanged("H", false, orderNum, fExist, "MUST_ARRIVE_BY_DATE", ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty( ref updstr, "MUST_ARRIVE_BY_DATE, aData.MUST_ARRIVE_BY_DATE);  //added 09-17-15 (JXG) for Driscoll's
                 Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CUSTORDERCAT", custOrderCat);  // aData.CUSTORDERCAT");
-                                                                                                             //added 12-22-15 (JXG) for Didion
+                                                                                                     //added 12-22-15 (JXG) for Didion
                 if (aData.MUST_ARRIVE_BY_DATE != DateTime.MinValue)
                 {
                     var theTime = aData.MUST_ARRIVE_BY_DATE.ToString("HH:mm:ss");
@@ -1508,7 +1508,7 @@ namespace ASCTracInterfaceDll.Imports
 
                 string orderfilled = ascLibrary.dbConst.osOPEN;
                 if (importAction.Equals("H") || importAction.Equals("S") || importAction.Equals("T") || importAction.Equals("X"))
-                    orderfilled  = importAction;
+                    orderfilled = importAction;
 
                 string linkedWONum = string.Empty;
                 string oldASCItemid = string.Empty;
@@ -1574,8 +1574,8 @@ namespace ASCTracInterfaceDll.Imports
                                         "AND SEQNUM=" + lineNum);
                             }
                         }
-                        if( !oldASCItemid.Equals( ascItemId, StringComparison.InvariantCultureIgnoreCase))
-                            Utils.AllocUtil.BackoutPreAllocationForOrderDet(orderNum, lineNum, myClass.myParse.Globals); 
+                        if (!oldASCItemid.Equals(ascItemId, StringComparison.InvariantCultureIgnoreCase))
+                            Utils.AllocUtil.BackoutPreAllocationForOrderDet(orderNum, lineNum, myClass.myParse.Globals);
                     }
 
                     string updstr = string.Empty;
@@ -1695,7 +1695,7 @@ namespace ASCTracInterfaceDll.Imports
                             myClass.myParse.Globals.mydmupdate.SetItemMasterQty("QTYREQUIRED", ascItemId, newQtyOrdered, false);
                         }
                     }
-                            string promoCode = aData.PROMO_CODE;
+                    string promoCode = aData.PROMO_CODE;
                     if (!String.IsNullOrEmpty(promoCode) && myClass.myParse.Globals.myConfig.iniCPAllowPromoAlloc.boolValue)
                     {
                         sqlStr = "SELECT MASTER_CLIENT FROM PROMOS (NOLOCK) WHERE PROMO_CODE='" + promoCode + "'";
@@ -1855,12 +1855,12 @@ namespace ASCTracInterfaceDll.Imports
             }
             */
             myClass.myParse.Globals.mydmupdate.ProcessUpdates();
-            CalcEstShipWeight( orderNum);
+            CalcEstShipWeight(orderNum);
 
             return retval;
         }
 
-        private void SetupOrderBatch( string orderNum, string batchNum)
+        private void SetupOrderBatch(string orderNum, string batchNum)
         {
             string updStr = string.Empty;
 
@@ -2211,7 +2211,7 @@ namespace ASCTracInterfaceDll.Imports
                 }
                 catch (Exception e1)
                 {
-                    myClass.WriteException( "IM_ORDER", "AfterOrderImport", orderNum, e1.Message, e1.StackTrace);
+                    myClass.WriteException("IM_ORDER", "AfterOrderImport", orderNum, e1.Message, e1.StackTrace);
                 }
 
                 sql = "UPDATE ORDRDET SET ORDERFILLED='T' WHERE ORDERNUMBER='" + orderNum + "' AND ASCITEMID IN ( SELECT ASCITEMID FROM ITEMMSTR WHERE PURORMFG='K')";
@@ -2249,7 +2249,7 @@ namespace ASCTracInterfaceDll.Imports
         public static HttpStatusCode doImportCustOrderConfirmShip(Class1 myClass, string aOrderNum, ref string aErrMsg)
         {
             HttpStatusCode retval = HttpStatusCode.OK;
-           // myClass = Class1.InitParse(funcType, ref aErrMsg);
+            // myClass = Class1.InitParse(funcType, ref aErrMsg);
 
             if (myClass == null)
                 retval = HttpStatusCode.InternalServerError;
