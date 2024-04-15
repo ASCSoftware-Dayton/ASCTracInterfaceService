@@ -103,7 +103,10 @@ namespace ASCTracInterfaceDll.Imports
                 {
                     RemoveOrderFromGroups(orderNum);
 
-                    CancelOrder(orderNum, true);
+                    if ( !CancelOrder(orderNum, true))
+                    {
+                        errmsg = "Cancel Order failed.  Order either shipped or picked.";
+                    }
                 }
                 else
                 {
@@ -374,9 +377,8 @@ namespace ASCTracInterfaceDll.Imports
                                     }
                                 }
                             }
-                            myClass.myParse.Globals.mydmupdate.ProcessUpdates();
-
                         }
+                        myClass.myParse.Globals.mydmupdate.ProcessUpdates();
                     }
                 }
             }
@@ -467,7 +469,12 @@ namespace ASCTracInterfaceDll.Imports
 
             try
             {
-                if (CancelOrder(orderNum, false))
+                if (!CancelOrder(orderNum, false))
+                {
+                    errmsg = "Cancel Order failed.  Order either shipped or picked.";
+                    return false;
+                }
+                else
                 {
                     bool okToDelete = CheckIfPicked(orderNum);
 
