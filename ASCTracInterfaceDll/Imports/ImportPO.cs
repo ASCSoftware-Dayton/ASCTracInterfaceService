@@ -460,8 +460,9 @@ namespace ASCTracInterfaceDll.Imports
                 // ORDER_SOURCE F for Demand Forecasting,  Import, P-PO module, M- MRP, S for plus sign.,A=AutoCreate
                 Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "ORDER_SOURCE", aOrderSource); // "I");
                 Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "SITE_ID", siteid);
-
             }
+            else if (importAction == "Q")
+                Utils.ASCUtils.CheckAndAppend(ref updStr, "POHDR", "RECEIVED", "O");
 
             if (importAction == "C")
             {
@@ -740,7 +741,9 @@ namespace ASCTracInterfaceDll.Imports
                         Utils.ASCUtils.CheckAndAppend(ref updStr, "PODET", "QTYLASTRECV", "0");
                         Utils.ASCUtils.CheckAndAppend(ref updStr, "PODET", "LINETOTAL", "0");
                     }
-
+                    else if ( importAction == "Q")
+                        Utils.ASCUtils.CheckAndAppend(ref updStr, "PODET", "RECEIVED", "O");
+                    
                     // Only change item id if po not already started to receive
                     if (!recExists || qtyRcvd == 0)
                     {
