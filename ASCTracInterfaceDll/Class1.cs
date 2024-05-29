@@ -173,6 +173,9 @@ namespace ASCTracInterfaceDll
                                 " WHERE HOST_SITE_ID=@HOST_SITE_ID"; // '" + aHostSiteId + "'";
                 retval = myParse.Globals.myDBUtils.ReadFieldFromDBWithParam(sqlStr, "@HOST_SITE_ID", aHostSiteId); // sql.ReadFieldFromDB(sqlStr, "", ref retval);
             }
+            if (!string.IsNullOrEmpty(retval))
+                myParse.Globals.initsite(retval);
+
             return (retval);
         }
 

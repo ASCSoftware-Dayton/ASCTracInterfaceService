@@ -174,7 +174,7 @@ namespace ASCTracInterfaceDll.Imports
             Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "SITE_ID", siteid);
             Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "TRANSFER_SITE_ID", fromSiteId);
             if (aData.CREATE_DATETIME == DateTime.MinValue)
-                ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATE", "GetDate()");
+                ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATE", myClass.myParse.Globals.curTranDateTime.ToString()); //
             else
                 Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "CREATE_DATE", aData.CREATE_DATETIME.ToString());
             Utils.ASCUtils.CheckAndAppend( ref updstr, "ASN_HDR", "VENDORID", aData.VENDORID);

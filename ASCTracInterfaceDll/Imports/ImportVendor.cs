@@ -79,7 +79,7 @@ namespace ASCTracInterfaceDll.Imports
                         if (!recExists)
                         {
                             Utils.ASCUtils.CheckAndAppend(ref updstr, "VENDOR", "VENDORID", vendId);
-                            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATETIME", "GETDATE()");
+                            ascLibrary.ascStrUtils.ascAppendSetQty(ref updstr, "CREATE_DATETIME", myClass.myParse.Globals.curTranDateTime.ToString()); //"GETDATE()");
                             Utils.ASCUtils.CheckAndAppend(ref updstr, "VENDOR", "CREATE_USERID", "GW");
                             myClass.myParse.Globals.myDBUtils.InsertRecord("VENDOR", updstr);
                         }

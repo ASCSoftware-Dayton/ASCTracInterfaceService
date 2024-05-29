@@ -717,7 +717,7 @@ namespace ASCTracInterfaceDll.Imports
             DateTime createDate = aData.ORDER_CREATE_DATE;
 
             if (createDate == DateTime.MinValue)
-                createDate = DateTime.Now;
+                createDate = myClass.myParse.Globals.curTranDateTime; // DateTime.Now;
             string updstr = string.Empty;
             if (!currCOImportConfig.useB2BLogic && !ordertype.Equals("T"))
             {
@@ -920,7 +920,7 @@ namespace ASCTracInterfaceDll.Imports
                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "ORDER_SOURCE_SYSTEM", aData.ORDER_SOURCE_SYSTEM);
             }
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "EXPORT", "F");
-            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LAST_UPDATE", DateTime.Now.ToString()); // AscDbUtils.GetSqlDate();  //DateTime.Now.ToString();  //added 01-27-16 (JXG) for Didion
+            ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LAST_UPDATE", myClass.myParse.Globals.curTranDateTime.ToString()); // AscDbUtils.GetSqlDate();  //DateTime.Now.ToString();  //added 01-27-16 (JXG) for Didion
             ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "LAST_UPDATE_USERID", currCOImportConfig.GatewayUserID); // "GATEWAY";  //added 01-27-16 (JXG) for Didion
 
             if (UpdateAltofieldsOnly)
@@ -990,7 +990,7 @@ namespace ASCTracInterfaceDll.Imports
                 if (aData.ENTRY_DATE != DateTime.MinValue)
                     ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "CUSTOMERORDERDATE", aData.ENTRY_DATE.ToString());
                 if (!fExist)  //added 11-10-15 (JXG)
-                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "OURORDERDATE", DateTime.Now.ToString());
+                    ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updstr, "OURORDERDATE", myClass.myParse.Globals.curTranDateTime.ToString()); //
                 Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CARRIER", sCarrier);
                 Utils.ASCUtils.CheckAndAppend(ref updstr, "ORDRHDR", "CARRIER_SERVICE_CODE", sServiceCode);
 
@@ -1774,7 +1774,7 @@ namespace ASCTracInterfaceDll.Imports
                             {
                                 string reqShipDate = string.Empty;
                                 DateTime dtReqShipDate;
-                                DateTime dtSchedDate = DateTime.Now;
+                                DateTime dtSchedDate = myClass.myParse.Globals.curTranDateTime; //DateTime.Now;
                                 myClass.myParse.Globals.myGetInfo.GetOrderInfo(orderNum, "REQUIREDSHIPDATE", ref reqShipDate);
                                 if (!String.IsNullOrEmpty(reqShipDate) && nLeadTime > 0)
                                 {
@@ -1793,7 +1793,7 @@ namespace ASCTracInterfaceDll.Imports
                                 updstr = string.Empty;
                                 ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "WORKORDER_ID", woNum);
                                 ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "SITE_ID", siteid);
-                                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "CREATE_DATE", DateTime.Now.ToString());
+                                ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "CREATE_DATE", myClass.myParse.Globals.curTranDateTime.ToString()); //DateTime.Now.ToString());
                                 ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "CREATE_USERID", currCOImportConfig.GatewayUserID);
                                 ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "PROD_ITEMID", itemId);
                                 ascLibrary.ascStrUtils.ascAppendSetStr(ref updstr, "PROD_ASCITEMID", ascItemId);
@@ -1979,7 +1979,7 @@ namespace ASCTracInterfaceDll.Imports
                                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "RECEIVED", "O");
                                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ORDERTYPE", "T");
                                 ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ORDER_SOURCE", "I");
-                                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ORDERDATE", DateTime.Now.Date.ToString());
+                                ascLibrary.ascStrUtils.AscAppendSetStrIfNotEmpty(ref updStr, "ORDERDATE", myClass.myParse.Globals.curTranDateTime.ToShortDateString()); //DateTime.Now.Date.ToString());
                                 if (!string.IsNullOrEmpty(reqShipDate))
                                 {
                                     DateTime.TryParse(reqShipDate, out dtReqShipDate);
@@ -2207,7 +2207,7 @@ namespace ASCTracInterfaceDll.Imports
                 if (currCOImportConfig.GWLogChangedOrderTranfile)
                 {
                     string errmsg = string.Empty;
-                    myClass.myParse.Globals.LogTrans.LogTranToOrder(DateTime.Now, orderNum, ascLibrary.dbConst.ltCHANGEORDER, "", tmpStr, "", ref errmsg);
+                    myClass.myParse.Globals.LogTrans.LogTranToOrder(myClass.myParse.Globals.curTranDateTime, orderNum, ascLibrary.dbConst.ltCHANGEORDER, "", tmpStr, "", ref errmsg);
                 }
 
                 // Now check the priority table to determine if the print pick and pack
@@ -2269,7 +2269,7 @@ namespace ASCTracInterfaceDll.Imports
                     //Service1.Parse.Globals.curSiteID = siteId;
                     myClass.myParse.Globals.initsite(siteId);
                     myClass.myParse.Globals.mydmupdate.InitUpdate();
-                    ascLibrary.TDBReturnType ret = myClass.myParse.Globals.dmConfShip.confirmshiporder(aOrderNum, "", "T", false, false, true, DateTime.Now);
+                    ascLibrary.TDBReturnType ret = myClass.myParse.Globals.dmConfShip.confirmshiporder(aOrderNum, "", "T", false, false, true, myClass.myParse.Globals.curTranDateTime);
                     if (ret == ascLibrary.TDBReturnType.dbrtOK)
                     {
                         myClass.myParse.Globals.mydmupdate.ProcessUpdates();
