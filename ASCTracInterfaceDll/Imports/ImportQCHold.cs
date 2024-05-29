@@ -35,7 +35,7 @@ namespace ASCTracInterfaceDll.Imports
                     }
                     else
                     {
-                        myClass.myParse.Globals.initsite(siteid);
+                       // myClass.myParse.Globals.initsite(siteid);
                         string refnum = string.Empty;
                         if ( aData.Hold_Ref_Num > 0)
                             aData.Hold_Ref_Num.ToString();

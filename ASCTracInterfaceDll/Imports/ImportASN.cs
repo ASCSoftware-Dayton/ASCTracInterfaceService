@@ -156,7 +156,7 @@ namespace ASCTracInterfaceDll.Imports
 
             if (!String.IsNullOrEmpty(aData.FROM_FACILITY))
             {
-                fromSiteId = myClass.GetSiteIdFromHostId(aData.FROM_FACILITY);
+                fromSiteId = myClass.GetSiteIdFromHostId(aData.FROM_FACILITY, false);
                 if (String.IsNullOrEmpty(fromSiteId))
                 {
                     errmsg = "No site exists in ASCTrac with Host Site ID '" + aData.FROM_FACILITY + "'.";

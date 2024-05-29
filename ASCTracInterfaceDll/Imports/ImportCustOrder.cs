@@ -703,7 +703,7 @@ namespace ASCTracInterfaceDll.Imports
             if (ordertype.Equals("T"))
             {
                 var ToFacility = aData.TO_FACILITY;
-                toSiteID = myClass.GetSiteIdFromHostId(aData.TO_FACILITY);
+                toSiteID = myClass.GetSiteIdFromHostId(aData.TO_FACILITY, false);
                 if (!String.IsNullOrEmpty(toSiteID))
                 {
                     myClass.myParse.Globals.myGetInfo.GetSiteInfo(toSiteID, "CUSTID", ref tmpStr);
