@@ -601,6 +601,11 @@
             Import an Item Record
             </summary>
         </member>
+        <member name="M:ASCTracInterfaceService.Controllers.Import.LotImportController.PostLot(ASCTracInterfaceModel.Model.Lot.LotImport)">
+            <summary>
+            Import a Lot Record
+            </summary>
+        </member>
         <member name="M:ASCTracInterfaceService.Controllers.Import.POImportController.PostPO(ASCTracInterfaceModel.Model.PO.POHdrImport)">
             <summary>
             Import a Purchase Order (Header and Details)
